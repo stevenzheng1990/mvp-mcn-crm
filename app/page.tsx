@@ -992,7 +992,7 @@ function ChartCard({ title, type, data }: {
             label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
           >
             {data.map((entry: any, index: number) => (
-              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              <Cell key={`cell-${index}`} fill={MORANDI_COLORS[index % MORANDI_COLORS.length]} />
             ))}
           </Pie>
           <Tooltip />
