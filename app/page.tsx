@@ -1000,7 +1000,7 @@ function ChartCard({ title, type, data }: {
       );
     }
     
-    return null;
+    return <></>;
   };
 
   return (
