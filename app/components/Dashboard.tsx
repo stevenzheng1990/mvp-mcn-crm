@@ -9,7 +9,6 @@ import {
   RefreshCw, Loader2, Calendar, AlertTriangle, Upload, FileText, 
   LogOut, BarChart3, UserCheck, Trash2, Eye, EyeOff 
 } from 'lucide-react';
-import type { Creator, Account, Deal, ProcessedData } from '../types';
 
 // 莫兰迪色系
 const MORANDI_COLORS = ['#a8b5c8', '#9caf88', '#d4b5a0', '#c7b299', '#d4a5a5', '#b8b5b1'];
