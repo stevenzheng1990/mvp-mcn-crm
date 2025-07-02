@@ -949,65 +949,66 @@ function AlertCard({ type, icon: Icon, title, content, action, actionText }: {
 }
 
 // 图表卡片组件
-function ChartCard({ title, data, type }: {
+function ChartCard({ title, type, data }: {
   title: string;
-  data: any;
   type: 'line' | 'bar' | 'pie';
+  data: any[];
 }) {
-  if (!data || data.length === 0) {
-    return (
-      <div className="chart-container-morandi">
-        <h3 className="text-lg font-semibold text-[var(--morandi-stone)] mb-6">{title}</h3>
-        <div className="h-64 flex items-center justify-center">
-          <p className="text-[var(--morandi-mist)]">暂无数据</p>
-        </div>
-      </div>
-    );
-  }
+  const renderChart = () => {
+    if (type === 'line') {
+      return (
+        <LineChart data={data}>
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--morandi-pearl)" />
+          <XAxis dataKey="month" stroke="#6b7280" />
+          <YAxis stroke="#6b7280" />
+          <Tooltip formatter={(value) => [`¥${Number(value).toLocaleString()}`, '营收']} />
+          <Line type="monotone" dataKey="revenue" stroke="#0ea5e9" strokeWidth={3} />
+        </LineChart>
+      );
+    }
+    
+    if (type === 'bar') {
+      return (
+        <BarChart data={data}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+          <XAxis dataKey="name" stroke="#6b7280" />
+          <YAxis stroke="#6b7280" />
+          <Tooltip formatter={(value) => [Number(value).toLocaleString(), '数量']} />
+          <Bar dataKey="count" fill="#0ea5e9" />
+        </BarChart>
+      );
+    }
+    
+    if (type === 'pie') {
+      return (
+        <PieChart>
+          <Pie
+            data={data}
+            cx="50%"
+            cy="50%"
+            outerRadius={100}
+            fill="#8884d8"
+            dataKey="value"
+            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+          >
+            {data.map((entry: any, index: number) => (
+              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+            ))}
+          </Pie>
+          <Tooltip />
+        </PieChart>
+      );
+    }
+    
+    return null;
+  };
 
   return (
-    <div className="chart-container-morandi">
+    <div className="bg-white rounded-2xl shadow p-6">
       <h3 className="text-lg font-semibold text-[var(--morandi-stone)] mb-6">{title}</h3>
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
-          {type === 'line' && (
-            <LineChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--morandi-pearl)" />
-              <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: 'var(--morandi-mist)', fontSize: 12 }} />
-              <YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--morandi-mist)', fontSize: 12 }} />
-              <Tooltip />
-              <Line type="monotone" dataKey="value" stroke="var(--morandi-cloud)" strokeWidth={3} dot={{ fill: 'var(--morandi-cloud)' }} />
-            </LineChart>
-          )}
-          
-          {type === 'bar' && (
-            <BarChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--morandi-pearl)" />
-              <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: 'var(--morandi-mist)', fontSize: 12 }} />
-              <YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--morandi-mist)', fontSize: 12 }} />
-              <Tooltip />
-              <Bar dataKey="value" fill="var(--morandi-sage)" radius={[8, 8, 0, 0]} />
-            </BarChart>
-          )}
-          
-          {type === 'pie' && (
-            <PieChart>
-              <Pie
-                data={data}
-                cx="50%"
-                cy="50%"
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-              >
-                {data.map((entry: any, index: number) => (
-                  <Cell key={`cell-${index}`} fill={MORANDI_COLORS[index % MORANDI_COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          )}
+          {renderChart()}
         </ResponsiveContainer>
       </div>
     </div>
