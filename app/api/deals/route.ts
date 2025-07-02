@@ -1,0 +1,165 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { googleSheetsService } from '@/lib/googleSheets';
+
+export async function GET() {
+  try {
+    const deals = await googleSheetsService.getDeals();
+    
+    // 过滤掉空行和无效数据
+    const validDeals = deals.filter(deal => 
+      deal.dealId && deal.dealId.trim() !== ''
+    );
+
+    // 格式化数据
+    const formattedDeals = validDeals.map(deal => ({
+      id: deal.dealId || '',
+      creatorId: deal.id || '',
+      partner: deal.partner || '',
+      type: deal.type || '',
+      date: deal.date || '',
+      channel: deal.channel || '',
+      amount: deal.amount ? parseFloat(deal.amount.toString().replace(/[,¥$]/g, '')) || 0 : 0,
+      transferCycle: deal.transferCycle || '',
+      transferDate: deal.transferDate || '',
+      transferStatus: deal.transferStatus || '',
+      receivedAmount: deal.receivedAmount ? parseFloat(deal.receivedAmount.toString().replace(/[,¥$]/g, '')) || 0 : 0,
+      companyShare: deal.companyShare ? parseFloat(deal.companyShare.toString().replace(/[,¥$]/g, '')) || 0 : 0,
+      creatorShare: deal.creatorShare ? parseFloat(deal.creatorShare.toString().replace(/[,¥$]/g, '')) || 0 : 0,
+      unallocated: deal.unallocated || '',
+      informalDetails: deal.informalDetails || ''
+    }));
+
+    return NextResponse.json({
+      success: true,
+      data: formattedDeals,
+      total: formattedDeals.length
+    });
+
+  } catch (error) {
+    console.error('Error fetching deals:', error);
+    return NextResponse.json(
+      { 
+        success: false, 
+        error: 'Failed to fetch deals data',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const dealData = await request.json();
+    
+    // 验证必要字段
+    if (!dealData.creatorId || !dealData.partner || !dealData.amount) {
+      return NextResponse.json(
+        { success: false, error: 'Missing required fields' },
+        { status: 400 }
+      );
+    }
+
+    // 构建要添加到Google Sheets的行数据
+    const rowData = [
+      dealData.id,
+      dealData.creatorId,
+      dealData.partner,
+      dealData.type,
+      dealData.date,
+      dealData.channel,
+      dealData.amount,
+      dealData.transferCycle,
+      dealData.transferDate,
+      dealData.transferStatus,
+      dealData.receivedAmount,
+      dealData.companyShare,
+      dealData.creatorShare,
+      dealData.unallocated,
+      dealData.informalDetails
+    ];
+
+    await googleSheetsService.appendSheet('业配记录 (Deals)', [rowData]);
+    
+    return NextResponse.json({
+      success: true,
+      message: 'Deal created successfully'
+    });
+
+  } catch (error) {
+    console.error('Error creating deal:', error);
+    return NextResponse.json(
+      { 
+        success: false, 
+        error: 'Failed to create deal',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(request: NextRequest) {
+  try {
+    const dealData = await request.json();
+    
+    if (!dealData.id) {
+      return NextResponse.json(
+        { success: false, error: 'Deal ID is required' },
+        { status: 400 }
+      );
+    }
+
+    // 读取现有数据
+    const data = await googleSheetsService.readSheet('业配记录 (Deals)');
+    if (data.length === 0) throw new Error('No data found in sheet');
+
+    const headers = data[0];
+    const rows = data.slice(1);
+    
+    // 找到要更新的行
+    const rowIndex = rows.findIndex(row => row[0] === dealData.id);
+    if (rowIndex === -1) {
+      throw new Error(`Deal with ID ${dealData.id} not found`);
+    }
+
+    // 构建更新的行数据
+    const updatedRow = [
+      dealData.id,
+      dealData.creatorId,
+      dealData.partner,
+      dealData.type,
+      dealData.date,
+      dealData.channel,
+      dealData.amount,
+      dealData.transferCycle,
+      dealData.transferDate,
+      dealData.transferStatus,
+      dealData.receivedAmount,
+      dealData.companyShare,
+      dealData.creatorShare,
+      dealData.unallocated,
+      dealData.informalDetails
+    ];
+
+    // 更新到Google Sheets
+    const range = `A${rowIndex + 2}:${String.fromCharCode(65 + headers.length - 1)}${rowIndex + 2}`;
+    await googleSheetsService.writeSheet('业配记录 (Deals)', range, [updatedRow]);
+    
+    return NextResponse.json({
+      success: true,
+      message: 'Deal updated successfully'
+    });
+
+  } catch (error) {
+    console.error('Error updating deal:', error);
+    return NextResponse.json(
+      { 
+        success: false, 
+        error: 'Failed to update deal',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      },
+      { status: 500 }
+    );
+  }
+}

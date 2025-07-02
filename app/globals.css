@@ -1,0 +1,383 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@layer base {
+  html {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 400;
+  }
+  
+  body {
+    @apply antialiased;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    color: #495057;
+    font-weight: 400;
+  }
+
+  /* 莫兰迪色系自定义属性 - 微调版 */
+  :root {
+    --morandi-sage: #689b80;      /* 淡雅绿 - 提高饱和度 */
+    --morandi-dust: #d1a688;      /* 尘土色 - 提高饱和度 */
+    --morandi-cloud: #9ba8cc;     /* 云朵蓝 - 提高饱和度 */
+    --morandi-sand: #c4a582;      /* 沙色 - 提高饱和度 */
+    --morandi-mist: #a8a5a0;      /* 迷雾灰 - 稍微加深 */
+    --morandi-rose: #d19090;      /* 玫瑰粉 - 提高饱和度 */
+    --morandi-stone: #6b6b6b;     /* 石头灰 - 明显加深对比 */
+    --morandi-cream: #f2efea;     /* 奶油色 - 稍微调整 */
+    --morandi-ash: #747474;       /* 灰烬色 - 加深对比 */
+    --morandi-pearl: #ebe8e3;     /* 珍珠白 - 稍微加深对比 */
+  }
+}
+
+@layer components {
+  .btn-morandi-primary {
+    @apply px-6 py-3 rounded-2xl font-medium transition-all duration-300 ease-out;
+    background: linear-gradient(135deg, var(--morandi-cloud) 0%, var(--morandi-sage) 100%);
+    color: white;
+    box-shadow: 0 4px 20px rgba(155, 168, 204, 0.35);
+    border: none;
+  }
+  
+  .btn-morandi-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(155, 168, 204, 0.45);
+  }
+  
+  .btn-morandi-secondary {
+    @apply px-6 py-3 rounded-2xl font-medium transition-all duration-300 ease-out;
+    background: var(--morandi-pearl);
+    color: var(--morandi-stone);
+    border: 1px solid rgba(116, 116, 116, 0.25);
+  }
+  
+  .btn-morandi-secondary:hover {
+    background: var(--morandi-cream);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+  }
+
+  .card-morandi {
+    @apply rounded-3xl p-8 transition-all duration-300 ease-out;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  }
+  
+  .card-morandi:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+  }
+
+  .input-morandi {
+    @apply w-full px-6 py-4 rounded-2xl font-medium transition-all duration-300 ease-out;
+    background: var(--morandi-pearl);
+    border: 1px solid rgba(168, 165, 160, 0.35);
+    color: var(--morandi-stone);
+    font-size: 15px;
+  }
+  
+  .input-morandi:focus {
+    outline: none;
+    border-color: var(--morandi-cloud);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(155, 168, 204, 0.12);
+  }
+  
+  .input-morandi::placeholder {
+    color: var(--morandi-ash);
+    font-weight: 400;
+  }
+
+  .nav-tab-morandi {
+    @apply px-8 py-4 font-medium transition-all duration-300 ease-out border-b-2;
+    color: var(--morandi-stone);
+    border-color: transparent;
+    font-size: 15px;
+  }
+  
+  .nav-tab-morandi.active {
+    color: var(--morandi-cloud);
+    border-color: var(--morandi-cloud);
+    background: linear-gradient(to bottom, transparent 0%, rgba(155, 168, 204, 0.06) 100%);
+  }
+  
+  .nav-tab-morandi:hover:not(.active) {
+    color: var(--morandi-sage);
+    background: rgba(143, 169, 117, 0.06);
+  }
+
+  .stat-card-morandi {
+    @apply relative overflow-hidden;
+  }
+  
+  .stat-card-morandi::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--morandi-sage) 0%, var(--morandi-cloud) 50%, var(--morandi-dust) 100%);
+  }
+
+  .modal-morandi {
+    @apply fixed inset-0 flex items-center justify-center z-50 p-6;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+  }
+  
+  .modal-content-morandi {
+    @apply rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+  }
+
+  .header-morandi {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 249, 250, 0.9) 100%);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(168, 181, 200, 0.2);
+  }
+
+  .logo-container {
+    @apply flex items-center gap-4;
+  }
+  
+  .logo-container img {
+    @apply h-10 w-auto;
+    filter: contrast(0.8) brightness(1.1);
+  }
+
+  .search-morandi {
+    @apply relative;
+  }
+  
+  .search-morandi::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 20px;
+    width: 18px;
+    height: 18px;
+    transform: translateY(-50%);
+    background: var(--morandi-mist);
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'%3E%3C/path%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+  }
+
+  .table-morandi {
+    @apply w-full;
+  }
+  
+  .table-morandi thead {
+    background: linear-gradient(135deg, var(--morandi-pearl) 0%, var(--morandi-cream) 100%);
+  }
+  
+  .table-morandi th {
+    @apply px-8 py-6 text-left font-semibold;
+    color: var(--morandi-stone);
+    font-size: 14px;
+    letter-spacing: 0.5px;
+  }
+  
+  .table-morandi td {
+    @apply px-8 py-6 border-b border-gray-100;
+    color: var(--morandi-stone);
+    font-size: 14px;
+  }
+  
+  .table-morandi tbody tr:hover {
+    background: rgba(168, 181, 200, 0.03);
+  }
+
+  .chart-container-morandi {
+    @apply p-8 rounded-3xl;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 249, 250, 0.9) 100%);
+    border: 1px solid rgba(156, 175, 136, 0.1);
+  }
+}
+
+/* 自定义滚动条 - 莫兰迪风格 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--morandi-pearl);
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, var(--morandi-mist) 0%, var(--morandi-cloud) 100%);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, var(--morandi-cloud) 0%, var(--morandi-sage) 100%);
+}
+
+/* 加载动画 - 莫兰迪风格 */
+@keyframes morandi-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-morandi-spin {
+  animation: morandi-spin 1.5s linear infinite;
+}
+
+@keyframes morandi-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.animate-morandi-pulse {
+  animation: morandi-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes morandi-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-morandi-fade-in {
+  animation: morandi-fade-in 0.6s ease-out;
+}
+
+/* 图标统一样式 */
+.icon-morandi {
+  color: var(--morandi-mist);
+  transition: all 0.3s ease;
+}
+
+.icon-morandi:hover {
+  color: var(--morandi-cloud);
+  transform: scale(1.05);
+}
+
+/* 状态颜色 */
+.status-success {
+  background: linear-gradient(135deg, var(--morandi-sage) 0%, rgba(156, 175, 136, 0.8) 100%);
+  color: white;
+}
+
+.status-warning {
+  background: linear-gradient(135deg, var(--morandi-dust) 0%, rgba(212, 181, 160, 0.8) 100%);
+  color: white;
+}
+
+.status-error {
+  background: linear-gradient(135deg, var(--morandi-rose) 0%, rgba(212, 165, 165, 0.8) 100%);
+  color: white;
+}
+
+.status-info {
+  background: linear-gradient(135deg, var(--morandi-cloud) 0%, rgba(168, 181, 200, 0.8) 100%);
+  color: white;
+}
+
+/* 渐进增强样式 */
+.loaded {
+  animation: fadeIn 0.6s ease-out;
+}
+
+/* 键盘导航样式 */
+.keyboard-navigation *:focus {
+  outline: 2px solid var(--morandi-cloud) !important;
+  outline-offset: 2px !important;
+  border-radius: 8px !important;
+}
+
+/* 屏幕阅读器专用 */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* 高对比度模式支持 */
+@media (prefers-contrast: high) {
+  :root {
+    --morandi-stone: #333333;
+    --morandi-mist: #666666;
+    --morandi-cloud: #0066cc;
+  }
+}
+
+/* 减少动画偏好 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* 深色模式支持（预留） */
+@media (prefers-color-scheme: dark) {
+  /* 未来可以在这里添加深色模式样式 */
+}
+
+/* 打印样式 */
+@media print {
+  * {
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  
+  .btn-morandi-primary,
+  .btn-morandi-secondary {
+    border: 1px solid black !important;
+  }
+  
+  .card-morandi {
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+  }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .card-morandi {
+    @apply p-6 rounded-2xl;
+  }
+  
+  .btn-morandi-primary,
+  .btn-morandi-secondary {
+    @apply px-4 py-2 text-sm rounded-xl;
+  }
+  
+  .input-morandi {
+    @apply px-4 py-3 text-sm rounded-xl;
+  }
+  
+  .nav-tab-morandi {
+    @apply px-4 py-3 text-sm;
+  }
+}
