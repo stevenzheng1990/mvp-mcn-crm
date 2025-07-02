@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import type { Creator, Account, Deal, ProcessedData, Pagination } from '../types';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
   LineChart, Line, PieChart, Pie, Cell 
@@ -104,7 +105,7 @@ export function Dashboard({
                 refreshing={refreshing}
                 totalCount={creators.length}
                 pagination={pagination.creators}
-                setPagination={(p) => onPaginationChange('creators', p)}
+                setPagination={(p: Pagination) => onPaginationChange('creators', p)}
               />
             )}
 
@@ -118,7 +119,7 @@ export function Dashboard({
                 refreshing={refreshing}
                 totalCount={accounts.length}
                 pagination={pagination.accounts}
-                setPagination={(p) => onPaginationChange('accounts', p)}
+                setPagination={(p: Pagination) => onPaginationChange('accounts', p)}
               />
             )}
 
@@ -136,7 +137,7 @@ export function Dashboard({
                 refreshing={refreshing}
                 totalCount={deals.length}
                 pagination={pagination.deals}
-                setPagination={(p) => onPaginationChange('deals', p)}
+                setPagination={(p: Pagination) => onPaginationChange('deals', p)}
               />
             )}
           </div>
