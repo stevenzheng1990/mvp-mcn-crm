@@ -1,7 +1,10 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { utils } from '../components/Dashboard';
 import type { Creator, Account, Deal, ProcessedData, ModalType } from '../types';
-
+interface SortConfig {
+  key: string;
+  direction: 'asc' | 'desc';
+}
 // 数据处理 Hook
 function useDataProcessing(creators: Creator[], accounts: Account[], deals: Deal[]): ProcessedData {
   return useMemo(() => {
@@ -107,6 +110,17 @@ export function useDataManagement(isAuthenticated: boolean) {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [deals, setDeals] = useState<Deal[]>([]);
   
+  // 🆕 在这里添加排序状态（在 deals 状态后面）：
+  const [sortConfigs, setSortConfigs] = useState<{
+    creators: SortConfig | null;
+    accounts: SortConfig | null;
+    deals: SortConfig | null;
+  }>({
+    creators: null,
+    accounts: null,
+    deals: null,
+  });
+  
   // 模态框状态
   const [modals, setModals] = useState({
     edit: { open: false, isNew: false, data: null as any },
@@ -122,53 +136,156 @@ export function useDataManagement(isAuthenticated: boolean) {
     accounts: { page: 1, size: 50 },
     deals: { page: 1, size: 50 },
   });
+  // 🆕 排序处理函数
+  const handleSort = useCallback((type: 'creators' | 'accounts' | 'deals', key: string) => {
+    setSortConfigs(prev => {
+      const currentSort = prev[type];
+      let direction: 'asc' | 'desc' = 'asc';
+      
+      if (currentSort && currentSort.key === key && currentSort.direction === 'asc') {
+        direction = 'desc';
+      }
+      
+      return {
+        ...prev,
+        [type]: { key, direction }
+      };
+    });
+    
+    // 排序后重置到第一页
+    setPaginationForType(type, { page: 1 });
+  }, []);
+
+  // 🆕 通用排序函数
+  const sortData = useCallback((data: any[], sortConfig: SortConfig | null) => {
+    if (!sortConfig) return data;
+
+    return [...data].sort((a, b) => {
+      const aValue = a[sortConfig.key];
+      const bValue = b[sortConfig.key];
+
+      if (aValue === null || aValue === undefined) return 1;
+      if (bValue === null || bValue === undefined) return -1;
+
+      let comparison = 0;
+      
+      // 特殊处理数字字段
+      if (['followers', 'price', 'amount', 'receivedAmount', 'commission'].includes(sortConfig.key)) {
+        const aNum = parseFloat(String(aValue).replace(/[^\d.-]/g, '')) || 0;
+        const bNum = parseFloat(String(bValue).replace(/[^\d.-]/g, '')) || 0;
+        comparison = aNum - bNum;
+      } 
+      // 特殊处理日期字段
+      else if (['interviewDate', 'updateDate', 'date', 'transferDate'].includes(sortConfig.key)) {
+        const aDate = new Date(aValue || 0).getTime();
+        const bDate = new Date(bValue || 0).getTime();
+        comparison = aDate - bDate;
+      }
+      // 默认字符串排序
+      else {
+        comparison = String(aValue).localeCompare(String(bValue), 'zh-CN');
+      }
+
+      return sortConfig.direction === 'asc' ? comparison : -comparison;
+    });
+  }, []);
 
   // 数据处理
   const processedData = useDataProcessing(creators, accounts, deals);
 
   // 过滤数据
-  const filteredData = useMemo(() => {
+  const filteredAndSortedData = useMemo(() => {
     const lowerSearchTerm = searchTerm.toLowerCase();
     
-    return {
-      creators: creators.filter(creator => {
-        if (!creator || !creator.id) return false;
-        
-        const matchesSearch = !searchTerm || 
-          (creator.id?.toLowerCase().includes(lowerSearchTerm)) ||
-          (creator.realName?.toLowerCase().includes(lowerSearchTerm)) ||
-          (creator.wechatName?.toLowerCase().includes(lowerSearchTerm)) ||
-          (creator.city?.toLowerCase().includes(lowerSearchTerm)) ||
-          (creator.category?.toLowerCase().includes(lowerSearchTerm));
-        
-        const matchesStatus = statusFilter === 'all' ||
-          (statusFilter === 'signed' && creator.contractStatus === '已签约') ||
-          (statusFilter === 'pending' && creator.contractStatus === '签约意向');
-        
-        return matchesSearch && matchesStatus;
-      }),
+    // 1. 先过滤
+    const filteredCreators = creators.filter(creator => {
+      if (!creator || !creator.id) return false;
       
-      deals: deals.filter(deal => {
-        if (!deal || !deal.id) return false;
-        
-        const creator = creators.find(c => c && c.id === deal.creatorId);
-        const creatorName = creator?.realName || '';
-        
-        const matchesSearch = !searchTerm ||
-          (deal.id?.toLowerCase().includes(lowerSearchTerm)) ||
-          (deal.partner?.toLowerCase().includes(lowerSearchTerm)) ||
-          (creatorName.toLowerCase().includes(lowerSearchTerm));
-        
-        const matchesStatus = statusFilter === 'all' ||
-          (statusFilter === 'pending' && deal.transferStatus === '待转账') ||
-          (statusFilter === 'processing' && deal.transferStatus === '处理中') ||
-          (statusFilter === 'completed' && deal.transferStatus === '已转账') ||
-          (statusFilter === 'overdue' && utils.isOverdue(deal));
-        
-        return matchesSearch && matchesStatus;
-      })
+      const matchesSearch = !searchTerm || 
+        (creator.id?.toLowerCase().includes(lowerSearchTerm)) ||
+        (creator.realName?.toLowerCase().includes(lowerSearchTerm)) ||
+        (creator.wechatName?.toLowerCase().includes(lowerSearchTerm)) ||
+        (creator.city?.toLowerCase().includes(lowerSearchTerm)) ||
+        (creator.category?.toLowerCase().includes(lowerSearchTerm));
+      
+      const matchesStatus = statusFilter === 'all' ||
+        (statusFilter === 'signed' && creator.contractStatus === '已签约') ||
+        (statusFilter === 'pending' && creator.contractStatus === '签约意向');
+      
+      return matchesSearch && matchesStatus;
+    });
+
+    const filteredAccounts = accounts.filter(account => {
+      if (!account || !account.creatorId) return false;
+      
+      const creator = creators.find(c => c && c.id === account.creatorId);
+      const creatorName = creator?.realName || '';
+      
+      const matchesSearch = !searchTerm ||
+        (creatorName.toLowerCase().includes(lowerSearchTerm)) ||
+        (account.platform?.toLowerCase().includes(lowerSearchTerm));
+      
+      return matchesSearch;
+    });
+
+    const filteredDeals = deals.filter(deal => {
+      if (!deal || !deal.id) return false;
+      
+      const creator = creators.find(c => c && c.id === deal.creatorId);
+      const creatorName = creator?.realName || '';
+      
+      const matchesSearch = !searchTerm ||
+        (deal.id?.toLowerCase().includes(lowerSearchTerm)) ||
+        (deal.partner?.toLowerCase().includes(lowerSearchTerm)) ||
+        (creatorName.toLowerCase().includes(lowerSearchTerm));
+      
+      const matchesStatus = statusFilter === 'all' ||
+        (statusFilter === 'pending' && deal.transferStatus === '待转账') ||
+        (statusFilter === 'processing' && deal.transferStatus === '处理中') ||
+        (statusFilter === 'completed' && deal.transferStatus === '已转账') ||
+        (statusFilter === 'overdue' && utils.isOverdue(deal));
+      
+      return matchesSearch && matchesStatus;
+    });
+
+    // 2. 再排序
+    const sortedCreators = sortData(filteredCreators, sortConfigs.creators);
+    const sortedAccounts = sortData(filteredAccounts, sortConfigs.accounts);
+    const sortedDeals = sortData(filteredDeals, sortConfigs.deals);
+
+    // 3. 最后分页
+    const creatorsStartIndex = (pagination.creators.page - 1) * pagination.creators.size;
+    const accountsStartIndex = (pagination.accounts.page - 1) * pagination.accounts.size;
+    const dealsStartIndex = (pagination.deals.page - 1) * pagination.deals.size;
+
+    const paginatedCreators = sortedCreators.slice(
+      creatorsStartIndex, 
+      creatorsStartIndex + pagination.creators.size
+    );
+    const paginatedAccounts = sortedAccounts.slice(
+      accountsStartIndex, 
+      accountsStartIndex + pagination.accounts.size
+    );
+    const paginatedDeals = sortedDeals.slice(
+      dealsStartIndex, 
+      dealsStartIndex + pagination.deals.size
+    );
+
+    return {
+      // 完整的过滤和排序后的数据（用于计算总数等）
+      filtered: {
+        creators: sortedCreators,
+        accounts: sortedAccounts,
+        deals: sortedDeals,
+      },
+      // 分页后的数据（用于展示）
+      paginated: {
+        creators: paginatedCreators,
+        accounts: paginatedAccounts,
+        deals: paginatedDeals,
+      }
     };
-  }, [creators, deals, searchTerm, statusFilter]);
+  }, [creators, accounts, deals, searchTerm, statusFilter, sortConfigs, pagination, sortData]);
 
   // 获取数据
   useEffect(() => {
@@ -461,16 +578,19 @@ export function useDataManagement(isAuthenticated: boolean) {
     deals,
     modals,
     pagination,
+    sortConfigs, // 🆕 新增
     
-    // 计算属性
-    filteredData,
+    // 计算属性 - 🆕 更新这两行
+    filteredData: filteredAndSortedData.filtered,
+    paginatedData: filteredAndSortedData.paginated,
     processedData,
     
     // 方法
     setActiveTab,
     setSearchTerm,
     setStatusFilter,
-    setPagination: setPaginationForType,
+    setPagination: setPaginationForType, // 🆕 保持这个改名
+    handleSort, // 🆕 新增
     handlers,
   };
 }

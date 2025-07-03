@@ -127,108 +127,245 @@ function ChartCard({ title, type, data }: ChartCardProps) {
 export default ChartCard;
 // 主仪表板组件
 export function Dashboard({
-  creators, accounts, deals, filteredData, processedData,
-  activeTab, loading, refreshing, searchTerm, statusFilter, pagination,
-  onTabChange, onSearchChange, onStatusFilterChange, onPaginationChange,
-  onLogout, onOpenModal, onRefresh, onDeleteCreator, onDeleteAccount, onDeleteDeal
+  // 原有的数据props
+  creators, 
+  accounts, 
+  deals, 
+  filteredData, 
+  processedData,
+  
+  // 原有的状态props
+  activeTab, 
+  loading, 
+  refreshing, 
+  searchTerm, 
+  statusFilter, 
+  pagination,
+  
+  // 🆕 新增的排序相关props
+  sortConfigs,
+  paginatedData,
+  
+  // 原有的回调函数props
+  onTabChange, 
+  onSearchChange, 
+  onStatusFilterChange, 
+  onLogout, 
+  onOpenModal, 
+  onRefresh, 
+  onDeleteCreator, 
+  onDeleteAccount, 
+  onDeleteDeal,
+  
+  // 🆕 新增的回调函数props
+  handleSort,
+  setPaginationForType
 }: {
+  // 原有的类型定义
   creators: Creator[];
   accounts: Account[];
   deals: Deal[];
-  filteredData: any;
+  filteredData: {
+    creators: Creator[];
+    accounts: Account[];
+    deals: Deal[];
+  };
   processedData: ProcessedData;
   activeTab: string;
   loading: boolean;
   refreshing: boolean;
   searchTerm: string;
   statusFilter: string;
-  pagination: any;
+  pagination: {
+    creators: { page: number; size: number };
+    accounts: { page: number; size: number };
+    deals: { page: number; size: number };
+  };
+  
+  // 🆕 新增的类型定义
+  sortConfigs: {
+    creators: { key: string; direction: 'asc' | 'desc' } | null;
+    accounts: { key: string; direction: 'asc' | 'desc' } | null;
+    deals: { key: string; direction: 'asc' | 'desc' } | null;
+  };
+  paginatedData: {
+    creators: Creator[];
+    accounts: Account[];
+    deals: Deal[];
+  };
+  
+  // 原有的回调函数类型
   onTabChange: (tab: string) => void;
   onSearchChange: (term: string) => void;
   onStatusFilterChange: (filter: string) => void;
-  onPaginationChange: (type: string, pagination: any) => void;
   onLogout: () => void;
-  onOpenModal: (type: ModalType, isNew?: boolean, data?: any) => void;  // 从 string 改为 ModalType
+  onOpenModal: (type: ModalType, isNew?: boolean, data?: any) => void;
   onRefresh: () => void;
   onDeleteCreator: (id: string) => void;
   onDeleteAccount: (id: string) => void;
   onDeleteDeal: (id: string) => void;
+  
+  // 🆕 新增的回调函数类型
+  handleSort: (type: 'creators' | 'accounts' | 'deals', key: string) => void;
+  setPaginationForType: (type: 'creators' | 'accounts' | 'deals', pagination: any) => void;
 }) {
-  return (
-    <>
-      <Header onLogout={onLogout} onOpenModal={onOpenModal} />
-      <Navigation activeTab={activeTab} onTabChange={onTabChange} />
+  
+  // 🆕 优化的Tab内容渲染逻辑
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'overview':
+        return (
+          <OverviewTab 
+            stats={processedData.stats}
+            monthlyData={processedData.monthlyData}
+            chartData={processedData.chartData}
+            onTabChange={onTabChange}
+          />
+        );
       
+      case 'creators':
+        return (
+          <CreatorsTab
+            // 原有数据props
+            creators={creators}
+            
+            // 🆕 使用新的数据结构
+            filteredData={filteredData}
+            paginatedData={paginatedData}
+            
+            // 搜索和过滤props
+            searchTerm={searchTerm}
+            statusFilter={statusFilter}
+            onSearchChange={onSearchChange}
+            onStatusFilterChange={onStatusFilterChange}
+            
+            // 操作props
+            onRefresh={onRefresh}
+            onOpenModal={onOpenModal}
+            onDelete={onDeleteCreator}
+            refreshing={refreshing}
+            
+            // 分页props
+            pagination={pagination}
+            setPaginationForType={setPaginationForType}
+            
+            // 🆕 排序props
+            sortConfigs={sortConfigs}
+            handleSort={handleSort}
+            
+            // 统计props
+            totalCount={creators.length}
+          />
+        );
+      
+      case 'accounts':
+        return (
+          <AccountsTab 
+            // 原有数据props
+            accounts={accounts}
+            creators={creators}
+            
+            // 🆕 使用新的数据结构
+            filteredData={filteredData}
+            paginatedData={paginatedData}
+            
+            // 操作props
+            onRefresh={onRefresh}
+            onOpenModal={onOpenModal}
+            onDelete={onDeleteAccount}
+            refreshing={refreshing}
+            
+            // 分页props
+            pagination={pagination}
+            setPaginationForType={setPaginationForType}
+            
+            // 🆕 排序props
+            sortConfigs={sortConfigs}
+            handleSort={handleSort}
+            
+            // 统计props
+            totalCount={accounts.length}
+          />
+        );
+      
+      case 'deals':
+        return (
+          <DealsTab
+            // 原有数据props
+            deals={deals}
+            creators={creators}
+            monthlyData={processedData.monthlyData}
+            
+            // 🆕 使用新的数据结构
+            filteredData={filteredData}
+            paginatedData={paginatedData}
+            
+            // 搜索和过滤props
+            searchTerm={searchTerm}
+            statusFilter={statusFilter}
+            onSearchChange={onSearchChange}
+            onStatusFilterChange={onStatusFilterChange}
+            
+            // 操作props
+            onRefresh={onRefresh}
+            onOpenModal={onOpenModal}
+            onDelete={onDeleteDeal}
+            refreshing={refreshing}
+            
+            // 分页props
+            pagination={pagination}
+            setPaginationForType={setPaginationForType}
+            
+            // 🆕 排序props
+            sortConfigs={sortConfigs}
+            handleSort={handleSort}
+            
+            // 统计props
+            totalCount={deals.length}
+          />
+        );
+      
+      default:
+        return (
+          <OverviewTab 
+            stats={processedData.stats}
+            monthlyData={processedData.monthlyData}
+            chartData={processedData.chartData}
+            onTabChange={onTabChange}
+          />
+        );
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-morandi-gradient">
+      {/* Header组件 - 保持现有逻辑 */}
+      <Header 
+        onLogout={onLogout} 
+        onOpenModal={onOpenModal} 
+      />
+      
+      {/* Navigation组件 - 保持现有逻辑 */}
+      <Navigation 
+        activeTab={activeTab} 
+        onTabChange={onTabChange} 
+      />
+      
+      {/* 主内容区域 */}
       <main className="max-w-[1400px] mx-auto px-8 py-10">
         {loading ? (
           <LoadingSpinner />
         ) : (
           <div className="animate-morandi-fade-in">
-            {activeTab === 'overview' && (
-              <OverviewTab 
-                stats={processedData.stats}
-                monthlyData={processedData.monthlyData}
-                chartData={processedData.chartData}
-                onTabChange={onTabChange}
-              />
-            )}
-
-            {activeTab === 'creators' && (
-              <CreatorsTab
-                creators={filteredData.creators}
-                searchTerm={searchTerm}
-                statusFilter={statusFilter}
-                onSearchChange={onSearchChange}
-                onStatusFilterChange={onStatusFilterChange}
-                onRefresh={onRefresh}
-                onOpenModal={onOpenModal}
-                onDelete={onDeleteCreator}
-                refreshing={refreshing}
-                totalCount={creators.length}
-                pagination={pagination.creators}
-                setPagination={(p: Pagination) => onPaginationChange('creators', p)}
-              />
-            )}
-
-            {activeTab === 'accounts' && (
-              <AccountsTab 
-                accounts={accounts} 
-                creators={creators}
-                onRefresh={onRefresh}
-                onOpenModal={onOpenModal}
-                onDelete={onDeleteAccount}
-                refreshing={refreshing}
-                totalCount={accounts.length}
-                pagination={pagination.accounts}
-                setPagination={(p: Pagination) => onPaginationChange('accounts', p)}
-              />
-            )}
-
-            {activeTab === 'deals' && (
-              <DealsTab
-                deals={filteredData.deals}
-                monthlyData={processedData.monthlyData}
-                searchTerm={searchTerm}
-                statusFilter={statusFilter}
-                onSearchChange={onSearchChange}
-                onStatusFilterChange={onStatusFilterChange}
-                onRefresh={onRefresh}
-                onOpenModal={onOpenModal}
-                onDelete={onDeleteDeal}
-                refreshing={refreshing}
-                totalCount={deals.length}
-                pagination={pagination.deals}
-                setPagination={(p: Pagination) => onPaginationChange('deals', p)}
-              />
-            )}
+            {renderTabContent()}
           </div>
         )}
       </main>
-    </>
+    </div>
   );
 }
 
-// Header组件
+// Header组件 - 保持现有实现
 function Header({ onLogout, onOpenModal }: { 
   onLogout: () => void; 
   onOpenModal: (type: ModalType) => void;
@@ -265,7 +402,7 @@ function Header({ onLogout, onOpenModal }: {
   );
 }
 
-// Navigation组件
+// Navigation组件 - 保持现有实现
 function Navigation({ activeTab, onTabChange }: { 
   activeTab: string; 
   onTabChange: (tab: string) => void;
@@ -291,7 +428,7 @@ function Navigation({ activeTab, onTabChange }: {
                   activeTab === tab.id ? 'active' : ''
                 }`}
               >
-                <IconComponent size={18} className="icon-morandi" />
+                <IconComponent size={18} />
                 {tab.label}
               </button>
             );
@@ -407,11 +544,24 @@ function OverviewTab({ stats, monthlyData, chartData, onTabChange }: {
 
 // 博主管理Tab
 function CreatorsTab(props: any) {
-  const { creators, onOpenModal, onDelete, pagination, setPagination, searchTerm, statusFilter, onSearchChange, onStatusFilterChange, onRefresh, refreshing, totalCount } = props;
-  const startIndex = (pagination.page - 1) * pagination.size;
-  const endIndex = startIndex + pagination.size;
-  const paginatedCreators = creators.slice(startIndex, endIndex);
-  const totalPages = Math.ceil(creators.length / pagination.size);
+  const { 
+    paginatedData, 
+    filteredData, 
+    onOpenModal, 
+    onDelete, 
+    pagination, 
+    setPaginationForType, 
+    searchTerm, 
+    statusFilter, 
+    onSearchChange, 
+    onStatusFilterChange, 
+    onRefresh, 
+    refreshing, 
+    sortConfigs,
+    handleSort // 🆕 新增
+  } = props;
+  
+  const totalPages = Math.ceil(filteredData.creators.length / pagination.creators.size);
 
   return (
     <div className="space-y-8">
@@ -422,8 +572,8 @@ function CreatorsTab(props: any) {
         onStatusFilterChange={onStatusFilterChange}
         onRefresh={onRefresh}
         refreshing={refreshing}
-        totalCount={totalCount}
-        filteredCount={creators.length}
+        totalCount={props.creators.length}
+        filteredCount={filteredData.creators.length}
         searchPlaceholder="搜索博主ID、姓名、微信名、城市或类别..."
         filters={[
           { value: 'all', label: '全部状态' },
@@ -435,21 +585,23 @@ function CreatorsTab(props: any) {
       />
       
       <div className="card-morandi">
-        {paginatedCreators.length > 0 ? (
+        {paginatedData.creators.length > 0 ? (
           <>
             <DataTable 
-              data={paginatedCreators} 
+              data={paginatedData.creators} 
               type="creators" 
               onEdit={(creator: Creator) => onOpenModal('edit', false, creator)}
               onDelete={onDelete}
+              sortConfig={sortConfigs.creators} // 🆕 新增
+              onSort={(key: string) => handleSort('creators', key)} // 🆕 新增
             />
             <Pagination
-              currentPage={pagination.page}
+              currentPage={pagination.creators.page}
               totalPages={totalPages}
-              onPageChange={(page: number) => setPagination({ ...pagination, page })}
-              totalItems={creators.length}
-              pageSize={pagination.size}
-              onPageSizeChange={(size: number) => setPagination({ page: 1, size })}
+              onPageChange={(page: number) => setPaginationForType('creators', { page })}
+              totalItems={filteredData.creators.length}
+              pageSize={pagination.creators.size}
+              onPageSizeChange={(size: number) => setPaginationForType('creators', { page: 1, size })}
             />
           </>
         ) : (
@@ -466,13 +618,23 @@ function CreatorsTab(props: any) {
   );
 }
 
-// 账号管理Tab
+// 账号管理Tab - 修改版本
 function AccountsTab(props: any) {
-  const { accounts, creators, onRefresh, onOpenModal, onDelete, refreshing, totalCount, pagination, setPagination } = props;
-  const startIndex = (pagination.page - 1) * pagination.size;
-  const endIndex = startIndex + pagination.size;
-  const paginatedAccounts = accounts.slice(startIndex, endIndex);
-  const totalPages = Math.ceil(accounts.length / pagination.size);
+  const { 
+    paginatedData, 
+    filteredData,
+    creators,
+    onRefresh, 
+    onOpenModal, 
+    onDelete, 
+    refreshing, 
+    pagination, 
+    setPaginationForType,
+    sortConfigs,
+    handleSort // 🆕 新增
+  } = props;
+  
+  const totalPages = Math.ceil(filteredData.accounts.length / pagination.accounts.size);
 
   return (
     <div className="space-y-8">
@@ -487,7 +649,7 @@ function AccountsTab(props: any) {
             刷新
           </button>
           <div className="text-sm text-[var(--morandi-mist)]">
-            共 {totalCount} 个平台账号
+            显示 {filteredData.accounts.length} / {props.accounts.length} 个平台账号
           </div>
           <button onClick={() => onOpenModal('account', true)} className="btn-morandi-primary">
             <Plus size={18} />
@@ -497,32 +659,33 @@ function AccountsTab(props: any) {
       </div>
 
       <div className="card-morandi">
-        {paginatedAccounts.length > 0 ? (
+        {paginatedData.accounts.length > 0 ? (
           <>
             <DataTable 
-              data={paginatedAccounts} 
+              data={paginatedData.accounts} 
               type="accounts" 
-              creators={creators}
               onEdit={(account: Account) => onOpenModal('account', false, account)}
-
               onDelete={onDelete}
+              creators={creators}
+              sortConfig={sortConfigs.accounts} // 🆕 新增
+              onSort={(key: string) => handleSort('accounts', key)} // 🆕 新增
             />
             <Pagination
-              currentPage={pagination.page}
+              currentPage={pagination.accounts.page}
               totalPages={totalPages}
-              onPageChange={(page: number) => setPagination({ ...pagination, page })}
-              totalItems={accounts.length}
-              pageSize={pagination.size}
-              onPageSizeChange={(size: number) => setPagination({ page: 1, size })}
+              onPageChange={(page: number) => setPaginationForType('accounts', { page })}
+              totalItems={filteredData.accounts.length}
+              pageSize={pagination.accounts.size}
+              onPageSizeChange={(size: number) => setPaginationForType('accounts', { page: 1, size })}
             />
           </>
         ) : (
           <EmptyState
             icon={UserCheck}
             title="暂无账号数据"
-            description="开始添加您的第一个平台账号"
+            description="开始添加第一个平台账号"
             action={() => onOpenModal('account', true)}
-            actionText="添加账号"
+            actionText="新增账号"
           />
         )}
       </div>
@@ -530,14 +693,27 @@ function AccountsTab(props: any) {
   );
 }
 
-// 业配记录Tab
+// 业配记录Tab - 修改版本
 function DealsTab(props: any) {
-  const { deals, monthlyData, onOpenModal, onDelete, pagination, setPagination, searchTerm, statusFilter, onSearchChange, onStatusFilterChange, onRefresh, refreshing, totalCount } = props;
-  const { pendingTransfers, overdueTransfers } = monthlyData;
-  const startIndex = (pagination.page - 1) * pagination.size;
-  const endIndex = startIndex + pagination.size;
-  const paginatedDeals = deals.slice(startIndex, endIndex);
-  const totalPages = Math.ceil(deals.length / pagination.size);
+  const { 
+    paginatedData, 
+    filteredData,
+    creators,
+    onOpenModal, 
+    onDelete, 
+    pagination, 
+    setPaginationForType,
+    searchTerm,
+    statusFilter,
+    onSearchChange,
+    onStatusFilterChange,
+    onRefresh,
+    refreshing,
+    sortConfigs,
+    handleSort // 🆕 新增
+  } = props;
+  
+  const totalPages = Math.ceil(filteredData.deals.length / pagination.deals.size);
 
   return (
     <div className="space-y-8">
@@ -548,9 +724,9 @@ function DealsTab(props: any) {
         onStatusFilterChange={onStatusFilterChange}
         onRefresh={onRefresh}
         refreshing={refreshing}
-        totalCount={totalCount}
-        filteredCount={deals.length}
-        searchPlaceholder="搜索博主、合作方或业配ID..."
+        totalCount={props.deals.length}
+        filteredCount={filteredData.deals.length}
+        searchPlaceholder="搜索业配ID、博主、合作方..."
         filters={[
           { value: 'all', label: '全部状态' },
           { value: 'pending', label: '待转账' },
@@ -560,33 +736,27 @@ function DealsTab(props: any) {
         ]}
         newButtonText="新增业配"
         newButtonAction={() => onOpenModal('deal', true)}
-        extraInfo={`待转账 ${pendingTransfers.length} 个，逾期 ${overdueTransfers.length} 个`}
       />
 
-      {/* 快速统计卡片 */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <StatCard icon={DollarSign} label="本月业配" value={monthlyData.deals.length} color="primary" />
-        <StatCard icon={TrendingUp} label="本月营收" value={utils.formatCurrency(monthlyData.revenue)} color="green" />
-        <StatCard icon={Calendar} label="待转账" value={pendingTransfers.length} color="yellow" />
-        <StatCard icon={AlertTriangle} label="逾期转账" value={overdueTransfers.length} color="purple" />
-      </div>
-
       <div className="card-morandi">
-        {paginatedDeals.length > 0 ? (
+        {paginatedData.deals.length > 0 ? (
           <>
             <DataTable 
-              data={paginatedDeals} 
+              data={paginatedData.deals} 
               type="deals" 
               onEdit={(deal: Deal) => onOpenModal('deal', false, deal)}
               onDelete={onDelete}
+              creators={creators}
+              sortConfig={sortConfigs.deals} // 🆕 新增
+              onSort={(key: string) => handleSort('deals', key)} // 🆕 新增
             />
             <Pagination
-              currentPage={pagination.page}
+              currentPage={pagination.deals.page}
               totalPages={totalPages}
-              onPageChange={(page: number) => setPagination({ ...pagination, page })}
-              totalItems={deals.length}
-              pageSize={pagination.size}
-              onPageSizeChange={(size: number) => setPagination({ page: 1, size })}
+              onPageChange={(page: number) => setPaginationForType('deals', { page })}
+              totalItems={filteredData.deals.length}
+              pageSize={pagination.deals.size}
+              onPageSizeChange={(size: number) => setPaginationForType('deals', { page: 1, size })}
             />
           </>
         ) : (
@@ -682,38 +852,22 @@ function AlertCard({ type, icon: Icon, title, content, action, actionText }: any
   );
 }
 
+interface DataTableProps {
+  data: any[];
+  type: 'creators' | 'accounts' | 'deals';
+  onEdit: (item: any) => void;
+  onDelete: (item: any) => void;
+  creators?: Creator[];
+  sortConfig?: { key: string; direction: 'asc' | 'desc' } | null;
+  onSort?: (key: string) => void;
+}
 
-function DataTable({ data, type, onEdit, onDelete, creators }: any) {
-  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
-
+function DataTable({ data, type, onEdit, onDelete, creators, sortConfig, onSort }: DataTableProps) {
   const handleSort = (key: string) => {
-    let direction: 'asc' | 'desc' = 'asc';
-    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
-      direction = 'desc';
+    if (onSort) {
+      onSort(key);
     }
-    setSortConfig({ key, direction });
   };
-
-  const sortedData = useMemo(() => {
-    if (!sortConfig) return data;
-
-    return [...data].sort((a, b) => {
-      const aValue = a[sortConfig.key];
-      const bValue = b[sortConfig.key];
-
-      if (aValue === null || aValue === undefined) return 1;
-      if (bValue === null || bValue === undefined) return -1;
-
-      let comparison = 0;
-      if (typeof aValue === 'number' && typeof bValue === 'number') {
-        comparison = aValue - bValue;
-      } else {
-        comparison = String(aValue).localeCompare(String(bValue));
-      }
-
-      return sortConfig.direction === 'asc' ? comparison : -comparison;
-    });
-  }, [data, sortConfig]);
 
   const getColumns = () => {
     switch (type) {
@@ -881,14 +1035,16 @@ function DataTable({ data, type, onEdit, onDelete, creators }: any) {
 
   return (
     <div className="overflow-x-auto">
-      <table className="table-morandi">
+      <table className="w-full">
         <thead>
-          <tr>
-            {getColumns().map(column => (
-              <th 
-                key={column.label}
+          <tr className="border-b border-[var(--morandi-pearl)]">
+            {getColumns().map((column, index) => (
+              <th
+                key={index}
                 onClick={() => column.key && handleSort(column.key)}
-                className={column.key ? 'cursor-pointer hover:bg-[var(--morandi-pearl)]/50' : ''}
+                className={`px-8 py-6 text-left text-sm font-medium text-[var(--morandi-stone)] ${
+                  column.key ? 'cursor-pointer hover:bg-[var(--morandi-pearl)]/50' : ''
+                }`}
               >
                 <div className="flex items-center gap-2">
                   {column.label}
@@ -903,7 +1059,8 @@ function DataTable({ data, type, onEdit, onDelete, creators }: any) {
           </tr>
         </thead>
         <tbody>
-          {sortedData.map(renderRow)}
+          {/* 🆕 直接使用传入的data，无需内部排序 */}
+          {data.map(renderRow)}
         </tbody>
       </table>
     </div>
