@@ -139,3 +139,28 @@ export async function POST(request: NextRequest) {
         errors.push(...rowErrors);
       }
     }
+
+    // 返回验证结果和预览数据
+    return NextResponse.json({
+      success: true,
+      validation: {
+        valid: validCount,
+        invalid: invalidCount,
+        errors: errors
+      },
+      preview: processedData.slice(0, 10), // 返回前10行作为预览
+      total: processedData.length
+    });
+
+  } catch (error) {
+    console.error('Error processing preview:', error);
+    return NextResponse.json(
+      { 
+        success: false, 
+        error: 'Failed to process file',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      },
+      { status: 500 }
+    );
+  }
+}
