@@ -8,7 +8,7 @@ import {
   RefreshCw, Loader2, Calendar, AlertTriangle, Upload, FileText, 
   LogOut, BarChart3, UserCheck, Trash2, Eye, EyeOff 
 } from 'lucide-react';
-import type { Creator, Account, Deal, ProcessedData, Pagination } from '../types';
+import type { Creator, Account, Deal, ProcessedData, Pagination, ModalType } from '../types';
 
 // 莫兰迪色系
 const MORANDI_COLORS = ['#a8b5c8', '#9caf88', '#d4b5a0', '#c7b299', '#d4a5a5', '#b8b5b1'];
@@ -148,7 +148,7 @@ export function Dashboard({
   onStatusFilterChange: (filter: string) => void;
   onPaginationChange: (type: string, pagination: any) => void;
   onLogout: () => void;
-  onOpenModal: (type: string, isNew?: boolean, data?: any) => void;
+  onOpenModal: (type: ModalType, isNew?: boolean, data?: any) => void;  // 从 string 改为 ModalType
   onRefresh: () => void;
   onDeleteCreator: (id: string) => void;
   onDeleteAccount: (id: string) => void;
@@ -231,7 +231,7 @@ export function Dashboard({
 // Header组件
 function Header({ onLogout, onOpenModal }: { 
   onLogout: () => void; 
-  onOpenModal: (type: string) => void;
+  onOpenModal: (type: ModalType) => void;
 }) {
   return (
     <header className="header-morandi sticky top-0 z-40">
