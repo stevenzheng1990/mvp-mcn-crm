@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   X, Save, Plus, Upload, Database, FileText, 
-  CheckCircle, Users, UserCheck, Loader2 
+  CheckCircle, Users, UserCheck, Loader2, Download 
 } from 'lucide-react';
 import fileDownload from 'js-file-download';
 import { utils } from './Dashboard';
@@ -215,17 +215,30 @@ export function EditModal({ isOpen, onClose, creator, onSave, isNew }: {
               />
             </FormField>
 
-            <FormField label="建联方式">
+            <FormField label="联系方式">
               <input
                 type="text"
                 value={formData.contactMethod}
                 onChange={(e) => handleChange('contactMethod', e.target.value)}
                 className="input-morandi"
-                placeholder="请输入建联方式"
+                placeholder="请输入联系方式"
               />
             </FormField>
 
-            <FormField label="是否在商单群">
+            <FormField label="分成比例">
+              <input
+                type="number"
+                value={formData.commission}
+                onChange={(e) => handleChange('commission', parseFloat(e.target.value))}
+                className="input-morandi"
+                placeholder="0.7"
+                min="0"
+                max="1"
+                step="0.01"
+              />
+            </FormField>
+
+            <FormField label="在DC商单群">
               <select
                 value={formData.inGroup}
                 onChange={(e) => handleChange('inGroup', e.target.value)}
@@ -237,105 +250,16 @@ export function EditModal({ isOpen, onClose, creator, onSave, isNew }: {
               </select>
             </FormField>
 
-            {/* 账号类别 - 多选 */}
-            <FormField
-              label="账号类别（多选）"
-              error={errors.category}
-              required
-              className="md:col-span-2"
-            >
-              <div className="grid grid-cols-3 gap-2 mb-3">
-                {categoryOptions.map(category => (
-                  <label key={category} className="flex items-center gap-2 p-2 rounded-lg hover:bg-[var(--morandi-pearl)]/50 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={selectedCategories.includes(category)}
-                      onChange={() => handleCategoryToggle(category)}
-                      className="rounded"
-                    />
-                    <span className="text-sm">{category}</span>
-                  </label>
-                ))}
-              </div>
-              
-              {/* 自定义类别 */}
-              <div className="border-t border-[var(--morandi-pearl)] pt-3">
-                {!showCustomCategory ? (
-                  <button
-                    type="button"
-                    onClick={() => setShowCustomCategory(true)}
-                    className="text-sm text-[var(--morandi-cloud)] hover:text-[var(--morandi-sage)] transition-colors"
-                  >
-                    + 添加自定义类别
-                  </button>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      value={customCategory}
-                      onChange={(e) => setCustomCategory(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddCustomCategory())}
-                      className="input-morandi flex-1"
-                      placeholder="输入自定义类别"
-                      autoFocus
-                    />
-                    <button
-                      type="button"
-                      onClick={handleAddCustomCategory}
-                      className="btn-morandi-primary"
-                    >
-                      添加
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowCustomCategory(false);
-                        setCustomCategory('');
-                      }}
-                      className="btn-morandi-secondary"
-                    >
-                      取消
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {selectedCategories.length > 0 && (
-                <div className="mt-3">
-                  <p className="text-sm text-[var(--morandi-mist)] mb-2">已选择:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedCategories.map(cat => (
-                      <span 
-                        key={cat}
-                        className="inline-flex items-center gap-1 px-3 py-1 bg-[var(--morandi-cloud)]/20 text-[var(--morandi-stone)] rounded-full text-sm"
-                      >
-                        {cat}
-                        <button
-                          type="button"
-                          onClick={() => handleCategoryToggle(cat)}
-                          className="hover:text-[var(--morandi-rose)] transition-colors"
-                        >
-                          <X size={14} />
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </FormField>
-
-            {/* 面试信息 */}
-            <FormField label="面试状态">
+            <FormField label="面试情况">
               <select
                 value={formData.interviewStatus}
                 onChange={(e) => handleChange('interviewStatus', e.target.value)}
                 className="input-morandi"
               >
                 <option value="">请选择</option>
-                <option value="未面试">未面试</option>
-                <option value="已面试">已面试</option>
-                <option value="面试通过">面试通过</option>
-                <option value="面试未通过">面试未通过</option>
+                <option value="已通过">已通过</option>
+                <option value="未通过">未通过</option>
+                <option value="待面试">待面试</option>
               </select>
             </FormField>
 
@@ -401,24 +325,82 @@ export function EditModal({ isOpen, onClose, creator, onSave, isNew }: {
               />
             </FormField>
 
+            {/* 账号类别 - 多选 */}
             <FormField
-              label="分成比例（公司方）"
-              error={errors.commission}
+              label="账号类别（多选）"
+              error={errors.category}
               required
+              className="md:col-span-2"
             >
-              <input
-                type="number"
-                value={formData.commission}
-                onChange={(e) => handleChange('commission', parseFloat(e.target.value))}
-                className="input-morandi"
-                placeholder="0.7"
-                min="0"
-                max="1"
-                step="0.01"
+              <div className="grid grid-cols-4 gap-2 mb-4">
+                {categoryOptions.map(category => (
+                  <label key={category} className="flex items-center gap-2 p-2 rounded-lg hover:bg-[var(--morandi-pearl)]/50 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={selectedCategories.includes(category)}
+                      onChange={() => handleCategoryToggle(category)}
+                      className="rounded"
+                    />
+                    <span className="text-sm">{category}</span>
+                  </label>
+                ))}
+              </div>
+              
+              {!showCustomCategory && (
+                <button
+                  type="button"
+                  onClick={() => setShowCustomCategory(true)}
+                  className="btn-morandi-secondary text-sm"
+                >
+                  <Plus size={16} />
+                  添加自定义类别
+                </button>
+              )}
+              
+              {showCustomCategory && (
+                <div className="flex gap-2 mt-2">
+                  <input
+                    type="text"
+                    value={customCategory}
+                    onChange={(e) => setCustomCategory(e.target.value)}
+                    className="input-morandi flex-1"
+                    placeholder="输入自定义类别"
+                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddCustomCategory())}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddCustomCategory}
+                    className="btn-morandi-primary"
+                  >
+                    添加
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowCustomCategory(false);
+                      setCustomCategory('');
+                    }}
+                    className="btn-morandi-secondary"
+                  >
+                    取消
+                  </button>
+                </div>
+              )}
+              
+              {selectedCategories.length > 0 && (
+                <p className="text-sm text-[var(--morandi-mist)] mt-2">
+                  已选择: {selectedCategories.join(', ')}
+                </p>
+              )}
+            </FormField>
+
+            <FormField label="备注" className="md:col-span-2">
+              <textarea
+                value={formData.notes}
+                onChange={(e) => handleChange('notes', e.target.value)}
+                className="input-morandi h-20 resize-none"
+                placeholder="请输入备注信息..."
               />
-              <p className="text-xs text-[var(--morandi-mist)] mt-1">
-                输入公司获得的分成比例，如0.7表示公司获得70%
-              </p>
             </FormField>
 
             <FormField label="转账账户信息" className="md:col-span-2">
@@ -428,15 +410,6 @@ export function EditModal({ isOpen, onClose, creator, onSave, isNew }: {
                 onChange={(e) => handleChange('transferAccount', e.target.value)}
                 className="input-morandi"
                 placeholder="请输入转账账户信息"
-              />
-            </FormField>
-
-            <FormField label="备注" className="md:col-span-2">
-              <textarea
-                value={formData.notes}
-                onChange={(e) => handleChange('notes', e.target.value)}
-                className="input-morandi h-20 resize-none"
-                placeholder="请输入备注信息..."
               />
             </FormField>
           </div>
@@ -535,7 +508,7 @@ export function DealModal({ isOpen, onClose, deal, onSave, creators, isNew }: {
         <ModalHeader
           icon={FileText}
           title={isNew ? '新增业配记录' : '编辑业配记录'}
-          subtitle={isNew ? '请填写业配的详细信息' : `编辑业配 ${formData.id}`}
+          subtitle={isNew ? '请填写业配相关信息' : '更新业配记录信息'}
           onClose={onClose}
         />
 
@@ -546,25 +519,18 @@ export function DealModal({ isOpen, onClose, deal, onSave, creators, isNew }: {
               error={errors.creatorId}
               required
             >
-              <input
-                list="deal-creators-list"
+              <select
                 value={formData.creatorId}
                 onChange={(e) => handleChange('creatorId', e.target.value)}
                 className="input-morandi"
-                placeholder="输入博主ID搜索..."
-              />
-              <datalist id="deal-creators-list">
+              >
+                <option value="">请选择博主</option>
                 {creators.map(creator => (
                   <option key={creator.id} value={creator.id}>
-                    {creator.id} - {creator.realName} - {creator.wechatName}
+                    {creator.id} - {creator.realName}
                   </option>
                 ))}
-              </datalist>
-              {formData.creatorId && (
-                <p className="text-sm text-[var(--morandi-mist)] mt-1">
-                  已选择: {creators.find(c => c.id === formData.creatorId)?.realName || formData.creatorId}
-                </p>
-              )}
+              </select>
             </FormField>
 
             <FormField
@@ -1024,8 +990,12 @@ export function ImportModal({ isOpen, onClose, onImportSuccess }: {
                   </div>
                 </div>
                 <button
-                  onClick={() => setFile(null)}
-                  className="text-[var(--morandi-mist)] hover:text-[var(--morandi-rose)]"
+                  onClick={() => {
+                    setFile(null);
+                    setPreviewData([]);
+                    setValidationResults(null);
+                  }}
+                  className="text-[var(--morandi-mist)] hover:text-[var(--morandi-stone)]"
                 >
                   <X size={20} />
                 </button>
@@ -1033,33 +1003,34 @@ export function ImportModal({ isOpen, onClose, onImportSuccess }: {
 
               {validationResults && (
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-medium text-[var(--morandi-stone)]">数据预览</h3>
+                  <div className="flex justify-between items-center">
+                    <h4 className="font-medium text-[var(--morandi-stone)]">数据预览</h4>
                     <span className="text-sm text-[var(--morandi-mist)]">
-                      共 {validationResults.totalRows} 条数据，有效 {validationResults.validRows} 条
+                      有效数据: {validationResults.validation.valid} 行 / 
+                      无效数据: {validationResults.validation.invalid} 行
                     </span>
                   </div>
 
                   {previewData.length > 0 && (
                     <div className="overflow-x-auto">
-                      <table className="table-morandi text-sm">
+                      <table className="min-w-full text-sm">
                         <thead>
-                          <tr>
-                            <th className="px-4 py-2">博主ID</th>
-                            <th className="px-4 py-2">真实姓名</th>
-                            <th className="px-4 py-2">微信名</th>
-                            <th className="px-4 py-2">城市</th>
-                            <th className="px-4 py-2">类别</th>
+                          <tr className="border-b border-[var(--morandi-pearl)]">
+                            <th className="text-left p-2">博主ID</th>
+                            <th className="text-left p-2">真实姓名</th>
+                            <th className="text-left p-2">微信名</th>
+                            <th className="text-left p-2">城市</th>
+                            <th className="text-left p-2">类别</th>
                           </tr>
                         </thead>
                         <tbody>
                           {previewData.map((row, index) => (
-                            <tr key={index}>
-                              <td className="px-4 py-2">{row.id || '-'}</td>
-                              <td className="px-4 py-2">{row.realName || '-'}</td>
-                              <td className="px-4 py-2">{row.wechatName || '-'}</td>
-                              <td className="px-4 py-2">{row.city || '-'}</td>
-                              <td className="px-4 py-2">{row.category || '-'}</td>
+                            <tr key={index} className="border-b border-[var(--morandi-pearl)]/50">
+                              <td className="p-2">{row.id}</td>
+                              <td className="p-2">{row.realName}</td>
+                              <td className="p-2">{row.wechatName}</td>
+                              <td className="p-2">{row.city}</td>
+                              <td className="p-2">{row.category}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -1067,27 +1038,30 @@ export function ImportModal({ isOpen, onClose, onImportSuccess }: {
                     </div>
                   )}
 
-                  {validationResults.warnings && validationResults.warnings.length > 0 && (
-                    <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
-                      <p className="text-sm font-medium text-yellow-800 mb-2">警告信息：</p>
-                      <ul className="text-sm text-yellow-700 space-y-1">
-                        {validationResults.warnings.slice(0, 5).map((warning: string, index: number) => (
-                          <li key={index}>• {warning}</li>
+                  {validationResults.validation.errors.length > 0 && (
+                    <div className="p-4 bg-[var(--morandi-rose)]/10 rounded-xl">
+                      <p className="font-medium text-[var(--morandi-rose)] mb-2">验证错误:</p>
+                      <ul className="text-sm text-[var(--morandi-stone)] space-y-1">
+                        {validationResults.validation.errors.slice(0, 5).map((error: string, index: number) => (
+                          <li key={index}>• {error}</li>
                         ))}
+                        {validationResults.validation.errors.length > 5 && (
+                          <li>• ... 还有 {validationResults.validation.errors.length - 5} 个错误</li>
+                        )}
                       </ul>
                     </div>
                   )}
                 </div>
               )}
 
-              <div className="flex items-center justify-end gap-4 pt-6 border-t border-[var(--morandi-pearl)]">
+              <div className="flex justify-end gap-4">
                 <button onClick={handleClose} className="btn-morandi-secondary">
                   取消
                 </button>
                 <button
                   onClick={handleImport}
-                  disabled={importing || !validationResults || validationResults.validRows === 0}
-                  className="btn-morandi-primary disabled:opacity-50"
+                  disabled={importing || !validationResults || validationResults.validation.valid === 0}
+                  className="btn-morandi-primary disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {importing ? (
                     <>
@@ -1177,7 +1151,6 @@ export function ExportModal({ isOpen, onClose, creators, accounts, deals }: {
         }
       }
 
-      alert('导出成功！');
       onClose();
     } catch (error) {
       console.error('导出失败:', error);
@@ -1191,48 +1164,54 @@ export function ExportModal({ isOpen, onClose, creators, accounts, deals }: {
 
   return (
     <ModalWrapper onClose={onClose}>
-      <div className="modal-content-morandi max-w-lg">
+      <div className="modal-content-morandi max-w-2xl">
         <ModalHeader
-          icon={FileText}
+          icon={Download}
           title="导出数据"
           subtitle="选择要导出的数据类型和格式"
           onClose={onClose}
         />
 
-        <div className="p-8 space-y-6">
+        <div className="p-8 space-y-8">
           <div>
-            <label className="block text-sm font-medium text-[var(--morandi-stone)] mb-3">
-              数据类型
+            <label className="block text-sm font-medium text-[var(--morandi-stone)] mb-4">
+              选择数据类型
             </label>
-            <div className="space-y-2">
+            <div className="grid grid-cols-3 gap-4">
               {[
                 { value: 'creators', label: '博主数据', count: creators.length },
                 { value: 'accounts', label: '账号数据', count: accounts.length },
-                { value: 'deals', label: '业配记录', count: deals.length },
+                { value: 'deals', label: '业配数据', count: deals.length },
               ].map(option => (
-                <label key={option.value} className="flex items-center p-3 border border-[var(--morandi-pearl)] rounded-xl hover:bg-[var(--morandi-pearl)]/50 cursor-pointer transition-colors">
+                <label key={option.value} className="relative">
                   <input
                     type="radio"
                     name="exportType"
                     value={option.value}
                     checked={exportType === option.value}
                     onChange={(e) => setExportType(e.target.value)}
-                    className="mr-3"
+                    className="sr-only"
                   />
-                  <span className="flex-1 text-[var(--morandi-stone)]">{option.label}</span>
-                  <span className="text-sm text-[var(--morandi-mist)]">{option.count} 条</span>
+                  <div className={`p-4 border-2 rounded-xl cursor-pointer transition-all ${
+                    exportType === option.value
+                      ? 'border-[var(--morandi-cloud)] bg-[var(--morandi-cloud)]/10'
+                      : 'border-[var(--morandi-pearl)] hover:border-[var(--morandi-mist)]'
+                  }`}>
+                    <div className="text-[var(--morandi-stone)] font-medium">{option.label}</div>
+                    <div className="text-sm text-[var(--morandi-mist)] mt-1">{option.count} 条记录</div>
+                  </div>
                 </label>
               ))}
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[var(--morandi-stone)] mb-3">
-              导出格式
+            <label className="block text-sm font-medium text-[var(--morandi-stone)] mb-4">
+              选择导出格式
             </label>
-            <div className="space-y-2">
+            <div className="space-y-3">
               {[
-                { value: 'excel', label: 'Excel (.xlsx)', description: '适合在 Excel 中编辑' },
+                { value: 'excel', label: 'Excel (.xlsx)', description: '适合在 Excel 中查看和编辑' },
                 { value: 'csv', label: 'CSV (.csv)', description: '通用格式，兼容性好' },
                 { value: 'json', label: 'JSON (.json)', description: '适合程序处理' },
               ].map(option => (
