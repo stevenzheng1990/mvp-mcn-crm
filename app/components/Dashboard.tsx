@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import type { Creator, Account, Deal, ProcessedData, Pagination } from '../types';
+import type { Creator, Account, Deal, ProcessedData, Pagination, ModalType } from '../types';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
   LineChart, Line, PieChart, Pie, Cell 
@@ -81,7 +81,7 @@ interface PaginationProps {
 // Tab 组件的基础 Props
 interface BaseTabProps {
   onRefresh: () => void;
-  onOpenModal: (type: string, isNew: boolean, data?: any) => void;
+  onOpenModal: (type: ModalType, isNew: boolean, data?: any) => void;
   refreshing: boolean;
   pagination: Pagination;
   setPagination: (pagination: Pagination) => void;
@@ -174,7 +174,7 @@ export function Dashboard({
   onStatusFilterChange: (filter: string) => void;
   onPaginationChange: (type: string, pagination: any) => void;
   onLogout: () => void;
-  onOpenModal: (type: string, isNew?: boolean, data?: any) => void;
+  onOpenModal: (type: ModalType, isNew?: boolean, data?: any) => void;
   onRefresh: () => void;
   onDeleteCreator: (id: string) => void;
   onDeleteAccount: (id: string) => void;
@@ -259,7 +259,7 @@ export function Dashboard({
 // Header 组件
 function Header({ onLogout, onOpenModal }: { 
   onLogout: () => void; 
-  onOpenModal: (type: string, isNew?: boolean) => void;
+  onOpenModal: (type: ModalType, isNew?: boolean) => void;
 }) {
   return (
     <header className="bg-morandi-header-gradient backdrop-blur-md border-b border-morandi-mist/20 sticky top-0 z-40">
