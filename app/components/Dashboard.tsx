@@ -43,6 +43,88 @@ export const utils = {
   },
 };
 
+
+// ChartCard 组件的类型定义
+interface ChartCardProps {
+  title: string;
+  type: 'line' | 'bar' | 'pie';
+  data: Array<{ name: string; value: number }>;
+}
+
+function ChartCard({ title, type, data }: ChartCardProps) {
+  // 修复：将 renderChart 的返回类型明确定义为 React.ReactElement | null
+  const renderChart = (): React.ReactElement | null => {
+    if (type === 'line') {
+      return (
+        <LineChart data={data}>
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--morandi-pearl)" />
+          <XAxis dataKey="name" stroke="#6b7280" />
+          <YAxis stroke="#6b7280" />
+          <Tooltip formatter={(value: any) => [`¥${Number(value).toLocaleString()}`, '营收']} />
+          <Line type="monotone" dataKey="value" stroke="#0ea5e9" strokeWidth={3} />
+        </LineChart>
+      );
+    }
+    
+    if (type === 'bar') {
+      return (
+        <BarChart data={data}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+          <XAxis dataKey="name" stroke="#6b7280" angle={-45} textAnchor="end" height={80} />
+          <YAxis stroke="#6b7280" />
+          <Tooltip formatter={(value: any) => [Number(value).toLocaleString(), '数量']} />
+          <Bar dataKey="value" fill="#0ea5e9" />
+        </BarChart>
+      );
+    }
+    
+    if (type === 'pie') {
+      return (
+        <PieChart>
+          <Pie
+            data={data}
+            cx="50%"
+            cy="50%"
+            outerRadius={100}
+            fill="#8884d8"
+            dataKey="value"
+            label={({ name, percent }: any) => `${name} ${(percent * 100).toFixed(0)}%`}
+          >
+            {data.map((entry: any, index: number) => (
+              <Cell key={`cell-${index}`} fill={MORANDI_COLORS[index % MORANDI_COLORS.length]} />
+            ))}
+          </Pie>
+          <Tooltip />
+        </PieChart>
+      );
+    }
+    
+    return null;
+  };
+
+  // 修复：先获取图表组件，然后进行条件渲染
+  const chart = renderChart();
+
+  return (
+    <div className="bg-white rounded-2xl shadow p-6">
+      <h3 className="text-lg font-semibold text-[var(--morandi-stone)] mb-6">{title}</h3>
+      <div className="h-64">
+        {/* 修复：只有当 chart 不为 null 时才渲染 ResponsiveContainer */}
+        {chart ? (
+          <ResponsiveContainer width="100%" height="100%">
+            {chart}
+          </ResponsiveContainer>
+        ) : (
+          // 备用显示：当没有有效图表类型时显示提示信息
+          <div className="flex items-center justify-center h-full text-[var(--morandi-mist)]">
+            <p>暂无图表数据</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+export default ChartCard;
 // 主仪表板组件
 export function Dashboard({
   creators, accounts, deals, filteredData, processedData,
@@ -358,7 +440,7 @@ function CreatorsTab(props: any) {
             <DataTable 
               data={paginatedCreators} 
               type="creators" 
-              onEdit={(creator) => onOpenModal('edit', false, creator)}
+              onEdit={(creator: Creator) => onOpenModal('edit', false, creator)}
               onDelete={onDelete}
             />
             <Pagination
@@ -421,16 +503,17 @@ function AccountsTab(props: any) {
               data={paginatedAccounts} 
               type="accounts" 
               creators={creators}
-              onEdit={(account) => onOpenModal('account', false, account)}
+              onEdit={(account: Account) => onOpenModal('account', false, account)}
+
               onDelete={onDelete}
             />
             <Pagination
               currentPage={pagination.page}
               totalPages={totalPages}
-              onPageChange={(page) => setPagination({ ...pagination, page })}
+              onPageChange={(page: number) => setPagination({ ...pagination, page })}
               totalItems={accounts.length}
               pageSize={pagination.size}
-              onPageSizeChange={(size) => setPagination({ page: 1, size })}
+              onPageSizeChange={(size: number) => setPagination({ page: 1, size })}
             />
           </>
         ) : (
@@ -494,16 +577,16 @@ function DealsTab(props: any) {
             <DataTable 
               data={paginatedDeals} 
               type="deals" 
-              onEdit={(deal) => onOpenModal('deal', false, deal)}
+              onEdit={(deal: Deal) => onOpenModal('deal', false, deal)}
               onDelete={onDelete}
             />
             <Pagination
               currentPage={pagination.page}
               totalPages={totalPages}
-              onPageChange={(page) => setPagination({ ...pagination, page })}
+              onPageChange={(page: number) => setPagination({ ...pagination, page })}
               totalItems={deals.length}
               pageSize={pagination.size}
-              onPageSizeChange={(size) => setPagination({ page: 1, size })}
+              onPageSizeChange={(size: number) => setPagination({ page: 1, size })}
             />
           </>
         ) : (
@@ -599,67 +682,6 @@ function AlertCard({ type, icon: Icon, title, content, action, actionText }: any
   );
 }
 
-function ChartCard({ title, type, data }: any) {
-  const renderChart = () => {
-    if (type === 'line') {
-      return (
-        <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" stroke="var(--morandi-pearl)" />
-          <XAxis dataKey="name" stroke="#6b7280" />
-          <YAxis stroke="#6b7280" />
-          <Tooltip formatter={(value: any) => [`¥${Number(value).toLocaleString()}`, '营收']} />
-          <Line type="monotone" dataKey="value" stroke="#0ea5e9" strokeWidth={3} />
-        </LineChart>
-      );
-    }
-    
-    if (type === 'bar') {
-      return (
-        <BarChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-          <XAxis dataKey="name" stroke="#6b7280" angle={-45} textAnchor="end" height={80} />
-          <YAxis stroke="#6b7280" />
-          <Tooltip formatter={(value: any) => [Number(value).toLocaleString(), '数量']} />
-          <Bar dataKey="value" fill="#0ea5e9" />
-        </BarChart>
-      );
-    }
-    
-    if (type === 'pie') {
-      return (
-        <PieChart>
-          <Pie
-            data={data}
-            cx="50%"
-            cy="50%"
-            outerRadius={100}
-            fill="#8884d8"
-            dataKey="value"
-            label={({ name, percent }: any) => `${name} ${(percent * 100).toFixed(0)}%`}
-          >
-            {data.map((entry: any, index: number) => (
-              <Cell key={`cell-${index}`} fill={MORANDI_COLORS[index % MORANDI_COLORS.length]} />
-            ))}
-          </Pie>
-          <Tooltip />
-        </PieChart>
-      );
-    }
-    
-    return null;
-  };
-
-  return (
-    <div className="bg-white rounded-2xl shadow p-6">
-      <h3 className="text-lg font-semibold text-[var(--morandi-stone)] mb-6">{title}</h3>
-      <div className="h-64">
-        <ResponsiveContainer width="100%" height="100%">
-          {renderChart()}
-        </ResponsiveContainer>
-      </div>
-    </div>
-  );
-}
 
 function DataTable({ data, type, onEdit, onDelete, creators }: any) {
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
