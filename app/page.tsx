@@ -1,4 +1,5 @@
-'use client';
+// app/page.tsx
+// 🔧 修复版本 - 添加缺失的Hook返回值
 
 'use client';
 
@@ -14,7 +15,7 @@ export default function MCNManagement() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
 
-  // 使用自定义 Hook 管理所有数据和业务逻辑
+  // 🔧 修复：添加缺失的Hook返回值
   const {
     // 状态
     activeTab,
@@ -27,16 +28,19 @@ export default function MCNManagement() {
     deals,
     modals,
     pagination,
+    sortConfigs, // 🆕 新增
     
     // 计算属性
     filteredData,
+    paginatedData, // 🆕 新增 - 这是缺失的关键属性！
     processedData,
     
     // 方法
     setActiveTab,
     setSearchTerm,
     setStatusFilter,
-    setPagination,
+    setPagination, // 🔧 这个已经在Hook中更名为setPaginationForType
+    handleSort, // 🆕 新增
     handlers,
   } = useDataManagement(isAuthenticated);
 
@@ -89,6 +93,7 @@ export default function MCNManagement() {
         accounts={accounts}
         deals={deals}
         filteredData={filteredData}
+        paginatedData={paginatedData} // 🆕 传递分页数据
         processedData={processedData}
         
         // 状态
@@ -98,70 +103,62 @@ export default function MCNManagement() {
         searchTerm={searchTerm}
         statusFilter={statusFilter}
         pagination={pagination}
+        sortConfigs={sortConfigs} // 🆕 传递排序配置
         
         // 方法
         onTabChange={setActiveTab}
         onSearchChange={setSearchTerm}
         onStatusFilterChange={setStatusFilter}
-        onPaginationChange={setPagination}
+        setPaginationForType={setPagination} // 🔧 使用Hook返回的方法名
+        handleSort={handleSort} // 🆕 传递排序处理函数
         onLogout={handleLogout}
         onOpenModal={handlers.openModal}
         onRefresh={handlers.refresh}
         onDeleteCreator={handlers.deleteCreator}
         onDeleteAccount={handlers.deleteAccount}
-        onDeleteDeal={handlers.deleteDeal}
+        onDeleteDeal={handlers.deleteDeal} // 🔧 确保这个也传递了
+      />
+      
+      {/* 模态框组件保持不变 */}
+      <EditModal
+        isOpen={modals.edit.open}
+        isNew={modals.edit.isNew}
+        creator={modals.edit.data}
+        onClose={() => handlers.closeModal('edit')}
+        onSave={handlers.saveCreator}
       />
 
-      {/* 模态框组件 */}
-      {modals.edit.open && (
-        <EditModal
-          isOpen={modals.edit.open}
-          onClose={() => handlers.closeModal('edit')}
-          creator={modals.edit.data}
-          onSave={handlers.saveCreator}
-          isNew={modals.edit.isNew}
-        />
-      )}
+      <DealModal
+        isOpen={modals.deal.open}
+        isNew={modals.deal.isNew}
+        deal={modals.deal.data}
+        creators={creators}
+        onClose={() => handlers.closeModal('deal')}
+        onSave={handlers.saveDeal}
+      />
 
-      {modals.deal.open && (
-        <DealModal
-          isOpen={modals.deal.open}
-          onClose={() => handlers.closeModal('deal')}
-          deal={modals.deal.data}
-          onSave={handlers.saveDeal}
-          creators={creators}
-          isNew={modals.deal.isNew}
-        />
-      )}
+      <AccountModal
+        isOpen={modals.account.open}
+        isNew={modals.account.isNew}
+        account={modals.account.data}
+        creators={creators}
+        onClose={() => handlers.closeModal('account')}
+        onSave={handlers.saveAccount}
+      />
 
-      {modals.account.open && (
-        <AccountModal
-          isOpen={modals.account.open}
-          onClose={() => handlers.closeModal('account')}
-          account={modals.account.data}
-          onSave={handlers.saveAccount}
-          creators={creators}
-          isNew={modals.account.isNew}
-        />
-      )}
+      <ImportModal
+        isOpen={modals.import.open}
+        onClose={() => handlers.closeModal('import')}
+        onImportSuccess={handlers.refresh}
+      />
 
-      {modals.import.open && (
-        <ImportModal
-          isOpen={modals.import.open}
-          onClose={() => handlers.closeModal('import')}
-          onImportSuccess={handlers.refresh}
-        />
-      )}
-
-      {modals.export.open && (
-        <ExportModal
-          isOpen={modals.export.open}
-          onClose={() => handlers.closeModal('export')}
-          creators={creators}
-          accounts={accounts}
-          deals={deals}
-        />
-      )}
+      <ExportModal
+        isOpen={modals.export.open}
+        onClose={() => handlers.closeModal('export')}
+        creators={creators}
+        accounts={accounts}
+        deals={deals}
+      />
     </div>
   );
 }
