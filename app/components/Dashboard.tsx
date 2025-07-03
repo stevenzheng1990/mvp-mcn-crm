@@ -78,12 +78,8 @@ interface PaginationProps {
   onPageSizeChange: (size: number) => void;
 }
 
-// Tab 组件的通用 Props
-interface TabProps {
-  searchTerm?: string;
-  statusFilter?: string;
-  onSearchChange?: (value: string) => void;
-  onStatusFilterChange?: (value: string) => void;
+// Tab 组件的基础 Props
+interface BaseTabProps {
   onRefresh: () => void;
   onOpenModal: (type: string, isNew: boolean, data?: any) => void;
   refreshing: boolean;
@@ -91,15 +87,23 @@ interface TabProps {
   setPagination: (pagination: Pagination) => void;
 }
 
+// 带搜索功能的 Tab Props
+interface SearchableTabProps extends BaseTabProps {
+  searchTerm: string;
+  statusFilter: string;
+  onSearchChange: (value: string) => void;
+  onStatusFilterChange: (value: string) => void;
+}
+
 // 博主管理 Tab Props
-interface CreatorsTabProps extends TabProps {
+interface CreatorsTabProps extends SearchableTabProps {
   creators: Creator[];
   onDelete: (id: string) => void;
   totalCount: number;
 }
 
 // 账号管理 Tab Props
-interface AccountsTabProps extends Omit<TabProps, 'searchTerm' | 'statusFilter' | 'onSearchChange' | 'onStatusFilterChange'> {
+interface AccountsTabProps extends BaseTabProps {
   accounts: Account[];
   creators: Creator[];
   onDelete: (id: string) => void;
@@ -107,7 +111,7 @@ interface AccountsTabProps extends Omit<TabProps, 'searchTerm' | 'statusFilter' 
 }
 
 // 业配记录 Tab Props
-interface DealsTabProps extends TabProps {
+interface DealsTabProps extends SearchableTabProps {
   deals: Deal[];
   creators: Creator[];
   onDelete: (id: string) => void;
@@ -1021,9 +1025,17 @@ function DealsTab(props: DealsTabProps) {
   );
 }
 
+// ChartCard Props
+interface ChartCardProps {
+  title: string;
+  type: 'line' | 'bar' | 'pie';
+  data: Array<{ name: string; value: number }>;
+}
+
 // ChartCard 组件
-function ChartCard({ title, type, data }: { title: string; type: string; data: any[] }) {
-  const renderChart = () => {
+function ChartCard({ title, type, data }: ChartCardProps) {
+  // 根据类型直接返回对应的图表，避免函数调用的类型推断问题
+  const chart = React.useMemo(() => {
     switch (type) {
       case 'line':
         return (
@@ -1055,7 +1067,7 @@ function ChartCard({ title, type, data }: { title: string; type: string; data: a
               outerRadius={80}
               fill="#8884d8"
               dataKey="value"
-              label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+              label={({ name, percent }: any) => `${name} ${(percent * 100).toFixed(0)}%`}
             >
               {data.map((_, index) => (
                 <Cell key={`cell-${index}`} fill={MORANDI_COLORS[index % MORANDI_COLORS.length]} />
@@ -1067,14 +1079,18 @@ function ChartCard({ title, type, data }: { title: string; type: string; data: a
       default:
         return null;
     }
-  };
+  }, [type, data]);
 
+  if (!chart) {
+    return null;
+  }
+  
   return (
     <div className="card-morandi">
       <h3 className="text-lg font-semibold text-morandi-stone mb-6">{title}</h3>
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
-          {renderChart()}
+          {chart}
         </ResponsiveContainer>
       </div>
     </div>
