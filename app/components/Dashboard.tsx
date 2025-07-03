@@ -8,7 +8,7 @@ import {
   RefreshCw, Loader2, Calendar, AlertTriangle, Upload, FileText, 
   LogOut, BarChart3, UserCheck, Trash2, Eye, EyeOff 
 } from 'lucide-react';
-import type { Creator, Account, Deal, ProcessedData } from '../types';
+import type { Creator, Account, Deal, ProcessedData, Pagination } from '../types';
 
 // 莫兰迪色系
 const MORANDI_COLORS = ['#a8b5c8', '#9caf88', '#d4b5a0', '#c7b299', '#d4a5a5', '#b8b5b1'];
@@ -104,7 +104,7 @@ export function Dashboard({
                 refreshing={refreshing}
                 totalCount={creators.length}
                 pagination={pagination.creators}
-                setPagination={(p) => onPaginationChange('creators', p)}
+                setPagination={(p: Pagination) => onPaginationChange('creators', p)}
               />
             )}
 
@@ -118,7 +118,7 @@ export function Dashboard({
                 refreshing={refreshing}
                 totalCount={accounts.length}
                 pagination={pagination.accounts}
-                setPagination={(p) => onPaginationChange('accounts', p)}
+                setPagination={(p: Pagination) => onPaginationChange('accounts', p)}
               />
             )}
 
@@ -136,7 +136,7 @@ export function Dashboard({
                 refreshing={refreshing}
                 totalCount={deals.length}
                 pagination={pagination.deals}
-                setPagination={(p) => onPaginationChange('deals', p)}
+                setPagination={(p: Pagination) => onPaginationChange('deals', p)}
               />
             )}
           </div>
@@ -364,10 +364,10 @@ function CreatorsTab(props: any) {
             <Pagination
               currentPage={pagination.page}
               totalPages={totalPages}
-              onPageChange={(page) => setPagination({ ...pagination, page })}
+              onPageChange={(page: number) => setPagination({ ...pagination, page })}
               totalItems={creators.length}
               pageSize={pagination.size}
-              onPageSizeChange={(size) => setPagination({ page: 1, size })}
+              onPageSizeChange={(size: number) => setPagination({ page: 1, size })}
             />
           </>
         ) : (
