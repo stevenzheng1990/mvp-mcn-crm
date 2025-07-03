@@ -163,3 +163,48 @@ export async function PUT(request: NextRequest) {
     );
   }
 }
+export async function DELETE(request: NextRequest) {
+  try {
+    const { dealId } = await request.json();
+    
+    if (!dealId) {
+      return NextResponse.json(
+        { success: false, error: 'Deal ID is required' },
+        { status: 400 }
+      );
+    }
+
+    // 读取现有数据
+    const data = await googleSheetsService.readSheet('业配记录 (Deals)');
+    if (data.length === 0) throw new Error('No data found in sheet');
+
+    const rows = data.slice(1);
+    
+    // 找到要删除的行
+    const rowIndex = rows.findIndex(row => row[0] === dealId);
+    
+    if (rowIndex === -1) {
+      throw new Error(`Deal with ID ${dealId} not found`);
+    }
+
+    // 删除行（通过清空内容）
+    const range = `A${rowIndex + 2}:O${rowIndex + 2}`;
+    await googleSheetsService.clearSheet('业配记录 (Deals)', range);
+    
+    return NextResponse.json({
+      success: true,
+      message: 'Deal deleted successfully'
+    });
+
+  } catch (error) {
+    console.error('Error deleting deal:', error);
+    return NextResponse.json(
+      { 
+        success: false, 
+        error: 'Failed to delete deal',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      },
+      { status: 500 }
+    );
+  }
+}

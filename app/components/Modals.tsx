@@ -76,11 +76,10 @@ export function EditModal({ isOpen, onClose, creator, onSave, isNew }: {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     
+    // 只有博主ID是必填的
     if (!formData.id.trim()) newErrors.id = '请输入博主ID';
-    if (!formData.realName.trim()) newErrors.realName = '请输入真实姓名';
-    if (!formData.wechatName.trim()) newErrors.wechatName = '请输入微信名';
-    if (!formData.city.trim()) newErrors.city = '请输入所在城市';
-    if (selectedCategories.length === 0) newErrors.category = '请至少选择一个账号类别';
+    
+    // 其他字段为选填，但如果填写了要符合规则
     if (formData.commission < 0 || formData.commission > 1) {
       newErrors.commission = '分成比例应在0-1之间';
     }
@@ -150,7 +149,7 @@ export function EditModal({ isOpen, onClose, creator, onSave, isNew }: {
         <ModalHeader
           icon={Users}
           title={isNew ? '新增博主' : '编辑博主信息'}
-          subtitle={isNew ? '请填写博主的基本信息' : `编辑 ${formData.realName} 的信息`}
+          subtitle={isNew ? '请填写博主的基本信息' : `编辑 ${formData.realName || formData.id} 的信息`}
           onClose={onClose}
         />
 
@@ -176,7 +175,6 @@ export function EditModal({ isOpen, onClose, creator, onSave, isNew }: {
             <FormField
               label="真实姓名"
               error={errors.realName}
-              required
             >
               <input
                 type="text"
@@ -190,7 +188,6 @@ export function EditModal({ isOpen, onClose, creator, onSave, isNew }: {
             <FormField
               label="微信名"
               error={errors.wechatName}
-              required
             >
               <input
                 type="text"
@@ -204,7 +201,6 @@ export function EditModal({ isOpen, onClose, creator, onSave, isNew }: {
             <FormField
               label="所在城市"
               error={errors.city}
-              required
             >
               <input
                 type="text"
@@ -329,7 +325,6 @@ export function EditModal({ isOpen, onClose, creator, onSave, isNew }: {
             <FormField
               label="账号类别（多选）"
               error={errors.category}
-              required
               className="md:col-span-2"
             >
               <div className="grid grid-cols-4 gap-2 mb-4">

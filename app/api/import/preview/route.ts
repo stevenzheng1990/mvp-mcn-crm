@@ -65,8 +65,7 @@ export async function POST(request: NextRequest) {
       '转账账户信息': 'transferAccount'
     };
 
-    // 验证标题行
-    const requiredFields = ['博主ID', '所在城市', '账号类别'];
+    const requiredFields = ['博主ID'];  // 只有博主ID是必填的
     const missingFields = requiredFields.filter(field => !headers.includes(field));
     
     if (missingFields.length > 0) {
@@ -102,23 +101,13 @@ export async function POST(request: NextRequest) {
         }
       });
 
-      // 验证必填字段
+      // 验证必填字段 - 只有博主ID是必填的
       if (!rowData.id || rowData.id.toString().trim() === '') {
         rowErrors.push(`第${i + 2}行：博主ID不能为空`);
         isValid = false;
       }
 
-      if (!rowData.city || rowData.city.toString().trim() === '') {
-        rowErrors.push(`第${i + 2}行：所在城市不能为空`);
-        isValid = false;
-      }
-
-      if (!rowData.category || rowData.category.toString().trim() === '') {
-        rowErrors.push(`第${i + 2}行：账号类别不能为空`);
-        isValid = false;
-      }
-
-      // 验证分成比例格式
+      // 验证分成比例格式（如果有填写）
       if (rowData.commission) {
         const commission = parseFloat(rowData.commission.toString());
         if (isNaN(commission) || commission < 0 || commission > 1) {
@@ -128,10 +117,10 @@ export async function POST(request: NextRequest) {
           rowData.commission = commission;
         }
       } else {
-        rowData.commission = 0;
+        rowData.commission = 0.7;  // 默认值
       }
 
-      // 验证日期格式
+      // 验证日期格式（如果有填写）
       if (rowData.interviewDate && rowData.interviewDate !== '') {
         const date = new Date(rowData.interviewDate);
         if (isNaN(date.getTime())) {
@@ -150,26 +139,3 @@ export async function POST(request: NextRequest) {
         errors.push(...rowErrors);
       }
     }
-
-    return NextResponse.json({
-      success: true,
-      data: processedData,
-      validation: {
-        valid: validCount,
-        invalid: invalidCount,
-        errors: errors
-      }
-    });
-
-  } catch (error) {
-    console.error('Error processing file:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Failed to process file',
-        message: error instanceof Error ? error.message : 'Unknown error'
-      },
-      { status: 500 }
-    );
-  }
-}

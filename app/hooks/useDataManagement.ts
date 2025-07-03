@@ -208,15 +208,18 @@ export function useDataManagement(isAuthenticated: boolean) {
     setPagination(prev => ({ ...prev, [type]: newPagination }));
   }, []);
 
+  // 先定义独立的 closeModal 函数
+  const closeModal = useCallback((type: ModalType) => {
+    setModals(prev => ({ ...prev, [type]: { open: false, isNew: false, data: null } }));
+  }, []);
+
   // 处理函数
   const handlers = {
     openModal: useCallback((type: ModalType, isNew = false, data = null) => {
       setModals(prev => ({ ...prev, [type]: { open: true, isNew, data } }));
     }, []),
 
-    closeModal: useCallback((type: ModalType) => {
-      setModals(prev => ({ ...prev, [type]: { open: false, isNew: false, data: null } }));
-    }, []),
+    closeModal,  // 使用上面定义的函数
 
     resetData: useCallback(() => {
       setCreators([]);
@@ -275,7 +278,7 @@ export function useDataManagement(isAuthenticated: boolean) {
             ));
           }
           alert(isNew ? '博主添加成功' : '博主信息更新成功');
-          handlers.closeModal('edit');
+          closeModal('edit');  // 使用独立定义的函数
         } else {
           throw new Error(result.message || '保存失败');
         }
@@ -283,7 +286,7 @@ export function useDataManagement(isAuthenticated: boolean) {
         console.error('保存博主信息失败:', error);
         alert('保存失败，请重试');
       }
-    }, [modals.edit]),
+    }, [modals.edit, closeModal]),
 
     saveDeal: useCallback(async (dealData: Deal) => {
       try {
@@ -310,7 +313,7 @@ export function useDataManagement(isAuthenticated: boolean) {
             ));
           }
           alert(isNew ? '业配记录添加成功' : '业配记录更新成功');
-          handlers.closeModal('deal');
+          closeModal('deal');  // 使用独立定义的函数
         } else {
           throw new Error(result.message || '保存失败');
         }
@@ -318,7 +321,7 @@ export function useDataManagement(isAuthenticated: boolean) {
         console.error('保存业配记录失败:', error);
         alert('保存失败，请重试');
       }
-    }, [modals.deal]),
+    }, [modals.deal, closeModal]),
 
     saveAccount: useCallback(async (accountData: Account) => {
       try {
@@ -338,7 +341,24 @@ export function useDataManagement(isAuthenticated: boolean) {
         const result = await response.json();
         if (result.success) {
           if (isNew) {
+            // 立即添加到本地状态
             setAccounts(prev => [...prev, accountData]);
+            
+            // 延迟刷新以确保 Google Sheets 已更新
+            setTimeout(async () => {
+              setRefreshing(true);
+              try {
+                const accountsRes = await fetch('/api/accounts');
+                const accountsData = await accountsRes.json();
+                if (accountsData.success) {
+                  setAccounts(accountsData.data || []);
+                }
+              } catch (error) {
+                console.error('刷新账号数据失败:', error);
+              } finally {
+                setRefreshing(false);
+              }
+            }, 2000);
           } else {
             setAccounts(prev => prev.map(account => 
               account.creatorId === accountData.creatorId && account.platform === accountData.platform
@@ -346,7 +366,7 @@ export function useDataManagement(isAuthenticated: boolean) {
             ));
           }
           alert(isNew ? '账号添加成功' : '账号信息更新成功');
-          handlers.closeModal('account');
+          closeModal('account');  // 使用独立定义的函数
         } else {
           throw new Error(result.message || '保存失败');
         }
@@ -354,7 +374,7 @@ export function useDataManagement(isAuthenticated: boolean) {
         console.error('保存账号信息失败:', error);
         alert('保存失败，请重试');
       }
-    }, [modals.account]),
+    }, [modals.account, closeModal]),
 
     deleteCreator: useCallback(async (creatorId: string) => {
       if (!confirm('确认删除该博主吗？此操作不可恢复。')) return;

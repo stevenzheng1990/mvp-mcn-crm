@@ -24,7 +24,7 @@ export async function GET() {
       contractStatus: creator.contractStatus || '',
       contractStartDate: creator.contractStartDate || '',
       contractEndDate: creator.contractEndDate || '',
-      commission: creator.commission ? parseFloat(creator.commission) : 0,
+      commission: creator.commission ? parseFloat(creator.commission) : 0.7,
       category: creator.category || '',
       notes: creator.notes || '',
       transferAccount: creator.transferAccount || ''
@@ -42,6 +42,56 @@ export async function GET() {
       { 
         success: false, 
         error: 'Failed to fetch creators data',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const creatorData = await request.json();
+    
+    if (!creatorData.id) {
+      return NextResponse.json(
+        { success: false, error: 'Creator ID is required' },
+        { status: 400 }
+      );
+    }
+
+    const rowData = [
+      creatorData.id,
+      creatorData.realName || '',
+      creatorData.wechatName || '',
+      creatorData.contactMethod || '',
+      creatorData.city || '',
+      creatorData.inGroup || '',
+      creatorData.interviewStatus || '',
+      creatorData.interviewer || '',
+      creatorData.interviewDate || '',
+      creatorData.contractStatus || '',
+      creatorData.contractStartDate || '',
+      creatorData.contractEndDate || '',
+      creatorData.commission || 0.7,
+      creatorData.category || '',
+      creatorData.notes || '',
+      creatorData.transferAccount || ''
+    ];
+
+    await googleSheetsService.appendSheet('博主信息 (Creators)', [rowData]);
+    
+    return NextResponse.json({
+      success: true,
+      message: 'Creator created successfully'
+    });
+
+  } catch (error) {
+    console.error('Error creating creator:', error);
+    return NextResponse.json(
+      { 
+        success: false, 
+        error: 'Failed to create creator',
         message: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 500 }
@@ -79,49 +129,46 @@ export async function PUT(request: NextRequest) {
     );
   }
 }
-export async function POST(request: NextRequest) {
+
+export async function DELETE(request: NextRequest) {
   try {
-    const creatorData = await request.json();
+    const { creatorId } = await request.json();
     
-    if (!creatorData.id) {
+    if (!creatorId) {
       return NextResponse.json(
         { success: false, error: 'Creator ID is required' },
         { status: 400 }
       );
     }
 
-    const rowData = [
-      creatorData.id,
-      creatorData.realName || '',
-      creatorData.wechatName || '',
-      creatorData.contactMethod || '',
-      creatorData.city || '',
-      creatorData.inGroup || '',
-      creatorData.interviewStatus || '',
-      creatorData.interviewer || '',
-      creatorData.interviewDate || '',
-      creatorData.contractStatus || '',
-      creatorData.contractStartDate || '',
-      creatorData.contractEndDate || '',
-      creatorData.commission || 0,
-      creatorData.category || '',
-      creatorData.notes || '',
-      creatorData.transferAccount || ''
-    ];
+    // 读取现有数据
+    const data = await googleSheetsService.readSheet('博主信息 (Creators)');
+    if (data.length === 0) throw new Error('No data found in sheet');
 
-    await googleSheetsService.appendSheet('博主信息 (Creators)', [rowData]);
+    const rows = data.slice(1);
+    
+    // 找到要删除的行
+    const rowIndex = rows.findIndex(row => row[0] === creatorId);
+    
+    if (rowIndex === -1) {
+      throw new Error(`Creator with ID ${creatorId} not found`);
+    }
+
+    // 删除行（通过清空内容）
+    const range = `A${rowIndex + 2}:P${rowIndex + 2}`;
+    await googleSheetsService.clearSheet('博主信息 (Creators)', range);
     
     return NextResponse.json({
       success: true,
-      message: 'Creator created successfully'
+      message: 'Creator deleted successfully'
     });
 
   } catch (error) {
-    console.error('Error creating creator:', error);
+    console.error('Error deleting creator:', error);
     return NextResponse.json(
       { 
         success: false, 
-        error: 'Failed to create creator',
+        error: 'Failed to delete creator',
         message: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 500 }
