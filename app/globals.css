@@ -11,7 +11,8 @@
   }
   
   body {
-    @apply antialiased;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     color: #495057;
     font-weight: 400;
@@ -32,174 +33,244 @@
   }
 }
 
-@layer components {
-  .btn-morandi-primary {
-    @apply px-6 py-3 rounded-2xl font-medium transition-all duration-300 ease-out;
-    background: linear-gradient(135deg, var(--morandi-cloud) 0%, var(--morandi-sage) 100%);
-    color: white;
-    box-shadow: 0 4px 20px rgba(155, 168, 204, 0.35);
-    border: none;
-  }
-  
-  .btn-morandi-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(155, 168, 204, 0.45);
-  }
-  
-  .btn-morandi-secondary {
-    @apply px-6 py-3 rounded-2xl font-medium transition-all duration-300 ease-out;
-    background: var(--morandi-pearl);
-    color: var(--morandi-stone);
-    border: 1px solid rgba(116, 116, 116, 0.25);
-  }
-  
-  .btn-morandi-secondary:hover {
-    background: var(--morandi-cream);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
-  }
+/* 按钮样式 - 不使用 @apply */
+.btn-morandi-primary {
+  padding: 0.75rem 1.5rem;
+  border-radius: 1rem;
+  font-weight: 500;
+  transition: all 300ms ease-out;
+  background: linear-gradient(135deg, var(--morandi-cloud) 0%, var(--morandi-sage) 100%);
+  color: white;
+  box-shadow: 0 4px 20px rgba(155, 168, 204, 0.35);
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
 
-  .card-morandi {
-    @apply rounded-3xl p-8 transition-all duration-300 ease-out;
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-  }
-  
-  .card-morandi:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
-  }
+.btn-morandi-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(155, 168, 204, 0.45);
+}
 
-  .input-morandi {
-    @apply w-full px-6 py-4 rounded-2xl font-medium transition-all duration-300 ease-out;
-    background: var(--morandi-pearl);
-    border: 1px solid rgba(168, 165, 160, 0.35);
-    color: var(--morandi-stone);
-    font-size: 15px;
-  }
-  
-  .input-morandi:focus {
-    outline: none;
-    border-color: var(--morandi-cloud);
-    background: white;
-    box-shadow: 0 0 0 3px rgba(155, 168, 204, 0.12);
-  }
-  
-  .input-morandi::placeholder {
-    color: var(--morandi-ash);
-    font-weight: 400;
-  }
+.btn-morandi-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 
-  .nav-tab-morandi {
-    @apply px-8 py-4 font-medium transition-all duration-300 ease-out border-b-2;
-    color: var(--morandi-stone);
-    border-color: transparent;
-    font-size: 15px;
-  }
-  
-  .nav-tab-morandi.active {
-    color: var(--morandi-cloud);
-    border-color: var(--morandi-cloud);
-    background: linear-gradient(to bottom, transparent 0%, rgba(155, 168, 204, 0.06) 100%);
-  }
-  
-  .nav-tab-morandi:hover:not(.active) {
-    color: var(--morandi-sage);
-    background: rgba(143, 169, 117, 0.06);
-  }
+.btn-morandi-secondary {
+  padding: 0.75rem 1.5rem;
+  border-radius: 1rem;
+  font-weight: 500;
+  transition: all 300ms ease-out;
+  background: var(--morandi-pearl);
+  color: var(--morandi-stone);
+  border: 1px solid rgba(116, 116, 116, 0.25);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
 
-  .stat-card-morandi {
-    @apply relative overflow-hidden;
-  }
-  
-  .stat-card-morandi::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, var(--morandi-sage) 0%, var(--morandi-cloud) 50%, var(--morandi-dust) 100%);
-  }
+.btn-morandi-secondary:hover {
+  background: var(--morandi-cream);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+}
 
-  .modal-morandi {
-    @apply fixed inset-0 flex items-center justify-center z-50 p-6;
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(8px);
-  }
-  
-  .modal-content-morandi {
-    @apply rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
-  }
+/* 卡片样式 */
+.card-morandi {
+  border-radius: 1.5rem;
+  padding: 2rem;
+  transition: all 300ms ease-out;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+}
 
-  .header-morandi {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 249, 250, 0.9) 100%);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(168, 181, 200, 0.2);
-  }
+.card-morandi:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+}
 
-  .logo-container {
-    @apply flex items-center gap-4;
-  }
-  
-  .logo-container img {
-    @apply h-10 w-auto;
-    filter: contrast(0.8) brightness(1.1);
-  }
+/* 输入框样式 */
+.input-morandi {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  border-radius: 1rem;
+  font-weight: 500;
+  transition: all 300ms ease-out;
+  background: var(--morandi-pearl);
+  border: 1px solid rgba(168, 165, 160, 0.35);
+  color: var(--morandi-stone);
+  font-size: 15px;
+}
 
-  .search-morandi {
-    @apply relative;
-  }
-  
-  .search-morandi::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 20px;
-    width: 18px;
-    height: 18px;
-    transform: translateY(-50%);
-    background: var(--morandi-mist);
-    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'%3E%3C/path%3E%3C/svg%3E") no-repeat center;
-    mask-size: contain;
-  }
+.input-morandi:focus {
+  outline: none;
+  border-color: var(--morandi-cloud);
+  background: white;
+  box-shadow: 0 0 0 3px rgba(155, 168, 204, 0.12);
+}
 
-  .table-morandi {
-    @apply w-full;
-  }
-  
-  .table-morandi thead {
-    background: linear-gradient(135deg, var(--morandi-pearl) 0%, var(--morandi-cream) 100%);
-  }
-  
-  .table-morandi th {
-    @apply px-8 py-6 text-left font-semibold;
-    color: var(--morandi-stone);
-    font-size: 14px;
-    letter-spacing: 0.5px;
-  }
-  
-  .table-morandi td {
-    @apply px-8 py-6 border-b border-gray-100;
-    color: var(--morandi-stone);
-    font-size: 14px;
-  }
-  
-  .table-morandi tbody tr:hover {
-    background: rgba(168, 181, 200, 0.03);
-  }
+.input-morandi::placeholder {
+  color: var(--morandi-ash);
+  font-weight: 400;
+}
 
-  .chart-container-morandi {
-    @apply p-8 rounded-3xl;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 249, 250, 0.9) 100%);
-    border: 1px solid rgba(156, 175, 136, 0.1);
-  }
+/* Tab导航样式 */
+.nav-tab-morandi {
+  padding: 1rem 2rem;
+  font-weight: 500;
+  transition: all 300ms ease-out;
+  border-bottom: 2px solid transparent;
+  color: var(--morandi-stone);
+  font-size: 15px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+}
+
+.nav-tab-morandi.active {
+  color: var(--morandi-cloud);
+  border-color: var(--morandi-cloud);
+  background: linear-gradient(to bottom, transparent 0%, rgba(155, 168, 204, 0.06) 100%);
+}
+
+.nav-tab-morandi:hover:not(.active) {
+  color: var(--morandi-sage);
+  background: rgba(143, 169, 117, 0.06);
+}
+
+/* 统计卡片样式 */
+.stat-card-morandi {
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card-morandi::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--morandi-sage) 0%, var(--morandi-cloud) 50%, var(--morandi-dust) 100%);
+}
+
+/* 模态框样式 */
+.modal-morandi {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.modal-content-morandi {
+  border-radius: 1.5rem;
+  max-width: 56rem;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+}
+
+/* Header样式 */
+.header-morandi {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 249, 250, 0.9) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(168, 181, 200, 0.2);
+}
+
+/* Logo容器样式 */
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.logo-container img {
+  height: 2.5rem;
+  width: auto;
+  filter: contrast(0.8) brightness(1.1);
+}
+
+/* 搜索框样式 */
+.search-morandi {
+  position: relative;
+}
+
+.search-morandi::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 20px;
+  width: 18px;
+  height: 18px;
+  transform: translateY(-50%);
+  background: var(--morandi-mist);
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'%3E%3C/path%3E%3C/svg%3E") no-repeat center;
+  mask-size: contain;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'%3E%3C/path%3E%3C/svg%3E") no-repeat center;
+  -webkit-mask-size: contain;
+}
+
+/* 表格样式 */
+.table-morandi {
+  width: 100%;
+}
+
+.table-morandi thead {
+  background: linear-gradient(135deg, var(--morandi-pearl) 0%, var(--morandi-cream) 100%);
+}
+
+.table-morandi th {
+  padding: 1.5rem 2rem;
+  text-align: left;
+  font-weight: 600;
+  color: var(--morandi-stone);
+  font-size: 14px;
+  letter-spacing: 0.5px;
+}
+
+.table-morandi td {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #e5e7eb;
+  color: var(--morandi-stone);
+  font-size: 14px;
+}
+
+.table-morandi tbody tr:hover {
+  background: rgba(168, 181, 200, 0.03);
+}
+
+/* 图表容器样式 */
+.chart-container-morandi {
+  padding: 2rem;
+  border-radius: 1.5rem;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 249, 250, 0.9) 100%);
+  border: 1px solid rgba(156, 175, 136, 0.1);
+}
+
+/* 背景渐变 */
+.bg-morandi-gradient {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
 }
 
 /* 自定义滚动条 - 莫兰迪风格 */
@@ -294,90 +365,155 @@
   color: white;
 }
 
-/* 渐进增强样式 */
-.loaded {
-  animation: fadeIn 0.6s ease-out;
+/* 布局相关样式 */
+.max-w-\[1400px\] {
+  max-width: 1400px;
 }
 
-/* 键盘导航样式 */
-.keyboard-navigation *:focus {
-  outline: 2px solid var(--morandi-cloud) !important;
-  outline-offset: 2px !important;
-  border-radius: 8px !important;
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
 }
 
-/* 屏幕阅读器专用 */
-.sr-only {
+.px-8 {
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
+.py-6 {
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+}
+
+.sticky {
+  position: sticky;
+}
+
+.top-0 {
+  top: 0;
+}
+
+.z-40 {
+  z-index: 40;
+}
+
+/* Flexbox 布局 */
+.flex {
+  display: flex;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.gap-4 {
+  gap: 1rem;
+}
+
+.gap-6 {
+  gap: 1.5rem;
+}
+
+/* 网格布局 */
+.grid {
+  display: grid;
+}
+
+.grid-cols-1 {
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+@media (min-width: 768px) {
+  .md\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .lg\:grid-cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* 文本样式 */
+.text-xl {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+}
+
+.text-2xl {
+  font-size: 1.5rem;
+  line-height: 2rem;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+/* 其他常用样式 */
+.min-h-screen {
+  min-height: 100vh;
+}
+
+.relative {
+  position: relative;
+}
+
+.absolute {
   position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
 }
 
-/* 高对比度模式支持 */
-@media (prefers-contrast: high) {
-  :root {
-    --morandi-stone: #333333;
-    --morandi-mist: #666666;
-    --morandi-cloud: #0066cc;
-  }
+.fixed {
+  position: fixed;
 }
 
-/* 减少动画偏好 */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-/* 深色模式支持（预留） */
-@media (prefers-color-scheme: dark) {
-  /* 未来可以在这里添加深色模式样式 */
-}
-
-/* 打印样式 */
-@media print {
-  * {
-    background: white !important;
-    color: black !important;
-    box-shadow: none !important;
-    text-shadow: none !important;
-  }
-  
-  .btn-morandi-primary,
-  .btn-morandi-secondary {
-    border: 1px solid black !important;
-  }
-  
-  .card-morandi {
-    border: 1px solid #ccc !important;
-    box-shadow: none !important;
-  }
+.inset-0 {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
 }
 
 /* 响应式设计 */
 @media (max-width: 768px) {
   .card-morandi {
-    @apply p-6 rounded-2xl;
+    padding: 1.5rem;
+    border-radius: 1rem;
   }
   
   .btn-morandi-primary,
   .btn-morandi-secondary {
-    @apply px-4 py-2 text-sm rounded-xl;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    border-radius: 0.75rem;
   }
   
   .input-morandi {
-    @apply px-4 py-3 text-sm rounded-xl;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    border-radius: 0.75rem;
   }
   
   .nav-tab-morandi {
-    @apply px-4 py-3 text-sm;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+  }
+  
+  .px-8 {
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
 }
