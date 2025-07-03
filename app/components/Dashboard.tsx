@@ -884,7 +884,7 @@ function DataTable({ data, type, onEdit, onDelete, creators, sortConfig, onSort 
         ];
       case 'accounts':
         return [
-          { label: '博主姓名', key: 'creatorId' },
+          { label: '博主ID', key: 'creatorId' }, // 🔧 修改：从"博主姓名"改为"博主ID"
           { label: '平台', key: 'platform' },
           { label: '粉丝数', key: 'followers' },
           { label: '报价', key: 'price' },
@@ -895,7 +895,7 @@ function DataTable({ data, type, onEdit, onDelete, creators, sortConfig, onSort 
       case 'deals':
         return [
           { label: '业配ID', key: 'id' },
-          { label: '博主', key: 'creatorId' },
+          { label: '博主ID', key: 'creatorId' }, // 🔧 修改：从"博主"改为"博主ID"
           { label: '合作方', key: 'partner' },
           { label: '金额', key: 'amount' },
           { label: '转账状态', key: 'transferStatus' },
@@ -973,17 +973,27 @@ function DataTable({ data, type, onEdit, onDelete, creators, sortConfig, onSort 
       case 'accounts':
         return (
           <tr key={`${item.creatorId}-${item.platform}`} className="table-morandi-row">
-            <td className="px-8 py-6 font-medium">{getCreatorName(item.creatorId)}</td>
+            {/* 🔧 修改：直接显示博主ID，不通过getCreatorName函数 */}
+            <td className="px-8 py-6 font-medium">{item.creatorId || '-'}</td>
             <td className="px-8 py-6">{item.platform || '-'}</td>
             <td className="px-8 py-6">{item.followers ? utils.formatNumber(item.followers) : '-'}</td>
             <td className="px-8 py-6">{item.price ? utils.formatCurrency(item.price) : '-'}</td>
             <td className="px-8 py-6">{utils.formatDate(item.updateDate)}</td>
             <td className="px-8 py-6">
               {item.link ? (
-                <a href={item.link} target="_blank" rel="noopener noreferrer" className="text-[var(--morandi-cloud)] hover:underline">
-                  查看
+                <a 
+                  href={item.link} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-[var(--morandi-cloud)] hover:text-[var(--morandi-sage)] transition-colors"
+                >
+                  <Eye size={18} />
                 </a>
-              ) : '-'}
+              ) : (
+                <span className="text-[var(--morandi-mist)]">
+                  <EyeOff size={18} />
+                </span>
+              )}
             </td>
             <td className="px-8 py-6">
               <div className="flex items-center gap-2">
@@ -999,16 +1009,16 @@ function DataTable({ data, type, onEdit, onDelete, creators, sortConfig, onSort 
         );
       case 'deals':
         return (
-          <tr key={item.id} className="table-morandi-row">
-            <td className="px-8 py-6 font-mono text-sm">{item.id || '-'}</td>
-            <td className="px-8 py-6 font-medium">{getCreatorName(item.creatorId)}</td>
+          <tr key={item.id || index} className="table-morandi-row">
+            <td className="px-8 py-6 font-medium">{item.id || '-'}</td>
+            {/* 🔧 修改：直接显示博主ID，不通过getCreatorName函数 */}
+            <td className="px-8 py-6 font-medium">{item.creatorId || '-'}</td>
             <td className="px-8 py-6">{item.partner || '-'}</td>
-            <td className="px-8 py-6 font-medium text-[var(--morandi-cloud)]">
-              {item.amount ? utils.formatCurrency(item.amount) : '-'}
-            </td>
+            <td className="px-8 py-6">{item.amount ? utils.formatCurrency(item.amount) : '-'}</td>
             <td className="px-8 py-6">
-              <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                item.transferStatus === '已转账' ? 'status-success' :
+              <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                item.transferStatus === '已转账' ? 'status-success' : 
+                item.transferStatus === '待转账' ? 'status-warning' : 
                 item.transferStatus === '处理中' ? 'status-info' :
                 utils.isOverdue(item) ? 'status-error' : 'status-warning'
               }`}>
@@ -1059,7 +1069,6 @@ function DataTable({ data, type, onEdit, onDelete, creators, sortConfig, onSort 
           </tr>
         </thead>
         <tbody>
-          {/* 🆕 直接使用传入的data，无需内部排序 */}
           {data.map(renderRow)}
         </tbody>
       </table>
