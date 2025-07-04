@@ -517,3 +517,77 @@
     padding-right: 1rem;
   }
 }
+
+/* 在 globals.css 中新增的样式 */
+
+/* 数据区块标题样式 */
+.data-section-title {
+  @apply text-xl font-semibold text-[var(--morandi-stone)] flex items-center gap-2 mb-6;
+}
+
+.data-section-subtitle {
+  @apply text-sm font-normal text-[var(--morandi-mist)];
+}
+
+/* 改进的统计卡片布局 */
+.stats-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+}
+
+/* 赛道分布卡片样式 */
+.category-distribution-card {
+  @apply card-morandi lg:col-span-1;
+}
+
+.category-item {
+  @apply flex justify-between items-center py-2 border-b border-[var(--morandi-pearl)] last:border-0;
+}
+
+.category-name {
+  @apply text-sm text-[var(--morandi-mist)];
+}
+
+.category-count {
+  @apply text-sm font-medium text-[var(--morandi-stone)];
+}
+
+/* 区块分隔线 */
+.section-divider {
+  @apply border-t border-[var(--morandi-pearl)] my-10;
+}
+
+/* 数据对比样式 - 可选的增强功能 */
+.stats-comparison {
+  @apply relative;
+}
+
+.stats-comparison::after {
+  content: '';
+  @apply absolute inset-0 bg-gradient-to-r from-transparent via-[var(--morandi-pearl)] to-transparent opacity-20;
+}
+
+/* 统计卡片悬浮效果增强 */
+.stat-card-enhanced {
+  @apply card-morandi transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+}
+
+/* 响应式优化 */
+@media (max-width: 768px) {
+  .stats-grid {
+    @apply grid-cols-1 gap-4;
+  }
+  
+  .category-distribution-card {
+    @apply col-span-1;
+  }
+}
+
+/* 数据加载动画 */
+.stats-loading {
+  @apply animate-pulse bg-[var(--morandi-pearl)] rounded-lg h-32;
+}
+
+/* 空数据状态 */
+.empty-stats {
+  @apply text-center py-8 text-[var(--morandi-mist)];
+}

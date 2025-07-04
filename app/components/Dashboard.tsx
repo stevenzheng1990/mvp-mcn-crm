@@ -220,6 +220,9 @@ export function Dashboard({
             monthlyData={processedData.monthlyData}
             chartData={processedData.chartData}
             onTabChange={onTabChange}
+            creators={creators}    // 新增
+            accounts={accounts}    // 新增
+            deals={deals}         // 新增
           />
         );
       
@@ -332,6 +335,9 @@ export function Dashboard({
             monthlyData={processedData.monthlyData}
             chartData={processedData.chartData}
             onTabChange={onTabChange}
+            creators={creators}    // 新增
+            accounts={accounts}    // 新增
+            deals={deals}         // 新增
           />
         );
     }
@@ -486,25 +492,215 @@ function StatCard({ icon: Icon, label, value, color }: {
 }
 
 // 数据概览Tab
-function OverviewTab({ stats, monthlyData, chartData, onTabChange }: {
+function OverviewTab({ 
+  stats, 
+  monthlyData, 
+  chartData, 
+  onTabChange,
+  creators,
+  accounts,
+  deals 
+}: {
   stats: any;
   monthlyData: any;
   chartData: any;
   onTabChange: (tab: string) => void;
+  creators: Creator[];
+  accounts: Account[];
+  deals: Deal[];
 }) {
   const { pendingTransfers, overdueTransfers } = monthlyData;
 
+  // 计算签约博主和矩阵博主的统计数据
+  const calculateStats = () => {
+    // 签约博主：已经签全约或已经签商务约的博主
+    const signedCreators = creators.filter(c => 
+      c.contractStatus === '已经签全约' || c.contractStatus === '已经签商务约'
+    );
+    
+    // 矩阵博主：所有博主
+    const allCreators = creators;
+
+    // 计算签约博主的统计数据
+    const signedStats = {
+      creatorCount: signedCreators.length,
+      totalFollowers: accounts
+        .filter(a => signedCreators.some(c => c.id === a.creatorId))
+        .reduce((sum, acc) => sum + (acc.followers || 0), 0),
+      categoryDistribution: calculateCategoryDistribution(signedCreators),
+      totalRevenue: deals
+        .filter(d => signedCreators.some(c => c.id === d.creatorId))
+        .reduce((sum, deal) => sum + (deal.receivedAmount || 0), 0),
+      dealCount: deals.filter(d => signedCreators.some(c => c.id === d.creatorId)).length,
+      averageRevenue: 0
+    };
+    
+    // 计算平均业配额
+    signedStats.averageRevenue = signedStats.dealCount > 0 
+      ? signedStats.totalRevenue / signedStats.dealCount 
+      : 0;
+
+    // 计算矩阵博主的统计数据
+    const matrixStats = {
+      creatorCount: allCreators.length,
+      totalFollowers: accounts.reduce((sum, acc) => sum + (acc.followers || 0), 0),
+      categoryDistribution: calculateCategoryDistribution(allCreators),
+      totalRevenue: deals.reduce((sum, deal) => sum + (deal.receivedAmount || 0), 0),
+      dealCount: deals.length,
+      averageRevenue: 0
+    };
+    
+    // 计算平均业配额
+    matrixStats.averageRevenue = matrixStats.dealCount > 0 
+      ? matrixStats.totalRevenue / matrixStats.dealCount 
+      : 0;
+
+    return { signedStats, matrixStats };
+  };
+
+  // 计算赛道分布
+  const calculateCategoryDistribution = (creatorList: Creator[]) => {
+    const distribution: Record<string, number> = {};
+    
+    creatorList.forEach(creator => {
+      const categories = creator.category ? 
+        creator.category.split(',').map(c => c.trim()) : ['未分类'];
+      
+      categories.forEach(category => {
+        if (category) {
+          distribution[category] = (distribution[category] || 0) + 1;
+        }
+      });
+    });
+
+    return Object.entries(distribution)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5) // 显示前5个赛道
+      .map(([name, count]) => ({ name, count }));
+  };
+
+  const { signedStats, matrixStats } = calculateStats();
+
   return (
     <div className="space-y-10">
-      {/* 统计卡片 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        <StatCard icon={Users} label="签约博主" value={stats.totalCreators} color="primary" />
-        <StatCard icon={TrendingUp} label="总粉丝数" value={utils.formatNumber(stats.totalFollowers)} color="green" />
-        <StatCard icon={DollarSign} label="总营收" value={utils.formatCurrency(stats.totalRevenue)} color="yellow" />
-        <StatCard icon={FileText} label="业配数量" value={stats.totalDeals} color="purple" />
+      {/* 签约博主区块 */}
+      <div className="space-y-6">
+        <h2 className="text-xl font-semibold text-[var(--morandi-stone)] flex items-center gap-2">
+          <Users className="w-5 h-5" />
+          签约博主数据统计
+          <span className="text-sm font-normal text-[var(--morandi-mist)]">
+            (已签全约 + 已签商务约)
+          </span>
+        </h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <StatCard 
+            icon={Users} 
+            label="博主数量" 
+            value={signedStats.creatorCount} 
+            color="primary" 
+          />
+          <StatCard 
+            icon={TrendingUp} 
+            label="粉丝总数" 
+            value={utils.formatNumber(signedStats.totalFollowers)} 
+            color="green" 
+          />
+          <StatCard 
+            icon={DollarSign} 
+            label="业配总额" 
+            value={utils.formatCurrency(signedStats.totalRevenue)} 
+            color="yellow" 
+          />
+          <StatCard 
+            icon={FileText} 
+            label="业配数量" 
+            value={signedStats.dealCount} 
+            color="purple" 
+          />
+          <StatCard 
+            icon={BarChart3} 
+            label="平均业配额" 
+            value={utils.formatCurrency(signedStats.averageRevenue)} 
+            color="blue" 
+          />
+          
+          {/* 赛道分布 */}
+          <div className="card-morandi lg:col-span-1">
+            <h3 className="text-sm font-medium text-[var(--morandi-stone)] mb-3">赛道分布</h3>
+            <div className="space-y-2">
+              {signedStats.categoryDistribution.map((item, index) => (
+                <div key={index} className="flex justify-between items-center">
+                  <span className="text-sm text-[var(--morandi-mist)]">{item.name}</span>
+                  <span className="text-sm font-medium text-[var(--morandi-stone)]">{item.count}人</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* 财务提醒 */}
+      {/* 分隔线 */}
+      <div className="border-t border-[var(--morandi-pearl)]"></div>
+
+      {/* 矩阵博主区块 */}
+      <div className="space-y-6">
+        <h2 className="text-xl font-semibold text-[var(--morandi-stone)] flex items-center gap-2">
+          <Users className="w-5 h-5" />
+          矩阵博主数据统计
+          <span className="text-sm font-normal text-[var(--morandi-mist)]">
+            (全部博主)
+          </span>
+        </h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <StatCard 
+            icon={Users} 
+            label="博主数量" 
+            value={matrixStats.creatorCount} 
+            color="primary" 
+          />
+          <StatCard 
+            icon={TrendingUp} 
+            label="粉丝总数" 
+            value={utils.formatNumber(matrixStats.totalFollowers)} 
+            color="green" 
+          />
+          <StatCard 
+            icon={DollarSign} 
+            label="业配总额" 
+            value={utils.formatCurrency(matrixStats.totalRevenue)} 
+            color="yellow" 
+          />
+          <StatCard 
+            icon={FileText} 
+            label="业配数量" 
+            value={matrixStats.dealCount} 
+            color="purple" 
+          />
+          <StatCard 
+            icon={BarChart3} 
+            label="平均业配额" 
+            value={utils.formatCurrency(matrixStats.averageRevenue)} 
+            color="blue" 
+          />
+          
+          {/* 赛道分布 */}
+          <div className="card-morandi lg:col-span-1">
+            <h3 className="text-sm font-medium text-[var(--morandi-stone)] mb-3">赛道分布</h3>
+            <div className="space-y-2">
+              {matrixStats.categoryDistribution.map((item, index) => (
+                <div key={index} className="flex justify-between items-center">
+                  <span className="text-sm text-[var(--morandi-mist)]">{item.name}</span>
+                  <span className="text-sm font-medium text-[var(--morandi-stone)]">{item.count}人</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 财务提醒 - 保持原有功能 */}
       {(pendingTransfers.length > 0 || overdueTransfers.length > 0) && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {pendingTransfers.length > 0 && (
@@ -531,7 +727,7 @@ function OverviewTab({ stats, monthlyData, chartData, onTabChange }: {
         </div>
       )}
 
-      {/* 图表区域 */}
+      {/* 图表区域 - 保持原有功能 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <ChartCard title="营收趋势" data={chartData.revenue} type="line" />
         <ChartCard title="业配状态分布" data={chartData.status} type="pie" />
@@ -541,7 +737,6 @@ function OverviewTab({ stats, monthlyData, chartData, onTabChange }: {
     </div>
   );
 }
-
 // 博主管理Tab
 function CreatorsTab(props: any) {
   const { 
