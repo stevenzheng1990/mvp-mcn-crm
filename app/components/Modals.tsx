@@ -469,6 +469,20 @@ export function DealModal({ isOpen, onClose, deal, onSave, creators, isNew }: {
     }
   }, [formData.amount, formData.creatorId, creators]);
 
+  // 新增：自动计算应转账日期
+  useEffect(() => {
+    if (formData.date && formData.transferCycle && formData.transferCycle !== '其他') {
+      const match = formData.transferCycle.match(/T\+(\d+)/);
+      if (match) {
+        const days = parseInt(match[1]);
+        const dealDate = new Date(formData.date);
+        dealDate.setDate(dealDate.getDate() + days);
+        const transferDate = dealDate.toISOString().split('T')[0];
+        setFormData(prev => ({ ...prev, transferDate }));
+      }
+    }
+  }, [formData.date, formData.transferCycle]);
+
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     
@@ -514,18 +528,25 @@ export function DealModal({ isOpen, onClose, deal, onSave, creators, isNew }: {
               error={errors.creatorId}
               required
             >
-              <select
+              <input
+                list="deal-creators-list"
                 value={formData.creatorId}
                 onChange={(e) => handleChange('creatorId', e.target.value)}
                 className="input-morandi"
-              >
-                <option value="">请选择博主</option>
+                placeholder="输入博主ID或姓名搜索..."
+              />
+              <datalist id="deal-creators-list">
                 {creators.map(creator => (
                   <option key={creator.id} value={creator.id}>
-                    {creator.id} - {creator.realName}
+                    {creator.id} - {creator.realName} - {creator.wechatName}
                   </option>
                 ))}
-              </select>
+              </datalist>
+              {formData.creatorId && (
+                <p className="text-sm text-[var(--morandi-mist)] mt-1">
+                  已选择: {creators.find(c => c.id === formData.creatorId)?.realName || formData.creatorId}
+                </p>
+              )}
             </FormField>
 
             <FormField
@@ -583,7 +604,7 @@ export function DealModal({ isOpen, onClose, deal, onSave, creators, isNew }: {
               <input
                 type="number"
                 value={formData.amount}
-                onChange={(e) => handleChange('amount', parseFloat(e.target.value))}
+                onChange={(e) => handleChange('amount', parseFloat(e.target.value) || 0)}
                 className="input-morandi"
                 placeholder="0"
                 min="0"
@@ -605,6 +626,11 @@ export function DealModal({ isOpen, onClose, deal, onSave, creators, isNew }: {
                 <option value="T+60">T+60</option>
                 <option value="其他">其他</option>
               </select>
+              {formData.transferCycle && formData.transferCycle !== '其他' && (
+                <p className="text-sm text-[var(--morandi-sage)] mt-1">
+                  {formData.transferCycle.replace('T+', '业配日期后')}天
+                </p>
+              )}
             </FormField>
 
             <FormField label="应转账日期">
@@ -613,7 +639,21 @@ export function DealModal({ isOpen, onClose, deal, onSave, creators, isNew }: {
                 value={formData.transferDate}
                 onChange={(e) => handleChange('transferDate', e.target.value)}
                 className="input-morandi"
+                readOnly={formData.transferCycle !== '其他' && formData.transferCycle !== ''}
+                style={{
+                  backgroundColor: formData.transferCycle !== '其他' && formData.transferCycle !== '' 
+                    ? 'var(--morandi-pearl)' 
+                    : 'inherit',
+                  cursor: formData.transferCycle !== '其他' && formData.transferCycle !== '' 
+                    ? 'not-allowed' 
+                    : 'text'
+                }}
               />
+              {formData.transferCycle && formData.transferCycle !== '其他' && formData.date && (
+                <p className="text-sm text-[var(--morandi-sage)] mt-1">
+                  自动计算：业配日期 + {formData.transferCycle.replace('T+', '')}天
+                </p>
+              )}
             </FormField>
 
             <FormField label="转账状态">
@@ -632,7 +672,7 @@ export function DealModal({ isOpen, onClose, deal, onSave, creators, isNew }: {
               <input
                 type="number"
                 value={formData.receivedAmount}
-                onChange={(e) => handleChange('receivedAmount', parseFloat(e.target.value))}
+                onChange={(e) => handleChange('receivedAmount', parseFloat(e.target.value) || 0)}
                 className="input-morandi"
                 placeholder="0"
                 min="0"
@@ -647,6 +687,7 @@ export function DealModal({ isOpen, onClose, deal, onSave, creators, isNew }: {
                 readOnly
                 className="input-morandi bg-[var(--morandi-pearl)]"
                 placeholder="自动计算"
+                style={{ cursor: 'not-allowed' }}
               />
             </FormField>
 
@@ -657,6 +698,7 @@ export function DealModal({ isOpen, onClose, deal, onSave, creators, isNew }: {
                 readOnly
                 className="input-morandi bg-[var(--morandi-pearl)]"
                 placeholder="自动计算"
+                style={{ cursor: 'not-allowed' }}
               />
             </FormField>
 
@@ -681,7 +723,6 @@ export function DealModal({ isOpen, onClose, deal, onSave, creators, isNew }: {
     </ModalWrapper>
   );
 }
-
 // 账号模态框
 export function AccountModal({ isOpen, onClose, account, onSave, creators, isNew }: {
   isOpen: boolean;

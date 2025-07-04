@@ -52,32 +52,52 @@ export async function POST(request: NextRequest) {
   try {
     const dealData = await request.json();
     
-    // 验证必要字段
-    if (!dealData.creatorId || !dealData.partner || !dealData.amount) {
+    // 添加详细的日志
+    console.log('Received deal data:', dealData);
+    
+    // 修复验证逻辑：检查必填字段
+    if (!dealData.creatorId || !dealData.creatorId.trim()) {
       return NextResponse.json(
-        { success: false, error: 'Missing required fields' },
+        { success: false, error: 'Creator ID is required' },
+        { status: 400 }
+      );
+    }
+    
+    if (!dealData.partner || !dealData.partner.trim()) {
+      return NextResponse.json(
+        { success: false, error: 'Partner is required' },
+        { status: 400 }
+      );
+    }
+    
+    // 修复：amount 可以是 0，但必须是有效的数字
+    if (dealData.amount === undefined || dealData.amount === null || isNaN(dealData.amount)) {
+      return NextResponse.json(
+        { success: false, error: 'Valid amount is required' },
         { status: 400 }
       );
     }
 
     // 构建要添加到Google Sheets的行数据
     const rowData = [
-      dealData.id,
-      dealData.creatorId,
-      dealData.partner,
-      dealData.type,
-      dealData.date,
-      dealData.channel,
-      dealData.amount,
-      dealData.transferCycle,
-      dealData.transferDate,
-      dealData.transferStatus,
-      dealData.receivedAmount,
-      dealData.companyShare,
-      dealData.creatorShare,
-      dealData.unallocated,
-      dealData.informalDetails
+      dealData.id || '',
+      dealData.creatorId || '',
+      dealData.partner || '',
+      dealData.type || '',
+      dealData.date || '',
+      dealData.channel || '',
+      dealData.amount || 0,
+      dealData.transferCycle || '',
+      dealData.transferDate || '',
+      dealData.transferStatus || '待转账',
+      dealData.receivedAmount || 0,
+      dealData.companyShare || 0,
+      dealData.creatorShare || 0,
+      dealData.unallocated || '',
+      dealData.informalDetails || ''
     ];
+
+    console.log('Row data to save:', rowData);
 
     await googleSheetsService.appendSheet('业配记录 (Deals)', [rowData]);
     
@@ -101,9 +121,9 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    const dealData = await request.json();
+    const { dealId, updatedData } = await request.json();
     
-    if (!dealData.id) {
+    if (!dealId) {
       return NextResponse.json(
         { success: false, error: 'Deal ID is required' },
         { status: 400 }
@@ -118,28 +138,28 @@ export async function PUT(request: NextRequest) {
     const rows = data.slice(1);
     
     // 找到要更新的行
-    const rowIndex = rows.findIndex(row => row[0] === dealData.id);
+    const rowIndex = rows.findIndex(row => row[0] === dealId);
     if (rowIndex === -1) {
-      throw new Error(`Deal with ID ${dealData.id} not found`);
+      throw new Error(`Deal with ID ${dealId} not found`);
     }
 
     // 构建更新的行数据
     const updatedRow = [
-      dealData.id,
-      dealData.creatorId,
-      dealData.partner,
-      dealData.type,
-      dealData.date,
-      dealData.channel,
-      dealData.amount,
-      dealData.transferCycle,
-      dealData.transferDate,
-      dealData.transferStatus,
-      dealData.receivedAmount,
-      dealData.companyShare,
-      dealData.creatorShare,
-      dealData.unallocated,
-      dealData.informalDetails
+      updatedData.id || dealId,
+      updatedData.creatorId || '',
+      updatedData.partner || '',
+      updatedData.type || '',
+      updatedData.date || '',
+      updatedData.channel || '',
+      updatedData.amount || 0,
+      updatedData.transferCycle || '',
+      updatedData.transferDate || '',
+      updatedData.transferStatus || '待转账',
+      updatedData.receivedAmount || 0,
+      updatedData.companyShare || 0,
+      updatedData.creatorShare || 0,
+      updatedData.unallocated || '',
+      updatedData.informalDetails || ''
     ];
 
     // 更新到Google Sheets
@@ -163,6 +183,7 @@ export async function PUT(request: NextRequest) {
     );
   }
 }
+
 export async function DELETE(request: NextRequest) {
   try {
     const { dealId } = await request.json();

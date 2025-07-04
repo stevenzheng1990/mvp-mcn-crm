@@ -578,40 +578,52 @@ export function useDataManagement(isAuthenticated: boolean) {
       }
     }, [modals.edit, closeModal]),
 
-    saveDeal: useCallback(async (dealData: Deal) => {
-      try {
-        const { isNew } = modals.deal;
-        const method = isNew ? 'POST' : 'PUT';
-        const body = isNew ? JSON.stringify(dealData) : JSON.stringify({
+saveDeal: useCallback(async (dealData: Deal) => {
+  try {
+    const { isNew } = modals.deal;
+    const method = isNew ? 'POST' : 'PUT';
+    
+    // 统一数据格式
+    const requestData = isNew 
+      ? dealData 
+      : {
           dealId: dealData.id,
           updatedData: dealData
-        });
+        };
 
-        const response = await fetch('/api/deals', {
-          method,
-          headers: { 'Content-Type': 'application/json' },
-          body,
-        });
+    console.log('Sending deal data:', requestData);
 
-        const result = await response.json();
-        if (result.success) {
-          if (isNew) {
-            setDeals(prev => deduplicateDeals([...prev, dealData]));
-          } else {
-            setDeals(prev => deduplicateDeals(prev.map(deal => 
-              deal.id === dealData.id ? dealData : deal
-            )));
-          }
-          alert(isNew ? '业配记录添加成功' : '业配记录更新成功');
-          closeModal('deal');
-        } else {
-          throw new Error(result.message || '保存失败');
-        }
-      } catch (error) {
-        console.error('保存业配记录失败:', error);
-        alert('保存失败，请重试');
+    const response = await fetch('/api/deals', {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(requestData),
+    });
+
+    const result = await response.json();
+    
+    if (!response.ok) {
+      console.error('API error:', result);
+      throw new Error(result.error || result.message || '保存失败');
+    }
+
+    if (result.success) {
+      if (isNew) {
+        setDeals(prev => deduplicateDeals([...prev, dealData]));
+      } else {
+        setDeals(prev => deduplicateDeals(prev.map(deal => 
+          deal.id === dealData.id ? dealData : deal
+        )));
       }
-    }, [modals.deal, closeModal]),
+      alert(isNew ? '业配记录添加成功' : '业配记录更新成功');
+      closeModal('deal');
+    } else {
+      throw new Error(result.message || '保存失败');
+    }
+  } catch (error) {
+    console.error('保存业配记录失败:', error);
+    alert(error instanceof Error ? error.message : '保存失败，请重试');
+  }
+}, [modals.deal, closeModal]),
 
     saveAccount: useCallback(async (accountData: Account) => {
       try {
