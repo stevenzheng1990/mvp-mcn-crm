@@ -591,3 +591,15 @@
 .empty-stats {
   @apply text-center py-8 text-[var(--morandi-mist)];
 }
+
+/* 在 globals.css 中添加 */
+.clickable-id {
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 200ms ease;
+}
+
+.clickable-id:hover {
+  text-decoration: underline;
+  transform: translateX(2px);
+}

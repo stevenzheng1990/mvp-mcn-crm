@@ -272,6 +272,7 @@ export function Dashboard({
             onRefresh={onRefresh}
             onOpenModal={onOpenModal}
             onDelete={onDeleteAccount}
+            onViewDetails={onViewCreatorDetails} 
             refreshing={refreshing}
             
             // 分页props
@@ -820,11 +821,12 @@ function AccountsTab(props: any) {
     onRefresh, 
     onOpenModal, 
     onDelete, 
+    onViewDetails, 
     refreshing, 
     pagination, 
     setPaginationForType,
     sortConfigs,
-    handleSort // 🆕 新增
+    handleSort
   } = props;
   
   const totalPages = Math.ceil(filteredData.accounts.length / pagination.accounts.size);
@@ -859,6 +861,7 @@ function AccountsTab(props: any) {
               type="accounts" 
               onEdit={(account: Account) => onOpenModal('account', false, account)}
               onDelete={onDelete}
+              onViewDetails={onViewDetails} 
               creators={creators}
               sortConfig={sortConfigs.accounts} // 🆕 新增
               onSort={(key: string) => handleSort('accounts', key)} // 🆕 新增
@@ -1113,7 +1116,15 @@ function DataTable({ data, type, onEdit, onDelete, creators, onViewDetails, sort
       case 'creators':
         return (
           <tr key={item.id || index} className="table-morandi-row">
-            <td className="px-8 py-6 font-medium">{item.id || '-'}</td>
+            <td className="px-8 py-6">
+              {/* 博主ID变为可点击的链接 */}
+              <button
+                onClick={() => onViewDetails?.(item)}
+                className="font-medium text-[var(--morandi-cloud)] hover:text-[var(--morandi-sage)] hover:underline transition-colors"
+              >
+                {item.id || '-'}
+              </button>
+            </td>
             <td className="px-8 py-6">{item.wechatName || '-'}</td>
             <td className="px-8 py-6">{item.city || '-'}</td>
             <td className="px-8 py-6">
@@ -1155,13 +1166,7 @@ function DataTable({ data, type, onEdit, onDelete, creators, onViewDetails, sort
             <td className="px-8 py-6">
               <div className="flex items-center gap-2">
                 <button 
-                  onClick={() => onViewDetails?.(item)} 
-                  className="text-[var(--morandi-sage)] hover:text-[var(--morandi-cloud)] transition-colors"
-                  title="查看详情"
-                > 
-                  <Eye size={18} />
-                </button>
-                <button onClick={() => onEdit?.(item)} className="text-[var(--morandi-cloud)] hover:text-[var(--morandi-sage)] transition-colors"
+                  onClick={() => onEdit?.(item)} className="text-[var(--morandi-cloud)] hover:text-[var(--morandi-sage)] transition-colors"
                   title="编辑"
                 >
                   <Edit size={18} />
@@ -1176,8 +1181,21 @@ function DataTable({ data, type, onEdit, onDelete, creators, onViewDetails, sort
       case 'accounts':
         return (
           <tr key={`${item.creatorId}-${item.platform}`} className="table-morandi-row">
-            {/* 🔧 修改：直接显示博主ID，不通过getCreatorName函数 */}
-            <td className="px-8 py-6 font-medium">{item.creatorId || '-'}</td>
+            <td className="px-8 py-6">
+              {/* 在账号管理中，博主ID也变为可点击的链接 */}
+              <button
+                onClick={() => {
+                  // 需要先找到对应的creator对象
+                  const creator = creators?.find(c => c.id === item.creatorId);
+                  if (creator) {
+                    onViewDetails?.(creator);
+                  }
+                }}
+                className="font-medium text-[var(--morandi-cloud)] hover:text-[var(--morandi-sage)] hover:underline transition-colors"
+              >
+                {item.creatorId || '-'}
+              </button>
+            </td>
             <td className="px-8 py-6">{item.platform || '-'}</td>
             <td className="px-8 py-6">{item.followers ? utils.formatNumber(item.followers) : '-'}</td>
             <td className="px-8 py-6">{item.price ? utils.formatCurrency(item.price) : '-'}</td>
