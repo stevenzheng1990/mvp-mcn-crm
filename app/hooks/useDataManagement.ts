@@ -239,14 +239,14 @@ export function useDataManagement(isAuthenticated: boolean) {
     deals: null,
   });
   
-// 模态框状态
+  // 模态框状态
   const [modals, setModals] = useState({
     edit: { open: false, isNew: false, data: null as any },
     deal: { open: false, isNew: false, data: null as any },
     import: { open: false },
     export: { open: false },
     account: { open: false, isNew: false, data: null as any },
-    details: { open: false, isNew: false, data: null as any }, // 新增这一行
+    details: { open: false, isNew: false, data: null as any },
   });
 
   // 分页状态
@@ -255,6 +255,27 @@ export function useDataManagement(isAuthenticated: boolean) {
     accounts: { page: 1, size: 50 },
     deals: { page: 1, size: 50 },
   });
+
+  // 🔧 新增：Tab切换时重置状态过滤器
+  useEffect(() => {
+    // 当切换Tab时，重置状态过滤器为默认值
+    // 这样可以避免在不同Tab之间的状态过滤器不匹配问题
+    if (activeTab === 'accounts') {
+      // 账号管理页面重置为"全部平台"
+      setStatusFilter('all');
+    } else if (activeTab === 'creators') {
+      // 博主管理页面重置为"全部状态" 
+      setStatusFilter('all');
+    } else if (activeTab === 'deals') {
+      // 业配记录页面重置为"全部状态"
+      setStatusFilter('all');
+    }
+    
+    // 同时重置搜索词
+    setSearchTerm('');
+    
+    console.log('🔧 Debug: Tab switched to', activeTab, 'filters reset');
+  }, [activeTab]);
 
   // 设置分页的方法
   const setPaginationForType = useCallback((type: 'creators' | 'accounts' | 'deals', newPagination: any) => {
@@ -321,6 +342,7 @@ export function useDataManagement(isAuthenticated: boolean) {
         deals: dedupedDeals.length 
       });
 
+      // 2. 过滤博主数据
       const filteredCreators = dedupedCreators.filter(creator => {
         if (!creator || !creator.id) return false;
         
@@ -331,13 +353,13 @@ export function useDataManagement(isAuthenticated: boolean) {
           (creator.city?.toLowerCase().includes(lowerSearchTerm)) ||
           (creator.category?.toLowerCase().includes(lowerSearchTerm));
         
-        const matchesStatus = statusFilter === 'all' ||
-          (statusFilter === 'signed' && creator.contractStatus === '已签约') ||
-          (statusFilter === 'pending' && creator.contractStatus === '签约意向');
+        // 🔧 修复：状态过滤逻辑 - 直接匹配实际的状态值
+        const matchesStatus = statusFilter === 'all' || creator.contractStatus === statusFilter;
         
         return matchesSearch && matchesStatus;
       });
 
+      // 3. 过滤账号数据
       const filteredAccounts = dedupedAccounts.filter(account => {
         if (!account || !account.creatorId) return false;
         
@@ -345,12 +367,17 @@ export function useDataManagement(isAuthenticated: boolean) {
         const creatorName = creator?.realName || '';
         
         const matchesSearch = !searchTerm ||
+          (account.creatorId?.toLowerCase().includes(lowerSearchTerm)) ||
           (creatorName.toLowerCase().includes(lowerSearchTerm)) ||
           (account.platform?.toLowerCase().includes(lowerSearchTerm));
         
-        return matchesSearch;
+        // 🔧 修复：账号页面按平台过滤
+        const matchesStatus = statusFilter === 'all' || account.platform === statusFilter;
+        
+        return matchesSearch && matchesStatus;
       });
 
+      // 4. 过滤业配数据
       const filteredDeals = dedupedDeals.filter(deal => {
         if (!deal || !deal.id) return false;
         
@@ -377,7 +404,7 @@ export function useDataManagement(isAuthenticated: boolean) {
         deals: filteredDeals.length 
       });
 
-      // 2. 使用修复后的排序函数
+      // 5. 排序处理
       const sortedCreators = sortDataFixed(filteredCreators, sortConfigs.creators);
       const sortedAccounts = sortDataFixed(filteredAccounts, sortConfigs.accounts);
       const sortedDeals = sortDataFixed(filteredDeals, sortConfigs.deals);
@@ -388,22 +415,20 @@ export function useDataManagement(isAuthenticated: boolean) {
         deals: sortedDeals.length 
       });
 
-      // 3. 最后分页
-      const creatorsStartIndex = (pagination.creators.page - 1) * pagination.creators.size;
-      const accountsStartIndex = (pagination.accounts.page - 1) * pagination.accounts.size;
-      const dealsStartIndex = (pagination.deals.page - 1) * pagination.deals.size;
-
+      // 6. 分页处理
       const paginatedCreators = sortedCreators.slice(
-        creatorsStartIndex, 
-        creatorsStartIndex + pagination.creators.size
+        (pagination.creators.page - 1) * pagination.creators.size,
+        pagination.creators.page * pagination.creators.size
       );
+      
       const paginatedAccounts = sortedAccounts.slice(
-        accountsStartIndex, 
-        accountsStartIndex + pagination.accounts.size
+        (pagination.accounts.page - 1) * pagination.accounts.size,
+        pagination.accounts.page * pagination.accounts.size
       );
+      
       const paginatedDeals = sortedDeals.slice(
-        dealsStartIndex, 
-        dealsStartIndex + pagination.deals.size
+        (pagination.deals.page - 1) * pagination.deals.size,
+        pagination.deals.page * pagination.deals.size
       );
 
       console.log('🔧 Debug: Paginated data counts', { 
@@ -412,7 +437,7 @@ export function useDataManagement(isAuthenticated: boolean) {
         deals: paginatedDeals.length 
       });
 
-      const result = {
+      return {
         filtered: {
           creators: sortedCreators,
           accounts: sortedAccounts,
@@ -424,23 +449,12 @@ export function useDataManagement(isAuthenticated: boolean) {
           deals: paginatedDeals,
         }
       };
-
-      return result;
-
     } catch (error) {
       console.error('🔧 Error in filteredAndSortedData:', error);
-      // 出错时返回去重后的原始数据
+      // 出错时返回安全的默认值
       return {
-        filtered: {
-          creators: deduplicateCreators(creators),
-          accounts: deduplicateAccounts(accounts),
-          deals: deduplicateDeals(deals),
-        },
-        paginated: {
-          creators: deduplicateCreators(creators).slice(0, 50),
-          accounts: deduplicateAccounts(accounts).slice(0, 50),
-          deals: deduplicateDeals(deals).slice(0, 50),
-        }
+        filtered: { creators: [], accounts: [], deals: [] },
+        paginated: { creators: [], accounts: [], deals: [] }
       };
     }
   }, [creators, accounts, deals, searchTerm, statusFilter, sortConfigs, pagination]);
@@ -493,23 +507,12 @@ export function useDataManagement(isAuthenticated: boolean) {
     setModals(prev => ({ ...prev, [type]: { open: false, isNew: false, data: null } }));
   }, []);
 
-  // 处理函数 - 🔧 在保存时也要去重
+  // 处理函数集合
   const handlers = {
-    openModal: useCallback((type: ModalType, isNew = false, data = null) => {
-      setModals(prev => ({ ...prev, [type]: { open: true, isNew, data } }));
-    }, []),
-
-    closeModal,
-
-    resetData: useCallback(() => {
-      setCreators([]);
-      setAccounts([]);
-      setDeals([]);
-    }, []),
-
-    refresh: useCallback(async () => {
-      setRefreshing(true);
+    // 数据刷新
+    refreshData: useCallback(async () => {
       try {
+        setRefreshing(true);
         const [creatorsRes, accountsRes, dealsRes] = await Promise.all([
           fetch('/api/creators'),
           fetch('/api/accounts'),
@@ -522,7 +525,7 @@ export function useDataManagement(isAuthenticated: boolean) {
           dealsRes.json()
         ]);
 
-        // 🔧 刷新时也要去重
+        // 🔧 在刷新时也进行去重
         if (creatorsData.success) {
           const dedupedCreators = deduplicateCreators(creatorsData.data || []);
           setCreators(dedupedCreators);
@@ -543,14 +546,36 @@ export function useDataManagement(isAuthenticated: boolean) {
       }
     }, []),
 
-    // 其他handlers保持不变，但在添加数据时确保去重
+    // 重置数据
+    resetData: useCallback(() => {
+      setCreators([]);
+      setAccounts([]);
+      setDeals([]);
+      setSearchTerm('');
+      setStatusFilter('all');
+      setPagination({
+        creators: { page: 1, size: 50 },
+        accounts: { page: 1, size: 50 },
+        deals: { page: 1, size: 50 },
+      });
+    }, []),
+
+    // 模态框控制
+    openModal: useCallback((type: ModalType, isNew: boolean = false, data: any = null) => {
+      console.log('Opening modal:', { type, isNew, data });
+      setModals(prev => ({ ...prev, [type]: { open: true, isNew, data } }));
+    }, []),
+
+    closeModal,
+
+    // 保存创建者
     saveCreator: useCallback(async (creatorData: Creator) => {
       try {
         const { isNew } = modals.edit;
         const method = isNew ? 'POST' : 'PUT';
-        const body = isNew ? JSON.stringify(creatorData) : JSON.stringify({ 
-          creatorId: creatorData.id, 
-          updatedData: creatorData 
+        const body = isNew ? JSON.stringify(creatorData) : JSON.stringify({
+          creatorId: creatorData.id,
+          updatedData: creatorData
         });
 
         const response = await fetch('/api/creators', {
@@ -579,53 +604,43 @@ export function useDataManagement(isAuthenticated: boolean) {
       }
     }, [modals.edit, closeModal]),
 
-saveDeal: useCallback(async (dealData: Deal) => {
-  try {
-    const { isNew } = modals.deal;
-    const method = isNew ? 'POST' : 'PUT';
-    
-    // 统一数据格式
-    const requestData = isNew 
-      ? dealData 
-      : {
+    // 保存业配记录
+    saveDeal: useCallback(async (dealData: Deal) => {
+      try {
+        const { isNew } = modals.deal;
+        const method = isNew ? 'POST' : 'PUT';
+        const body = isNew ? JSON.stringify(dealData) : JSON.stringify({
           dealId: dealData.id,
           updatedData: dealData
-        };
+        });
 
-    console.log('Sending deal data:', requestData);
+        const response = await fetch('/api/deals', {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body,
+        });
 
-    const response = await fetch('/api/deals', {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(requestData),
-    });
-
-    const result = await response.json();
-    
-    if (!response.ok) {
-      console.error('API error:', result);
-      throw new Error(result.error || result.message || '保存失败');
-    }
-
-    if (result.success) {
-      if (isNew) {
-        setDeals(prev => deduplicateDeals([...prev, dealData]));
-      } else {
-        setDeals(prev => deduplicateDeals(prev.map(deal => 
-          deal.id === dealData.id ? dealData : deal
-        )));
+        const result = await response.json();
+        if (result.success) {
+          if (isNew) {
+            setDeals(prev => deduplicateDeals([...prev, dealData]));
+          } else {
+            setDeals(prev => deduplicateDeals(prev.map(deal => 
+              deal.id === dealData.id ? dealData : deal
+            )));
+          }
+          alert(isNew ? '业配记录添加成功' : '业配记录更新成功');
+          closeModal('deal');
+        } else {
+          throw new Error(result.message || '保存失败');
+        }
+      } catch (error) {
+        console.error('保存业配记录失败:', error);
+        alert(error instanceof Error ? error.message : '保存失败，请重试');
       }
-      alert(isNew ? '业配记录添加成功' : '业配记录更新成功');
-      closeModal('deal');
-    } else {
-      throw new Error(result.message || '保存失败');
-    }
-  } catch (error) {
-    console.error('保存业配记录失败:', error);
-    alert(error instanceof Error ? error.message : '保存失败，请重试');
-  }
-}, [modals.deal, closeModal]),
+    }, [modals.deal, closeModal]),
 
+    // 保存账号
     saveAccount: useCallback(async (accountData: Account) => {
       try {
         const { isNew } = modals.account;
@@ -678,6 +693,7 @@ saveDeal: useCallback(async (dealData: Deal) => {
       }
     }, [modals.account, closeModal]),
 
+    // 删除创建者
     deleteCreator: useCallback(async (creatorId: string) => {
       if (!confirm('确认删除该博主吗？此操作不可恢复。')) return;
       
@@ -701,6 +717,7 @@ saveDeal: useCallback(async (dealData: Deal) => {
       }
     }, []),
 
+    // 删除业配记录
     deleteDeal: useCallback(async (dealId: string) => {
       if (!confirm('确认删除该业配记录吗？此操作不可恢复。')) return;
       
@@ -724,6 +741,7 @@ saveDeal: useCallback(async (dealData: Deal) => {
       }
     }, []),
 
+    // 删除账号
     deleteAccount: useCallback(async (accountId: string) => {
       if (!confirm('确认删除该账号吗？此操作不可恢复。')) return;
       
@@ -749,7 +767,8 @@ saveDeal: useCallback(async (dealData: Deal) => {
         alert('删除失败，请重试');
       }
     }, []),
-// 新增这个方法
+
+    // 查看创建者详情
     viewCreatorDetails: useCallback((creator: Creator) => {
       setModals(prev => ({ ...prev, details: { open: true, isNew: false, data: creator } }));
     }, []),

@@ -206,24 +206,13 @@ export function Dashboard({
 }) {
   
   // 🆕 优化的Tab内容渲染逻辑
-  const renderTabContent = () => {
+// app/components/Dashboard.tsx - renderTabs函数修复
+
+  const renderTabs = () => {
     switch (activeTab) {
-      case 'overview':
-        return (
-          <OverviewTab 
-            stats={processedData.stats}
-            monthlyData={processedData.monthlyData}
-            chartData={processedData.chartData}
-            onTabChange={onTabChange}
-            creators={creators}    // 新增
-            accounts={accounts}    // 新增
-            deals={deals}         // 新增
-          />
-        );
-      
       case 'creators':
         return (
-          <CreatorsTab
+          <CreatorsTab 
             // 原有数据props
             creators={creators}
             
@@ -241,7 +230,7 @@ export function Dashboard({
             onRefresh={onRefresh}
             onOpenModal={onOpenModal}
             onDelete={onDeleteCreator}
-            onViewDetails={onViewCreatorDetails} // 👈 添加这一行
+            onViewDetails={onViewCreatorDetails}
             refreshing={refreshing}
             
             // 分页props
@@ -267,6 +256,12 @@ export function Dashboard({
             // 🆕 使用新的数据结构
             filteredData={filteredData}
             paginatedData={paginatedData}
+            
+            // 🆕 新增：搜索和过滤props
+            searchTerm={searchTerm}
+            statusFilter={statusFilter}
+            onSearchChange={onSearchChange}
+            onStatusFilterChange={onStatusFilterChange}
             
             // 操作props
             onRefresh={onRefresh}
@@ -332,9 +327,9 @@ export function Dashboard({
             monthlyData={processedData.monthlyData}
             chartData={processedData.chartData}
             onTabChange={onTabChange}
-            creators={creators}    // 新增
-            accounts={accounts}    // 新增
-            deals={deals}         // 新增
+            creators={creators}
+            accounts={accounts}
+            deals={deals}
           />
         );
     }
@@ -360,7 +355,7 @@ export function Dashboard({
           <LoadingSpinner />
         ) : (
           <div className="animate-morandi-fade-in">
-            {renderTabContent()}
+            {renderTabs()}
           </div>
         )}
       </main>
@@ -770,8 +765,10 @@ function CreatorsTab(props: any) {
         searchPlaceholder="搜索博主ID、姓名、微信名、城市或类别..."
         filters={[
           { value: 'all', label: '全部状态' },
-          { value: 'signed', label: '已签约' },
-          { value: 'pending', label: '签约意向' },
+          { value: '已经签全约', label: '已经签全约' },
+          { value: '已经签商务约', label: '已经签商务约' },
+          { value: '有全账号签约意向', label: '有全账号签约意向' },
+          { value: '有商务约意向', label: '有商务约意向' },
         ]}
         newButtonText="新增博主"
         newButtonAction={() => onOpenModal('edit', true)}
@@ -826,32 +823,43 @@ function AccountsTab(props: any) {
     pagination, 
     setPaginationForType,
     sortConfigs,
-    handleSort
+    handleSort,
+    // 新增搜索相关props
+    searchTerm, 
+    statusFilter, 
+    onSearchChange, 
+    onStatusFilterChange
   } = props;
   
   const totalPages = Math.ceil(filteredData.accounts.length / pagination.accounts.size);
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-semibold text-[var(--morandi-stone)]">账号管理</h2>
-          <p className="text-[var(--morandi-mist)] mt-1">管理博主的平台账号信息</p>
-        </div>
-        <div className="flex items-center gap-6">
-          <button onClick={onRefresh} disabled={refreshing} className="btn-morandi-secondary">
-            <RefreshCw size={18} className={refreshing ? 'animate-morandi-spin' : ''} />
-            刷新
-          </button>
-          <div className="text-sm text-[var(--morandi-mist)]">
-            显示 {filteredData.accounts.length} / {props.accounts.length} 个平台账号
-          </div>
-          <button onClick={() => onOpenModal('account', true)} className="btn-morandi-primary">
-            <Plus size={18} />
-            新增账号
-          </button>
-        </div>
-      </div>
+      {/* 新增：为账号管理页面添加ControlBar */}
+      <ControlBar 
+        searchTerm={searchTerm}
+        statusFilter={statusFilter}
+        onSearchChange={onSearchChange}
+        onStatusFilterChange={onStatusFilterChange}
+        onRefresh={onRefresh}
+        refreshing={refreshing}
+        totalCount={props.accounts.length}
+        filteredCount={filteredData.accounts.length}
+        searchPlaceholder="搜索博主ID、博主姓名、平台名称..."
+        filters={[
+          { value: 'all', label: '全部平台' },
+          { value: '小红书', label: '小红书' },
+          { value: '抖音', label: '抖音' },
+          { value: 'TikTok', label: 'TikTok' },
+          { value: 'Instagram', label: 'Instagram' },
+          { value: 'B站', label: 'B站' },
+          { value: '微博', label: '微博' },
+          { value: '快手', label: '快手' },
+          { value: '公众号', label: '公众号' },
+        ]}
+        newButtonText="新增账号"
+        newButtonAction={() => onOpenModal('account', true)}
+      />
 
       <div className="card-morandi">
         {paginatedData.accounts.length > 0 ? (
@@ -863,8 +871,8 @@ function AccountsTab(props: any) {
               onDelete={onDelete}
               onViewDetails={onViewDetails} 
               creators={creators}
-              sortConfig={sortConfigs.accounts} // 🆕 新增
-              onSort={(key: string) => handleSort('accounts', key)} // 🆕 新增
+              sortConfig={sortConfigs.accounts}
+              onSort={(key: string) => handleSort('accounts', key)}
             />
             <Pagination
               currentPage={pagination.accounts.page}
@@ -983,48 +991,48 @@ function ControlBar({
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-6">
-        <div className="search-morandi">
+        {/* 搜索框容器 */}
+        <div className="search-morandi w-[28rem]">
           <input
             type="text"
             placeholder={searchPlaceholder}
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="input-morandi pl-12 w-80"
+            className="input-morandi" style={{paddingLeft: '4.5rem'}}
           />
         </div>
         
         {filters.length > 0 && (
-          <select
-            value={statusFilter}
-            onChange={(e) => onStatusFilterChange(e.target.value)}
-            className="input-morandi w-40"
-          >
-            {filters.map((filter: any) => (
-              <option key={filter.value} value={filter.value}>{filter.label}</option>
-            ))}
-          </select>
+          <div className="w-40"> 
+            <select
+              value={statusFilter}
+              onChange={(e) => onStatusFilterChange(e.target.value)}
+              className="input-morandi" 
+            >
+              {filters.map((filter: any) => (
+                <option key={filter.value} value={filter.value}>{filter.label}</option>
+              ))}
+            </select>
+          </div>
         )}
         
-        <button onClick={onRefresh} disabled={refreshing} className="btn-morandi-secondary">
+        <button onClick={onRefresh} disabled={refreshing} className="btn-morandi-secondary" title="刷新数据">
           <RefreshCw size={18} className={refreshing ? 'animate-morandi-spin' : ''} />
-          刷新
         </button>
-      </div>
-
-      <div className="flex items-center gap-6">
+        
         <div className="text-sm text-[var(--morandi-mist)]">
           显示 {filteredCount} / {totalCount} 条记录
-          {extraInfo && <span className="ml-2">• {extraInfo}</span>}
         </div>
-        
-        <button onClick={newButtonAction} className="btn-morandi-primary">
-          <Plus size={18} />
-          {newButtonText}
-        </button>
       </div>
+      
+      <button onClick={newButtonAction} className="btn-morandi-primary">
+        <Plus size={18} />
+        {newButtonText}
+      </button>
     </div>
   );
 }
+
 
 // 其他辅助组件
 function AlertCard({ type, icon: Icon, title, content, action, actionText }: any) {
@@ -1072,11 +1080,9 @@ function DataTable({ data, type, onEdit, onDelete, creators, onViewDetails, sort
         return [
           { label: '博主ID', key: 'id' },
           { label: '微信名', key: 'wechatName' },
-          { label: '城市', key: 'city' },
           { label: '类别', key: 'category' },
           { label: '签约状态', key: 'contractStatus' },
           { label: '分成比例', key: 'commission' },
-          { label: '面试时间', key: 'interviewDate' },
           { label: '操作', key: null }
         ];
       case 'accounts':
@@ -1117,7 +1123,6 @@ function DataTable({ data, type, onEdit, onDelete, creators, onViewDetails, sort
         return (
           <tr key={item.id || index} className="table-morandi-row">
             <td className="px-8 py-6">
-              {/* 博主ID变为可点击的链接 */}
               <button
                 onClick={() => onViewDetails?.(item)}
                 className="font-medium text-[var(--morandi-cloud)] hover:text-[var(--morandi-sage)] hover:underline transition-colors"
@@ -1126,52 +1131,40 @@ function DataTable({ data, type, onEdit, onDelete, creators, onViewDetails, sort
               </button>
             </td>
             <td className="px-8 py-6">{item.wechatName || '-'}</td>
-            <td className="px-8 py-6">{item.city || '-'}</td>
             <td className="px-8 py-6">
               <div className="flex flex-wrap gap-1">
-                {item.category ? 
-                  item.category.split(',').map((cat: string, index: number) => (
-                    <span 
-                      key={index}
-                      className="px-2 py-1 rounded-full text-xs font-medium bg-[var(--morandi-pearl)] text-[var(--morandi-stone)]"
-                    >
+                {item.category ?
+                  item.category.split(',').map((cat: string, idx: number) => (
+                    <span key={idx} className="px-2 py-1 bg-[var(--morandi-pearl)] text-[var(--morandi-stone)] text-xs rounded-full">
                       {cat.trim()}
                     </span>
-                  )) : 
-                  <span className="px-2 py-1 rounded-full text-xs font-medium bg-[var(--morandi-pearl)] text-[var(--morandi-stone)]">
-                    未分类
-                  </span>
+                  )) : '-'
                 }
               </div>
             </td>
             <td className="px-8 py-6">
-              <div className="flex flex-wrap gap-1">
-                {item.contractStatus ? 
-                  item.contractStatus.split(',').map((status: string, index: number) => (
-                    <span 
-                      key={index}
-                      className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
-                        status.trim().includes('已经签') ? 'status-success' : 'status-warning'
-                      }`}
-                    >
-                      {status.trim()}
-                    </span>
-                  )) : 
-                  <span className="px-2 py-1 rounded-full text-xs font-medium status-warning">未设置</span>
-                }
-              </div>
+              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                item.contractStatus === '已签约' ? 'status-success' : 
+                item.contractStatus === '签约意向' ? 'status-warning' : 'status-gray'
+              }`}>
+                {item.contractStatus || '-'}
+              </span>
             </td>
-            <td className="px-8 py-6">{item.commission ? `${(item.commission * 100).toFixed(0)}%` : '-'}</td>
-            <td className="px-8 py-6">{utils.formatDate(item.interviewDate)}</td>
+            <td className="px-8 py-6">{item.commission ? 
+              `${(item.commission * 100).toFixed(0)}%` : '-'}</td>
             <td className="px-8 py-6">
               <div className="flex items-center gap-2">
                 <button 
-                  onClick={() => onEdit?.(item)} className="text-[var(--morandi-cloud)] hover:text-[var(--morandi-sage)] transition-colors"
+                  onClick={() => onEdit?.(item)} 
+                  className="text-[var(--morandi-cloud)] hover:text-[var(--morandi-sage)] transition-colors"
                   title="编辑"
                 >
                   <Edit size={18} />
                 </button>
-                <button onClick={() => onDelete?.(item.id)} className="text-[var(--morandi-rose)] hover:text-red-600 transition-colors">
+                <button 
+                  onClick={() => onDelete?.(item.id)} 
+                  className="text-[var(--morandi-rose)] hover:text-red-600 transition-colors"
+                >
                   <Trash2 size={18} />
                 </button>
               </div>

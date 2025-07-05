@@ -115,7 +115,7 @@ export default function MCNManagement() {
         handleSort={handleSort} // 🆕 传递排序处理函数
         onLogout={handleLogout}
         onOpenModal={handlers.openModal}
-        onRefresh={handlers.refresh}
+        onRefresh={handlers.refreshData}
         onDeleteCreator={handlers.deleteCreator}
         onDeleteAccount={handlers.deleteAccount}
         onDeleteDeal={handlers.deleteDeal} 
@@ -152,7 +152,7 @@ export default function MCNManagement() {
       <ImportModal
         isOpen={modals.import.open}
         onClose={() => handlers.closeModal('import')}
-        onImportSuccess={handlers.refresh}
+        onImportSuccess={handlers.refreshData}
       />
 
       <ExportModal

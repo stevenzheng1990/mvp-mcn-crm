@@ -833,6 +833,9 @@ export function AccountModal({ isOpen, onClose, account, onSave, creators, isNew
                 <option value="小红书">小红书</option>
                 <option value="抖音">抖音</option>
                 <option value="B站">B站</option>
+                <option value="TikTok">TikTok</option>
+                <option value="Instagram">Instagram</option>
+                <option value="Youtube">Youtube</option>
                 <option value="微博">微博</option>
                 <option value="快手">快手</option>
                 <option value="公众号">公众号</option>
