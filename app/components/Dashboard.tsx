@@ -9,6 +9,8 @@ import {
   LogOut, BarChart3, UserCheck, Trash2, Eye, EyeOff 
 } from 'lucide-react';
 import type { Creator, Account, Deal, ProcessedData, Pagination, ModalType } from '../types';
+import { CreatorDetail } from './CreatorDetail';
+
 
 // 莫兰迪色系
 const MORANDI_COLORS = ['#a8b5c8', '#9caf88', '#d4b5a0', '#c7b299', '#d4a5a5', '#b8b5b1'];
@@ -133,6 +135,10 @@ export function Dashboard({
   deals, 
   filteredData, 
   processedData,
+  selectedCreator,
+  showCreatorDetail,
+  onCreatorClick,
+  onCloseCreatorDetail,
   
   // 原有的状态props
   activeTab, 
@@ -141,12 +147,8 @@ export function Dashboard({
   searchTerm, 
   statusFilter, 
   pagination,
-  
-  // 🆕 新增的排序相关props
   sortConfigs,
   paginatedData,
-  
-  // 原有的回调函数props
   onTabChange, 
   onSearchChange, 
   onStatusFilterChange, 
@@ -156,12 +158,9 @@ export function Dashboard({
   onDeleteCreator, 
   onDeleteAccount, 
   onDeleteDeal,
-  
-  // 🆕 新增的回调函数props
   handleSort,
   setPaginationForType
 }: {
-  // 原有的类型定义
   creators: Creator[];
   accounts: Account[];
   deals: Deal[];
@@ -181,8 +180,10 @@ export function Dashboard({
     accounts: { page: number; size: number };
     deals: { page: number; size: number };
   };
-  
-  // 🆕 新增的类型定义
+  selectedCreator: Creator | null;
+  showCreatorDetail: boolean;
+  onCreatorClick: (creator: Creator) => void;
+  onCloseCreatorDetail: () => void;
   sortConfigs: {
     creators: { key: string; direction: 'asc' | 'desc' } | null;
     accounts: { key: string; direction: 'asc' | 'desc' } | null;
