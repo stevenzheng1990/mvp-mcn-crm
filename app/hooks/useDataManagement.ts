@@ -239,13 +239,14 @@ export function useDataManagement(isAuthenticated: boolean) {
     deals: null,
   });
   
-  // 模态框状态
+// 模态框状态
   const [modals, setModals] = useState({
     edit: { open: false, isNew: false, data: null as any },
     deal: { open: false, isNew: false, data: null as any },
     import: { open: false },
     export: { open: false },
     account: { open: false, isNew: false, data: null as any },
+    details: { open: false, isNew: false, data: null as any }, // 新增这一行
   });
 
   // 分页状态
@@ -747,6 +748,10 @@ saveDeal: useCallback(async (dealData: Deal) => {
         console.error('删除账号失败:', error);
         alert('删除失败，请重试');
       }
+    }, []),
+// 新增这个方法
+    viewCreatorDetails: useCallback((creator: Creator) => {
+      setModals(prev => ({ ...prev, details: { open: true, isNew: false, data: creator } }));
     }, []),
   };
 

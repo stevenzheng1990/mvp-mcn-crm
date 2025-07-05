@@ -46,7 +46,7 @@ export interface Deal {
 }
 
 // 模态框类型
-export type ModalType = 'edit' | 'deal' | 'import' | 'export' | 'account';
+export type ModalType = 'edit' | 'deal' | 'import' | 'export' | 'account' | 'details';
 
 // 处理后的数据类型
 export interface ProcessedData {

@@ -133,20 +133,14 @@ export function Dashboard({
   deals, 
   filteredData, 
   processedData,
-  
-  // 原有的状态props
   activeTab, 
   loading, 
   refreshing, 
   searchTerm, 
   statusFilter, 
   pagination,
-  
-  // 🆕 新增的排序相关props
   sortConfigs,
   paginatedData,
-  
-  // 原有的回调函数props
   onTabChange, 
   onSearchChange, 
   onStatusFilterChange, 
@@ -156,10 +150,9 @@ export function Dashboard({
   onDeleteCreator, 
   onDeleteAccount, 
   onDeleteDeal,
-  
-  // 🆕 新增的回调函数props
   handleSort,
-  setPaginationForType
+  setPaginationForType,
+  onViewCreatorDetails,
 }: {
   // 原有的类型定义
   creators: Creator[];
@@ -208,6 +201,8 @@ export function Dashboard({
   // 🆕 新增的回调函数类型
   handleSort: (type: 'creators' | 'accounts' | 'deals', key: string) => void;
   setPaginationForType: (type: 'creators' | 'accounts' | 'deals', pagination: any) => void;
+  onViewCreatorDetails: (creator: Creator) => void; // 👈 添加这一行
+
 }) {
   
   // 🆕 优化的Tab内容渲染逻辑
@@ -246,6 +241,7 @@ export function Dashboard({
             onRefresh={onRefresh}
             onOpenModal={onOpenModal}
             onDelete={onDeleteCreator}
+            onViewDetails={onViewCreatorDetails} // 👈 添加这一行
             refreshing={refreshing}
             
             // 分页props
@@ -744,6 +740,7 @@ function CreatorsTab(props: any) {
     filteredData, 
     onOpenModal, 
     onDelete, 
+    onViewDetails,
     pagination, 
     setPaginationForType, 
     searchTerm, 
@@ -787,6 +784,7 @@ function CreatorsTab(props: any) {
               type="creators" 
               onEdit={(creator: Creator) => onOpenModal('edit', false, creator)}
               onDelete={onDelete}
+              onViewDetails={onViewDetails} // 新增
               sortConfig={sortConfigs.creators} // 🆕 新增
               onSort={(key: string) => handleSort('creators', key)} // 🆕 新增
             />
@@ -1051,13 +1049,14 @@ interface DataTableProps {
   data: any[];
   type: 'creators' | 'accounts' | 'deals';
   onEdit: (item: any) => void;
+  onViewDetails?: (item: any) => void;
   onDelete: (item: any) => void;
   creators?: Creator[];
   sortConfig?: { key: string; direction: 'asc' | 'desc' } | null;
   onSort?: (key: string) => void;
 }
 
-function DataTable({ data, type, onEdit, onDelete, creators, sortConfig, onSort }: DataTableProps) {
+function DataTable({ data, type, onEdit, onDelete, creators, onViewDetails, sortConfig, onSort }: DataTableProps) {
   const handleSort = (key: string) => {
     if (onSort) {
       onSort(key);
@@ -1155,7 +1154,16 @@ function DataTable({ data, type, onEdit, onDelete, creators, sortConfig, onSort 
             <td className="px-8 py-6">{utils.formatDate(item.interviewDate)}</td>
             <td className="px-8 py-6">
               <div className="flex items-center gap-2">
-                <button onClick={() => onEdit?.(item)} className="text-[var(--morandi-cloud)] hover:text-[var(--morandi-sage)] transition-colors">
+                <button 
+                  onClick={() => onViewDetails?.(item)} 
+                  className="text-[var(--morandi-sage)] hover:text-[var(--morandi-cloud)] transition-colors"
+                  title="查看详情"
+                > 
+                  <Eye size={18} />
+                </button>
+                <button onClick={() => onEdit?.(item)} className="text-[var(--morandi-cloud)] hover:text-[var(--morandi-sage)] transition-colors"
+                  title="编辑"
+                >
                   <Edit size={18} />
                 </button>
                 <button onClick={() => onDelete?.(item.id)} className="text-[var(--morandi-rose)] hover:text-red-600 transition-colors">

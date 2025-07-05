@@ -9,6 +9,8 @@ import { Dashboard } from './components/Dashboard';
 import { useDataManagement } from './hooks/useDataManagement';
 import { EditModal, DealModal, AccountModal, ImportModal, ExportModal } from './components/Modals';
 import type { ModalType } from './types';
+import { CreatorDetailsModal } from './components/CreatorDetailsModal'; // 新增导入
+
 
 export default function MCNManagement() {
   // 认证状态
@@ -116,7 +118,8 @@ export default function MCNManagement() {
         onRefresh={handlers.refresh}
         onDeleteCreator={handlers.deleteCreator}
         onDeleteAccount={handlers.deleteAccount}
-        onDeleteDeal={handlers.deleteDeal} // 🔧 确保这个也传递了
+        onDeleteDeal={handlers.deleteDeal} 
+        onViewCreatorDetails={handlers.viewCreatorDetails}
       />
       
       {/* 模态框组件保持不变 */}
@@ -156,6 +159,13 @@ export default function MCNManagement() {
         isOpen={modals.export.open}
         onClose={() => handlers.closeModal('export')}
         creators={creators}
+        accounts={accounts}
+        deals={deals}
+      />
+      <CreatorDetailsModal
+        isOpen={modals.details.open}
+        onClose={() => handlers.closeModal('details')}
+        creator={modals.details.data}
         accounts={accounts}
         deals={deals}
       />
