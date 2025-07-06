@@ -1,79 +1,79 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 
 /**
- * 声波动画组件 - 所有配置参数都在此文件内调整
+ * 优化版声波动画组件 - 波形向右流动，通过长短变化展现震动质感
  */
 const AudioWaveAnimation: React.FC = () => {
-  // ========== 配置参数区域 - 在这里调整所有动画效果 ==========
-  
-  // 视觉效果配置
+  // ========== 配置参数区域 ==========
   const CONFIG = {
-    // Canvas 不透明度
+    // 基础视觉配置
     opacity: 0.3,
-    
-    // 背景渐变色
     background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #0a0a0a 100%)',
     
     // 条形配置
-    barSpacing: 18,              // 条形间距基数（影响条形数量）
+    barSpacing: 18,              // 条形基础间距
     barWidthRatio: 0.6,          // 条形宽度占间距的比例
-    minBarCount: 90,             // 最少条形数量
+    minBarCount: 120,             // 最少条形数量
     
     // 高度配置
-    maxHeightRatio: 0.9,        // 最大高度占画布高度的比例
-    minHeight: 4,                // 最小条形高度（像素）
+    maxHeightRatio: 0.85,        // 最大高度占画布高度的比例
+    minHeight: 8,                // 最小条形高度
+    
+    // 缩放配置
+    zoomConfig: {
+      minZoom: 0.3,              // 最小缩放比例（镜头最远）
+      maxZoom: 3.5,              // 最大缩放比例（镜头最近）
+      sensitivity: 0.005,        // 滚动敏感度
+      mouseZoomBoost: 0.0,       // 鼠标悬停时的额外缩放
+    },
     
     // 鼠标交互
-    mouseInfluenceRadius: 220,   // 鼠标影响半径（像素）
-    mouseBoostRatio: 0.35,        // 鼠标影响的高度增幅比例
-    mouseInfluencePower: 1.8,    // 鼠标影响的衰减曲线
+    mouseInfluenceRadius: 220,   // 鼠标影响半径
+    mouseBoostRatio: 0.35,       // 鼠标影响的高度增幅
     
-    // 动画速度
-    animationSpeed: 1.2,           // 整体动画速度倍数
-    waveSpeed: {
-      low: 0.01,               // 低频波速度
-      mid: 0.014,               // 中频波速度
-      high: 0.016,              // 高频波速度
-      sub: 0.012                // 次低频波速度
+    // 波动参数（向右流动）
+    waveFlow: {
+      speed: 0.008,               // 波向右流动的速度
+      primaryFreq: 0.08,         // 主波频率
+      secondaryFreq: 0.15,       // 次波频率
+      lengthVariation: 0.6,      // 长短变化幅度
     },
     
-    // 颜色和透明度
+    // 颜色配置
     colorRange: {
-      min: 80,                  // 最小灰度值 (0-255)
-      max: 220                  // 最大灰度值 (0-255)
+      min: 100,                  // 最小灰度值
+      max: 220                   // 最大灰度值
     },
     opacityRange: {
-      min: 0.14,                // 最小透明度 (0-1)
-      max: 0.45                 // 最大透明度 (0-1)
-    },
-    
-    // 频谱特征
-    spectrum: {
-      lowFreqThreshold: 0.25,    // 低频区域阈值
-      midFreqStart: 0.4,        // 中频起始点
-      midFreqEnd: 0.65,          // 中频结束点
-      highFreqThreshold: 0.8,   // 高频区域阈值
-      noiseLevel: 0.01          // 噪声级别
-    },
-    
-    // 视觉效果
-    effects: {
-      enableBackground: true,    // 启用背景层效果
-      backgroundOpacity: 0.2,    // 背景层透明度倍数
-      enableGlow: true,          // 启用光效
-      glowOpacity: 0.15,         // 光效透明度倍数
-      enableHighlight: true,     // 启用高光效果
-      highlightThreshold: 0.45,   // 高光触发阈值
-      highlightOpacity: 0.15     // 高光透明度倍数
+      min: 0.18,                 // 最小透明度
+      max: 0.5                   // 最大透明度
     }
   };
-  
-  // ========== 以下为组件逻辑，通常不需要修改 ==========
-  
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number | null>(null);
   const timeRef = useRef<number>(0);
   const mouseRef = useRef({ x: 0, y: 0 });
+  const zoomRef = useRef<number>(CONFIG.zoomConfig.minZoom);
+
+  // 处理滚动事件
+  const handleScroll = useCallback(() => {
+    const scrollY = window.scrollY;
+    const windowHeight = window.innerHeight;
+    
+    // 计算滚动进度（0-1之间）
+    const scrollProgress = Math.min(scrollY / (windowHeight * 1.5), 1);
+    
+    // 计算目标缩放比例
+    const targetZoom = CONFIG.zoomConfig.minZoom + 
+      scrollProgress * (CONFIG.zoomConfig.maxZoom - CONFIG.zoomConfig.minZoom);
+    
+    // 直接设置缩放值，不使用平滑过渡（测试用）
+    zoomRef.current = targetZoom;
+    
+    // 调试信息
+    console.log('Scroll Y:', scrollY, 'Progress:', scrollProgress, 'Zoom:', targetZoom);
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -86,7 +86,6 @@ const AudioWaveAnimation: React.FC = () => {
     const resizeCanvas = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
-      // 初始化鼠标位置为画布中心
       mouseRef.current = {
         x: canvas.width / 2,
         y: canvas.height / 2
@@ -96,29 +95,45 @@ const AudioWaveAnimation: React.FC = () => {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    // 鼠标移动事件处理 - 监听整个文档而不是 canvas
+    // 鼠标移动事件
     const handleMouseMove = (e: MouseEvent) => {
       mouseRef.current = { x: e.clientX, y: e.clientY };
     };
 
-    // 使用 document 而不是 canvas 来监听鼠标移动
+    // 添加事件监听器
     document.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('scroll', handleScroll, { passive: true });
 
-    // 动画函数
+    // 主动画函数
     const animate = () => {
       const canvasWidth = canvas.width;
       const canvasHeight = canvas.height;
       
       ctx.clearRect(0, 0, canvasWidth, canvasHeight);
       
-      // 计算条形数量和尺寸
-      const barCount = Math.max(CONFIG.minBarCount, Math.floor(canvasWidth / CONFIG.barSpacing));
+      // 应用缩放效果
+      const currentZoom = zoomRef.current;
+      
+      // 鼠标悬停增强缩放
+      const centerDistance = Math.sqrt(
+        Math.pow(mouseRef.current.x - canvasWidth / 2, 2) + 
+        Math.pow(mouseRef.current.y - canvasHeight / 2, 2)
+      );
+      const mouseZoomFactor = Math.max(0, 1 - centerDistance / (canvasWidth * 0.25));
+      const enhancedZoom = currentZoom + mouseZoomFactor * CONFIG.zoomConfig.mouseZoomBoost;
+      
+      // 计算缩放后的条形参数
+      const scaledSpacing = CONFIG.barSpacing / enhancedZoom;
+      const barCount = Math.max(CONFIG.minBarCount, Math.floor(canvasWidth / scaledSpacing));
       const barWidth = (canvasWidth / barCount) * CONFIG.barWidthRatio;
       const spacing = canvasWidth / barCount;
-      const maxBarHeight = canvasHeight * CONFIG.maxHeightRatio;
+      const maxBarHeight = canvasHeight * CONFIG.maxHeightRatio * enhancedZoom; // 重要：高度也要缩放
       const centerY = canvasHeight / 2;
       
-      // 绘制每个频谱条
+      // 时间偏移用于波向右流动
+      const timeOffset = timeRef.current * CONFIG.waveFlow.speed;
+      
+      // 绘制每个声波条
       for (let i = 0; i < barCount; i++) {
         const x = i * spacing + (spacing - barWidth) / 2;
         const barCenterX = x + barWidth / 2;
@@ -128,84 +143,68 @@ const AudioWaveAnimation: React.FC = () => {
           Math.pow(barCenterX - mouseRef.current.x, 2) + 
           Math.pow(centerY - mouseRef.current.y, 2)
         );
-        const mouseInfluence = Math.max(0, CONFIG.mouseInfluenceRadius - distanceToMouse) / CONFIG.mouseInfluenceRadius;
-        const smoothMouseInfluence = Math.pow(mouseInfluence, CONFIG.mouseInfluencePower);
+        const mouseInfluence = Math.max(0, 
+          (CONFIG.mouseInfluenceRadius - distanceToMouse) / CONFIG.mouseInfluenceRadius
+        );
         
-        // 模拟音频频谱特征
+        // 波形向右流动的计算
+        // 关键：用 i * frequency - timeOffset 让波向右流动
         const normalizedIndex = i / barCount;
         
-        // 低频增强（左侧）
-        const lowFreqBoost = normalizedIndex < CONFIG.spectrum.lowFreqThreshold 
-          ? (CONFIG.spectrum.lowFreqThreshold - normalizedIndex) * 2 
-          : 0;
+        // 主波形（向右流动）
+        const primaryWave = Math.sin(
+          normalizedIndex * Math.PI * 6 - timeOffset * 8
+        );
         
-        // 中频区域（中间）
-        const midFreqBoost = normalizedIndex > CONFIG.spectrum.midFreqStart && 
-                           normalizedIndex < CONFIG.spectrum.midFreqEnd 
-          ? 0.8 
-          : 0;
+        // 次波形（不同频率，增加复杂度）
+        const secondaryWave = Math.sin(
+          normalizedIndex * Math.PI * 12 - timeOffset * 12
+        ) * 0.5;
         
-        // 高频衰减（右侧）
-        const highFreqDecay = normalizedIndex > CONFIG.spectrum.highFreqThreshold 
-          ? Math.pow(1 - normalizedIndex, 2) 
-          : 1;
+        // 长短变化波（这是震动质感的核心）
+        const lengthWave = Math.sin(
+          normalizedIndex * Math.PI * 8 - timeOffset * 10
+        ) * CONFIG.waveFlow.lengthVariation;
         
-        // 组合多个正弦波创建复杂波形
-        const basePhase = i * 0.08;
-        const lowWave = Math.sin(timeRef.current * CONFIG.waveSpeed.low * CONFIG.animationSpeed + basePhase) * (0.7 + lowFreqBoost);
-        const midWave = Math.sin(timeRef.current * CONFIG.waveSpeed.mid * CONFIG.animationSpeed + basePhase * 1.3) * (0.5 + midFreqBoost);
-        const highWave = Math.sin(timeRef.current * CONFIG.waveSpeed.high * CONFIG.animationSpeed + basePhase * 2.1) * (0.3 * highFreqDecay);
-        const subWave = Math.sin(timeRef.current * CONFIG.waveSpeed.sub * CONFIG.animationSpeed + basePhase * 0.7) * 0.2;
+        // 组合波形
+        const combinedWave = primaryWave + secondaryWave + lengthWave;
         
-        // 添加随机噪声
-        const noise = (Math.random() - 0.5) * CONFIG.spectrum.noiseLevel;
-        
-        // 组合所有波形
-        const combinedWave = lowWave + midWave + highWave + subWave + noise;
+        // 归一化到 0-1 范围
         const normalizedWave = Math.max(0, (combinedWave + 2) / 4);
         
-        // 计算最终高度
+        // 计算最终高度（长短变化体现震动质感）
         const baseHeight = CONFIG.minHeight + (maxBarHeight - CONFIG.minHeight) * normalizedWave;
-        const mouseBoost = smoothMouseInfluence * maxBarHeight * CONFIG.mouseBoostRatio;
+        const mouseBoost = mouseInfluence * maxBarHeight * CONFIG.mouseBoostRatio;
         const finalHeight = Math.max(CONFIG.minHeight, baseHeight + mouseBoost);
         
         const barY = centerY - finalHeight / 2;
         
-        // 计算颜色和透明度
-        const intensity = normalizedWave + smoothMouseInfluence * 0.4;
-        const baseOpacity = CONFIG.opacityRange.min + intensity * (CONFIG.opacityRange.max - CONFIG.opacityRange.min);
-        const depthOpacity = 0.15 + (finalHeight / maxBarHeight) * 0.2;
-        const finalOpacity = Math.min(baseOpacity, depthOpacity);
+        // 颜色和透明度计算
+        const intensity = normalizedWave + mouseInfluence * 0.4;
+        const opacity = CONFIG.opacityRange.min + 
+          intensity * (CONFIG.opacityRange.max - CONFIG.opacityRange.min);
         
-        // 灰度值计算
-        const grayValue = Math.floor(CONFIG.colorRange.min + intensity * (CONFIG.colorRange.max - CONFIG.colorRange.min));
-        const color = `rgba(${grayValue}, ${grayValue}, ${grayValue}, ${finalOpacity})`;
+        const grayValue = Math.floor(
+          CONFIG.colorRange.min + intensity * (CONFIG.colorRange.max - CONFIG.colorRange.min)
+        );
         
         // 绘制主条形
-        ctx.fillStyle = color;
+        ctx.fillStyle = `rgba(${grayValue}, ${grayValue}, ${grayValue}, ${opacity})`;
         ctx.fillRect(x, barY, barWidth, finalHeight);
         
-        // 背景层效果（增加深度感）
-        if (CONFIG.effects.enableBackground && finalHeight > CONFIG.minHeight * 2) {
-          const bgOpacity = finalOpacity * CONFIG.effects.backgroundOpacity;
-          ctx.fillStyle = `rgba(120, 120, 120, ${bgOpacity})`;
-          ctx.fillRect(x - 1, barY + 2, barWidth + 2, finalHeight);
+        // 添加高光效果（对于较高的条形）
+        if (intensity > 0.7) {
+          const highlightOpacity = (intensity - 0.7) * 0.4;
+          ctx.fillStyle = `rgba(255, 255, 255, ${highlightOpacity})`;
+          ctx.fillRect(x, barY, barWidth, Math.max(2, finalHeight * 0.05));
         }
         
-        // 鼠标附近的光效
-        if (CONFIG.effects.enableGlow && smoothMouseInfluence > 0.1) {
-          const glowOpacity = smoothMouseInfluence * CONFIG.effects.glowOpacity;
-          ctx.fillStyle = `rgba(200, 200, 200, ${glowOpacity})`;
-          ctx.fillRect(x, barY, barWidth, finalHeight);
-        }
-        
-        // 顶部高光效果
-        if (CONFIG.effects.enableHighlight && 
-            intensity > CONFIG.effects.highlightThreshold && 
-            finalHeight > CONFIG.minHeight * 3) {
-          const highlightHeight = Math.max(1, finalHeight * 0.03);
-          ctx.fillStyle = `rgba(255, 255, 255, ${(intensity - CONFIG.effects.highlightThreshold) * CONFIG.effects.highlightOpacity})`;
-          ctx.fillRect(x, barY, barWidth, highlightHeight);
+        // 鼠标附近的光晕效果
+        if (mouseInfluence > 0.2) {
+          const glowOpacity = mouseInfluence * 0.15;
+          ctx.fillStyle = `rgba(180, 180, 255, ${glowOpacity})`;
+          // 绘制稍宽一点的背景光晕
+          ctx.fillRect(x - 1, barY - 2, barWidth + 2, finalHeight + 4);
         }
       }
 
@@ -213,17 +212,19 @@ const AudioWaveAnimation: React.FC = () => {
       animationRef.current = requestAnimationFrame(animate);
     };
 
+    // 启动动画
     animate();
 
     // 清理函数
     return () => {
       window.removeEventListener('resize', resizeCanvas);
       document.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('scroll', handleScroll);
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, []); // 空依赖数组，因为所有配置都是静态的
+  }, [handleScroll]);
 
   return (
     <canvas
