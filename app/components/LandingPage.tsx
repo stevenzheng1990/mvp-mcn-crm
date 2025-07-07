@@ -8,6 +8,343 @@ interface LandingPageProps {
   onNavigateToSystem: () => void;
 }
 
+// =================== 配置参数区域 - 可自定义 ===================
+
+const CONFIG = {
+  // 🎨 颜色配置
+  colors: {
+    primary: {
+      black: '#000000',
+      white: '#ffffff',
+      gray: {
+        50: '#f9fafb',
+        100: '#f3f4f6',
+        200: '#e5e7eb',
+        500: '#6b7280',
+        600: '#4b5563',
+        700: '#374151',
+        800: '#1f2937',
+        900: '#111827'
+      }
+    },
+    gradients: {
+      gold: {
+        primary: 'linear-gradient(135deg, #8B6845 0%, #A07B52 20%, #9C7848 40%, #765A3A 60%, #8B6845 80%, #A07B52 100%)',
+        dark: 'linear-gradient(135deg, #765A3A 0%, #9C7848 40%, #A07B52 80%, #8B6845 100%)',
+        size: {
+          primary: '300% 300%',
+          dark: '250% 250%'
+        }
+      },
+      hero: 'linear-gradient(to right, #000000, #4b5563)',
+      hover: {
+        black: '#374151',
+        gray: '#f3f4f6'
+      }
+    },
+    shadow: {
+      gold: 'rgba(139, 104, 69, 0.2)',
+      goldDark: 'rgba(118, 88, 58, 0.18)'
+    }
+  },
+
+  // 📝 字体配置
+  typography: {
+    families: {
+      zh: "'PingFang SC', 'Noto Sans SC', 'SF Pro Text', system-ui, sans-serif",
+      en: "'Inter', 'SF Pro Display', 'Segoe UI', system-ui, sans-serif"
+    },
+    sizes: {
+      xs: 'text-xs',      // 12px
+      sm: 'text-sm',      // 14px
+      base: 'text-base',  // 16px
+      lg: 'text-lg',      // 18px
+      xl: 'text-xl',      // 20px
+      '2xl': 'text-2xl',  // 24px
+      '3xl': 'text-3xl',  // 30px
+      '4xl': 'text-4xl',  // 36px
+      '5xl': 'text-5xl',  // 48px
+      '6xl': 'text-6xl',  // 60px
+      '7xl': 'text-7xl'   // 72px
+    },
+    weights: {
+      light: 'font-light',    // 300
+      normal: 'font-normal',  // 400
+      medium: 'font-medium',  // 500
+      semibold: 'font-semibold', // 600
+      bold: 'font-bold'       // 700
+    },
+    tracking: {
+      tight: 'tracking-tight',
+      wide: 'tracking-wide'
+    },
+    leading: {
+      tight: 'leading-tight',
+      snug: 'leading-snug',
+      normal: 'leading-normal',
+      relaxed: 'leading-relaxed',
+      loose: 'leading-loose'
+    }
+  },
+
+  // 📏 间距配置
+  spacing: {
+    sections: {
+      padding: 'py-24 px-6',
+      hero: 'px-6 py-20',
+      footer: 'py-16 px-6'
+    },
+    containers: {
+      maxWidth: {
+        '4xl': 'max-w-4xl',
+        '5xl': 'max-w-5xl',
+        '7xl': 'max-w-7xl'
+      },
+      margin: 'mx-auto'
+    },
+    margins: {
+      mb: {
+        2: 'mb-2',
+        3: 'mb-3',
+        4: 'mb-4',
+        6: 'mb-6',
+        8: 'mb-8',
+        10: 'mb-10',
+        12: 'mb-12',
+        16: 'mb-16',
+        20: 'mb-20'
+      },
+      mt: {
+        2: 'mt-2',
+        3: 'mt-3',
+        16: 'mt-16'
+      }
+    },
+    padding: {
+      p: {
+        6: 'p-6',
+        8: 'p-8'
+      },
+      px: {
+        1: 'px-1',
+        2: 'px-2',
+        4: 'px-4',
+        6: 'px-6',
+        10: 'px-10'
+      },
+      py: {
+        2: 'py-2',
+        3: 'py-3',
+        4: 'py-4',
+        6: 'py-6',
+        8: 'py-8'
+      }
+    },
+    gaps: {
+      2: 'gap-2',
+      6: 'gap-6',
+      8: 'gap-8',
+      12: 'gap-12'
+    }
+  },
+
+  // 🎯 布局配置
+  layout: {
+    grids: {
+      cols: {
+        1: 'grid-cols-1',
+        2: 'grid-cols-2',
+        3: 'grid-cols-3',
+        'md-2': 'md:grid-cols-2',
+        'md-3': 'md:grid-cols-3',
+        'md-4': 'md:grid-cols-4',
+        'md-6': 'md:grid-cols-6',
+        'lg-3': 'lg:grid-cols-3',
+        'lg-4': 'lg:grid-cols-4',
+        'lg-6': 'lg:grid-cols-6'
+      },
+      justifyItems: 'justify-items-center'
+    },
+    flex: {
+      center: 'flex items-center justify-center',
+      col: 'flex flex-col',
+      rowReverse: 'flex flex-col sm:flex-row'
+    },
+    positions: {
+      relative: 'relative',
+      absolute: 'absolute',
+      fixed: 'fixed'
+    }
+  },
+
+  // 🎭 动画配置
+  animations: {
+    durations: {
+      fast: '0.3s',
+      normal: '0.5s',
+      slow: '1.4s',
+      slower: '1.6s',
+      slowest: '1.8s',
+      shimmer: '12s',
+      shimmerDark: '15s',
+      float: '6s'
+    },
+    easings: {
+      smooth: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+      elastic: 'cubic-bezier(0.23, 1, 0.32, 1)',
+      standard: 'cubic-bezier(0.4, 0, 0.2, 1)',
+      custom: 'cubic-bezier(0.16, 1, 0.3, 1)'
+    },
+    delays: {
+      base: '0s',
+      short: '0.1s',
+      medium: '0.15s',
+      long: '0.2s'
+    },
+    transforms: {
+      fadeIn: {
+        from: 'translateY(12px)',
+        to: 'translateY(0)'
+      },
+      gentleRise: {
+        from: 'translateY(16px) scale(0.98)',
+        to: 'translateY(0) scale(1)'
+      },
+      float: {
+        from: 'translateY(0px)',
+        mid: 'translateY(-8px)',
+        to: 'translateY(0px)'
+      },
+      platformHover: 'translateY(-4px) scale(1.05)',
+      scrollElement: 'translateY(20px)',
+      hoverScale: {
+        small: 'scale(1.05)',
+        medium: 'scale(1.1)'
+      }
+    },
+    filters: {
+      blur: {
+        light: 'blur(1px)',
+        none: 'blur(0)'
+      }
+    }
+  },
+
+  // 🔘 组件尺寸配置
+  components: {
+    buttons: {
+      sizes: {
+        small: 'px-4 py-2',
+        medium: 'px-6 py-3',
+        large: 'px-10 py-4'
+      },
+      radius: {
+        full: 'rounded-full',
+        xl: 'rounded-xl',
+        '2xl': 'rounded-2xl'
+      }
+    },
+    cards: {
+      radius: '2xl',
+      padding: {
+        small: 'p-6',
+        large: 'p-8'
+      },
+      shadow: 'shadow-sm',
+      border: 'border border-gray-100',
+      hoverShadow: 'hover:shadow-md'
+    },
+    icons: {
+      sizes: {
+        small: 18,
+        medium: 20,
+        large: 24,
+        xl: 32
+      },
+      containers: {
+        small: 'w-12 h-12',
+        medium: 'w-14 h-14',
+        large: 'w-16 h-16',
+        xl: 'w-20 h-20'
+      }
+    },
+    platforms: {
+      logo: {
+        size: 'w-10 h-10',
+        sizeLarge: 'w-12 h-12',
+        container: 'w-16 h-16',
+        containerLarge: 'w-20 h-20'
+      }
+    }
+  },
+
+  // 📍 定位配置
+  positioning: {
+    fixed: {
+      languageToggle: 'fixed top-6 left-1/2 transform -translate-x-1/2 z-50',
+      dataManagement: 'fixed bottom-8 right-8 z-50',
+      scrollTop: 'fixed bottom-8 right-52 z-50'
+    },
+    absolute: {
+      heroScroll: 'absolute bottom-8 left-1/2 transform -translate-x-1/2'
+    },
+    zIndexes: {
+      50: 'z-50'
+    }
+  },
+
+  // 🎚️ 过渡效果配置
+  transitions: {
+    all: 'transition-all',
+    durations: {
+      300: 'duration-300',
+      500: 'duration-500'
+    },
+    properties: {
+      transform: 'transition-transform'
+    }
+  },
+
+  // 📊 滚动配置
+  scroll: {
+    trigger: {
+      threshold: 0.75,
+      minScroll: 1000
+    },
+    visibility: {
+      opacity: {
+        hidden: 0,
+        visible: 1
+      },
+      transform: {
+        hidden: 'translateY(20px)',
+        visible: 'translateY(0)'
+      },
+      filter: {
+        hidden: 'blur(1px)',
+        visible: 'blur(0)'
+      }
+    },
+    indicator: {
+      size: 'w-5 h-8',
+      innerSize: 'w-0.5 h-2',
+      border: 'border border-black/20',
+      radius: 'rounded-full',
+      padding: 'p-0.5'
+    }
+  },
+
+  // 🎯 响应式断点配置
+  breakpoints: {
+    screens: {
+      md: 'md:',
+      lg: 'lg:'
+    }
+  }
+};
+
+// =================== 配置参数区域结束 ===================
+
 const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
   const [isVisible, setIsVisible] = useState<Record<string, boolean>>({});
   const [scrollY, setScrollY] = useState(0);
@@ -204,7 +541,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
       const elements = document.querySelectorAll('[data-animate]');
       elements.forEach((el) => {
         const rect = el.getBoundingClientRect();
-        const isVisible = rect.top < window.innerHeight * 0.75;
+        const isVisible = rect.top < window.innerHeight * CONFIG.scroll.trigger.threshold;
         const id = el.getAttribute('data-animate');
         
         if (id) {
@@ -231,32 +568,32 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
     <div className="relative text-black overflow-hidden min-h-screen bg-white" 
          style={{ 
            fontFamily: language === 'zh' 
-             ? "'PingFang SC', 'Noto Sans SC', 'SF Pro Text', system-ui, sans-serif" 
-             : "'Inter', 'SF Pro Display', 'Segoe UI', system-ui, sans-serif"
+             ? CONFIG.typography.families.zh
+             : CONFIG.typography.families.en
          }}>
       <style>{`
         /* 现代化高级动画 */
         @keyframes subtleFadeIn {
           0% { 
             opacity: 0; 
-            transform: translateY(12px); 
-            filter: blur(1px);
+            transform: ${CONFIG.animations.transforms.fadeIn.from}; 
+            filter: ${CONFIG.animations.filters.blur.light};
           }
           100% { 
             opacity: 1; 
-            transform: translateY(0); 
-            filter: blur(0);
+            transform: ${CONFIG.animations.transforms.fadeIn.to}; 
+            filter: ${CONFIG.animations.filters.blur.none};
           }
         }
         
         @keyframes gentleRise {
           0% { 
             opacity: 0; 
-            transform: translateY(16px) scale(0.98); 
+            transform: ${CONFIG.animations.transforms.gentleRise.from}; 
           }
           100% { 
             opacity: 1; 
-            transform: translateY(0) scale(1); 
+            transform: ${CONFIG.animations.transforms.gentleRise.to}; 
           }
         }
         
@@ -266,60 +603,53 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
         }
         
         @keyframes floatAnimation {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-8px); }
+          0%, 100% { transform: ${CONFIG.animations.transforms.float.from}; }
+          50% { transform: ${CONFIG.animations.transforms.float.mid}; }
         }
         
         /* 现代动画类 */
         .modern-fade { 
-          animation: subtleFadeIn 1.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; 
+          animation: subtleFadeIn ${CONFIG.animations.durations.slowest} ${CONFIG.animations.easings.smooth} forwards; 
         }
         .modern-rise { 
-          animation: gentleRise 1.4s cubic-bezier(0.23, 1, 0.32, 1) forwards; 
+          animation: gentleRise ${CONFIG.animations.durations.slow} ${CONFIG.animations.easings.elastic} forwards; 
         }
         .float-animation {
-          animation: floatAnimation 6s ease-in-out infinite;
+          animation: floatAnimation ${CONFIG.animations.durations.float} ease-in-out infinite;
         }
         
         /* 深香槟金渐变 */
         .gold-gradient {
-          background: linear-gradient(
-            135deg,
-            #8B6845 0%, #A07B52 20%, #9C7848 40%, #765A3A 60%,
-            #8B6845 80%, #A07B52 100%
-          );
-          background-size: 300% 300%;
+          background: ${CONFIG.colors.gradients.gold.primary};
+          background-size: ${CONFIG.colors.gradients.gold.size.primary};
           background-clip: text;
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
-          animation: elegantShimmer 12s ease-in-out infinite;
-          filter: drop-shadow(0 0.5px 1px rgba(139, 104, 69, 0.2));
+          animation: elegantShimmer ${CONFIG.animations.durations.shimmer} ease-in-out infinite;
+          filter: drop-shadow(0 0.5px 1px ${CONFIG.colors.shadow.gold});
         }
         
         .gold-gradient-dark {
-          background: linear-gradient(
-            135deg,
-            #765A3A 0%, #9C7848 40%, #A07B52 80%, #8B6845 100%
-          );
-          background-size: 250% 250%;
+          background: ${CONFIG.colors.gradients.gold.dark};
+          background-size: ${CONFIG.colors.gradients.gold.size.dark};
           background-clip: text;
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
-          animation: elegantShimmer 15s ease-in-out infinite;
-          filter: drop-shadow(0 0.5px 1px rgba(118, 88, 58, 0.18));
+          animation: elegantShimmer ${CONFIG.animations.durations.shimmerDark} ease-in-out infinite;
+          filter: drop-shadow(0 0.5px 1px ${CONFIG.colors.shadow.goldDark});
         }
 
         /* 高级滚动交互 */
         .scroll-element {
-          opacity: 0;
-          transform: translateY(20px);
-          filter: blur(1px);
-          transition: all 1.6s cubic-bezier(0.16, 1, 0.3, 1);
+          opacity: ${CONFIG.scroll.visibility.opacity.hidden};
+          transform: ${CONFIG.scroll.visibility.transform.hidden};
+          filter: ${CONFIG.scroll.visibility.filter.hidden};
+          transition: all ${CONFIG.animations.durations.slower} ${CONFIG.animations.easings.custom};
         }
         .scroll-element.visible {
-          opacity: 1;
-          transform: translateY(0);
-          filter: blur(0);
+          opacity: ${CONFIG.scroll.visibility.opacity.visible};
+          transform: ${CONFIG.scroll.visibility.transform.visible};
+          filter: ${CONFIG.scroll.visibility.filter.visible};
         }
         
         /* 现代字体权重 */
@@ -329,12 +659,15 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
         .font-semibold { font-weight: 600; }
         .font-bold { font-weight: 700; }
 
-        /* 社媒平台logo动画 */
+        /* 自定义行高 - 解决中文字符截断问题 */
+        .custom-title-height {
+          line-height: 1.3 !important;
+        }
         .platform-logo {
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          transition: all ${CONFIG.animations.durations.fast} ${CONFIG.animations.easings.standard};
         }
         .platform-logo:hover {
-          transform: translateY(-4px) scale(1.05);
+          transform: ${CONFIG.animations.transforms.platformHover};
         }
       `}</style>
 
@@ -342,96 +675,96 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
       <AudioWaveAnimation />
 
       {/* 语言切换按钮 */}
-      <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50">
+      <div className={CONFIG.positioning.fixed.languageToggle}>
         <button 
           onClick={toggleLanguage}
-          className="text-gray-500 hover:text-gray-700 transition-all duration-500 text-sm font-light tracking-wide hover:scale-105 px-4 py-2"
+          className={`text-gray-500 hover:text-gray-700 ${CONFIG.transitions.all} ${CONFIG.transitions.durations[500]} ${CONFIG.typography.sizes.sm} ${CONFIG.typography.weights.light} ${CONFIG.typography.tracking.wide} hover:${CONFIG.animations.transforms.hoverScale.small} ${CONFIG.spacing.padding.px[4]} ${CONFIG.spacing.padding.py[2]}`}
         >
           {language === 'zh' ? '中' : 'En'} / {language === 'zh' ? 'En' : '中'}
         </button>
       </div>
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center px-6 py-20">
-        <div className="max-w-5xl mx-auto text-center">
+      <section className={`${CONFIG.layout.positions.relative} min-h-screen ${CONFIG.layout.flex.center} ${CONFIG.spacing.sections.hero}`}>
+        <div className={`${CONFIG.spacing.containers.maxWidth['5xl']} ${CONFIG.spacing.containers.margin} text-center`}>
           <div 
             data-animate="hero"
             className={`scroll-element ${isVisible.hero ? 'visible' : ''}`}
           >
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-8 bg-gradient-to-r from-black to-gray-600 bg-clip-text text-transparent tracking-tight leading-tight">
+            <h1 className={`${CONFIG.typography.sizes['4xl']} ${CONFIG.breakpoints.screens.md}${CONFIG.typography.sizes['6xl']} ${CONFIG.breakpoints.screens.lg}${CONFIG.typography.sizes['7xl']} ${CONFIG.typography.weights.bold} ${CONFIG.spacing.margins.mb[10]} ${CONFIG.spacing.padding.py[8]} bg-gradient-to-r from-black to-gray-600 bg-clip-text text-transparent ${CONFIG.typography.tracking.tight} custom-title-height`}>
               {content[language].hero.title}
             </h1>
-            <p className="text-xl md:text-2xl text-gray-600 mb-8 font-light leading-relaxed max-w-4xl mx-auto">
+            <p className={`${CONFIG.typography.sizes.xl} ${CONFIG.breakpoints.screens.md}${CONFIG.typography.sizes['2xl']} text-gray-600 ${CONFIG.spacing.margins.mb[8]} ${CONFIG.typography.weights.light} ${CONFIG.typography.leading.relaxed} ${CONFIG.spacing.containers.maxWidth['4xl']} ${CONFIG.spacing.containers.margin}`}>
               {content[language].hero.subtitle}
             </p>
-            <p className="text-lg text-gray-700 mb-12 font-light leading-relaxed max-w-3xl mx-auto">
-              <span className="gold-gradient font-medium">
+            <p className={`${CONFIG.typography.sizes.lg} text-gray-700 ${CONFIG.spacing.margins.mb[12]} ${CONFIG.typography.weights.light} ${CONFIG.typography.leading.relaxed} max-w-3xl ${CONFIG.spacing.containers.margin}`}>
+              <span className={`gold-gradient ${CONFIG.typography.weights.medium}`}>
                 {content[language].hero.description.split(' × ')[0]}
               </span>
               {' × '}
-              <span className="gold-gradient-dark font-medium">
+              <span className={`gold-gradient-dark ${CONFIG.typography.weights.medium}`}>
                 {content[language].hero.description.split(' × ')[1]}
               </span>
               {' × '}
-              <span className="gold-gradient font-medium">
+              <span className={`gold-gradient ${CONFIG.typography.weights.medium}`}>
                 {content[language].hero.description.split(' × ')[2].split(' = ')[0]}
               </span>
               {' = '}
-              <span className="font-semibold text-black">
+              <span className={`${CONFIG.typography.weights.semibold} text-black`}>
                 {content[language].hero.description.split(' = ')[1]}
               </span>
             </p>
           </div>
         </div>
         
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-          <div className="w-5 h-8 border border-black/20 rounded-full p-0.5">
-            <div className="w-0.5 h-2 bg-black/30 rounded-full mx-auto animate-pulse" />
+        <div className={`${CONFIG.positioning.absolute.heroScroll} animate-bounce`}>
+          <div className={`${CONFIG.scroll.indicator.size} ${CONFIG.scroll.indicator.border} ${CONFIG.scroll.indicator.radius} ${CONFIG.scroll.indicator.padding}`}>
+            <div className={`${CONFIG.scroll.indicator.innerSize} bg-black/30 ${CONFIG.scroll.indicator.radius} ${CONFIG.spacing.containers.margin} animate-pulse`} />
           </div>
         </div>
       </section>
 
       {/* 跨境双向优势 */}
-      <section className="relative py-24 px-6">
-        <div className="max-w-7xl mx-auto">
+      <section className={`${CONFIG.layout.positions.relative} ${CONFIG.spacing.sections.padding}`}>
+        <div className={`${CONFIG.spacing.containers.maxWidth['7xl']} ${CONFIG.spacing.containers.margin}`}>
           <div 
             data-animate="advantages"
-            className={`text-center mb-20 scroll-element ${isVisible.advantages ? 'visible' : ''}`}
+            className={`text-center ${CONFIG.spacing.margins.mb[20]} scroll-element ${isVisible.advantages ? 'visible' : ''}`}
           >
-            <h2 className="text-3xl md:text-5xl font-bold mb-6 text-black tracking-tight leading-tight">
+            <h2 className={`${CONFIG.typography.sizes['3xl']} ${CONFIG.breakpoints.screens.md}${CONFIG.typography.sizes['5xl']} ${CONFIG.typography.weights.bold} ${CONFIG.spacing.margins.mb[6]} text-black ${CONFIG.typography.tracking.tight} ${CONFIG.typography.leading.tight}`}>
               {content[language].advantages.title}
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto font-light leading-relaxed">
+            <p className={`${CONFIG.typography.sizes.xl} text-gray-600 max-w-3xl ${CONFIG.spacing.containers.margin} ${CONFIG.typography.weights.light} ${CONFIG.typography.leading.relaxed}`}>
               {content[language].advantages.subtitle}
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+          <div className={`grid ${CONFIG.layout.grids.cols[1]} ${CONFIG.layout.grids.cols['lg-3']} ${CONFIG.spacing.gaps[12]}`}>
             {content[language].advantages.items.map((item, index) => (
               <div
                 key={index}
                 data-animate={`advantage-${index}`}
-                className={`scroll-element bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-500 ${
+                className={`scroll-element bg-white ${CONFIG.components.cards.radius} ${CONFIG.components.cards.padding.large} ${CONFIG.components.cards.shadow} ${CONFIG.components.cards.border} ${CONFIG.components.cards.hoverShadow} ${CONFIG.transitions.all} ${CONFIG.transitions.durations[500]} ${
                   isVisible[`advantage-${index}`] ? 'visible' : ''
                 }`}
-                style={{ transitionDelay: `${index * 0.2}s` }}
+                style={{ transitionDelay: `${index * parseFloat(CONFIG.animations.delays.long.replace('s', '')) * 1000}ms` }}
               >
-                <div className="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center mb-6 float-animation">
+                <div className={`${CONFIG.components.icons.containers.large} bg-gray-100 ${CONFIG.components.buttons.radius.xl} ${CONFIG.layout.flex.center} ${CONFIG.spacing.margins.mb[6]} float-animation`}>
                   {[Globe, Zap, TrendingUp][index] && 
                     React.createElement([Globe, Zap, TrendingUp][index], { 
-                      size: 32, 
+                      size: CONFIG.components.icons.sizes.xl, 
                       className: "text-gray-600" 
                     })
                   }
                 </div>
-                <h3 className="text-xl font-semibold text-black mb-4 leading-snug">
+                <h3 className={`${CONFIG.typography.sizes.xl} ${CONFIG.typography.weights.semibold} text-black ${CONFIG.spacing.margins.mb[4]} ${CONFIG.typography.leading.snug}`}>
                   {item.title}
                 </h3>
-                <p className="text-gray-700 leading-relaxed font-light">
+                <p className={`text-gray-700 ${CONFIG.typography.leading.relaxed} ${CONFIG.typography.weights.light}`}>
                   {item.description.includes(item.highlight) ? (
                     <>
                       {item.description.split(item.highlight)[0]}
-                      <span className="gold-gradient font-medium">{item.highlight}</span>
+                      <span className={`gold-gradient ${CONFIG.typography.weights.medium}`}>{item.highlight}</span>
                       {item.description.split(item.highlight)[1]}
                     </>
                   ) : (
@@ -445,33 +778,33 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
       </section>
 
       {/* 达人资源矩阵 */}
-      <section className="relative py-24 px-6">
-        <div className="max-w-7xl mx-auto">
+      <section className={`${CONFIG.layout.positions.relative} ${CONFIG.spacing.sections.padding}`}>
+        <div className={`${CONFIG.spacing.containers.maxWidth['7xl']} ${CONFIG.spacing.containers.margin}`}>
           <div 
             data-animate="creators"
-            className={`text-center mb-20 scroll-element ${isVisible.creators ? 'visible' : ''}`}
+            className={`text-center ${CONFIG.spacing.margins.mb[20]} scroll-element ${isVisible.creators ? 'visible' : ''}`}
           >
-            <h2 className="text-3xl md:text-5xl font-bold mb-6 text-black tracking-tight leading-tight">
+            <h2 className={`${CONFIG.typography.sizes['3xl']} ${CONFIG.breakpoints.screens.md}${CONFIG.typography.sizes['5xl']} ${CONFIG.typography.weights.bold} ${CONFIG.spacing.margins.mb[6]} text-black ${CONFIG.typography.tracking.tight} ${CONFIG.typography.leading.tight}`}>
               {content[language].creators.title}
             </h2>
-            <p className="text-xl text-gray-600 max-w-4xl mx-auto font-light leading-relaxed">
+            <p className={`${CONFIG.typography.sizes.xl} text-gray-600 ${CONFIG.spacing.containers.maxWidth['4xl']} ${CONFIG.spacing.containers.margin} ${CONFIG.typography.weights.light} ${CONFIG.typography.leading.relaxed}`}>
               {content[language].creators.subtitle}
             </p>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className={`grid ${CONFIG.layout.grids.cols[2]} ${CONFIG.layout.grids.cols['lg-4']} ${CONFIG.spacing.gaps[8]}`}>
             {content[language].creators.stats.map((stat, index) => (
               <div
                 key={index}
                 data-animate={`stat-${index}`}
                 className={`text-center scroll-element ${isVisible[`stat-${index}`] ? 'visible' : ''}`}
-                style={{ transitionDelay: `${index * 0.15}s` }}
+                style={{ transitionDelay: `${index * parseFloat(CONFIG.animations.delays.medium.replace('s', '')) * 1000}ms` }}
               >
-                <div className="text-4xl md:text-5xl font-bold text-black mb-3">
+                <div className={`${CONFIG.typography.sizes['4xl']} ${CONFIG.breakpoints.screens.md}${CONFIG.typography.sizes['5xl']} ${CONFIG.typography.weights.bold} text-black ${CONFIG.spacing.margins.mb[3]}`}>
                   <span className="gold-gradient">{stat.number}</span>
                 </div>
-                <div className="text-lg font-semibold text-gray-800 mb-2">{stat.label}</div>
-                <div className="text-sm text-gray-600 font-light">{stat.desc}</div>
+                <div className={`${CONFIG.typography.sizes.lg} ${CONFIG.typography.weights.semibold} text-gray-800 ${CONFIG.spacing.margins.mb[2]}`}>{stat.label}</div>
+                <div className={`${CONFIG.typography.sizes.sm} text-gray-600 ${CONFIG.typography.weights.light}`}>{stat.desc}</div>
               </div>
             ))}
           </div>
@@ -479,19 +812,19 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
       </section>
 
       {/* 全平台官方授权 */}
-      <section className="relative py-24 px-6">
-        <div className="max-w-7xl mx-auto">
+      <section className={`${CONFIG.layout.positions.relative} ${CONFIG.spacing.sections.padding}`}>
+        <div className={`${CONFIG.spacing.containers.maxWidth['7xl']} ${CONFIG.spacing.containers.margin}`}>
           <div 
             data-animate="platforms"
-            className={`text-center mb-16 scroll-element ${isVisible.platforms ? 'visible' : ''}`}
+            className={`text-center ${CONFIG.spacing.margins.mb[16]} scroll-element ${isVisible.platforms ? 'visible' : ''}`}
           >
-            <h2 className="text-3xl md:text-5xl font-bold mb-6 text-black tracking-tight leading-tight">
+            <h2 className={`${CONFIG.typography.sizes['3xl']} ${CONFIG.breakpoints.screens.md}${CONFIG.typography.sizes['5xl']} ${CONFIG.typography.weights.bold} ${CONFIG.spacing.margins.mb[6]} text-black ${CONFIG.typography.tracking.tight} ${CONFIG.typography.leading.tight}`}>
               {content[language].platforms.title}
             </h2>
-            <p className="text-xl text-gray-600 max-w-4xl mx-auto font-light leading-relaxed mb-8">
+            <p className={`${CONFIG.typography.sizes.xl} text-gray-600 ${CONFIG.spacing.containers.maxWidth['4xl']} ${CONFIG.spacing.containers.margin} ${CONFIG.typography.weights.light} ${CONFIG.typography.leading.relaxed} ${CONFIG.spacing.margins.mb[8]}`}>
               {content[language].platforms.subtitle}
             </p>
-            <p className="text-lg text-gray-700 max-w-5xl mx-auto font-light leading-relaxed">
+            <p className={`${CONFIG.typography.sizes.lg} text-gray-700 max-w-5xl ${CONFIG.spacing.containers.margin} ${CONFIG.typography.weights.light} ${CONFIG.typography.leading.relaxed}`}>
               {content[language].platforms.description}
             </p>
           </div>
@@ -501,71 +834,71 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
             data-animate="platform-logos"
             className={`scroll-element ${isVisible['platform-logos'] ? 'visible' : ''}`}
           >
-            <div className="grid grid-cols-3 md:grid-cols-6 gap-8 mb-12">
+            <div className={`grid ${CONFIG.layout.grids.cols[3]} ${CONFIG.layout.grids.cols['md-6']} ${CONFIG.spacing.gaps[8]} ${CONFIG.spacing.margins.mb[12]}`}>
               {socialPlatforms.map((platform, index) => (
-                <div key={index} className="flex flex-col items-center group platform-logo">
-                  <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-sm border border-gray-100 group-hover:shadow-md transition-all duration-300">
+                <div key={index} className={`${CONFIG.layout.flex.col} items-center group platform-logo`}>
+                  <div className={`${CONFIG.components.icons.containers.large} bg-white ${CONFIG.components.cards.radius} ${CONFIG.layout.flex.center} ${CONFIG.components.cards.shadow} ${CONFIG.components.cards.border} group-hover:shadow-md ${CONFIG.transitions.all} ${CONFIG.transitions.durations[300]}`}>
                     <img 
                       src={platform.logo}
                       alt={platform.name}
-                      className="w-10 h-10 object-contain"
+                      className={`${CONFIG.components.platforms.logo.size} object-contain`}
                       onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
                         // 备用fallback显示平台名称
                         const target = e.currentTarget;
                         target.style.display = 'none';
                         const parent = target.parentElement;
                         if (parent) {
-                          parent.innerHTML = `<span class="text-xs font-medium text-gray-700">${platform.name}</span>`;
+                          parent.innerHTML = `<span class="${CONFIG.typography.sizes.xs} ${CONFIG.typography.weights.medium} text-gray-700">${platform.name}</span>`;
                         }
                       }}
                     />
                   </div>
-                  <span className="text-xs text-gray-600 mt-2 font-medium">{platform.name}</span>
+                  <span className={`${CONFIG.typography.sizes.xs} text-gray-600 ${CONFIG.spacing.margins.mt[2]} ${CONFIG.typography.weights.medium}`}>{platform.name}</span>
                 </div>
               ))}
             </div>
             
             <div className="text-center">
-              <p className="text-gray-600 text-lg font-light mb-12">
-                <span className="gold-gradient font-medium">CPC、CPM、CPA</span>
+              <p className={`text-gray-600 ${CONFIG.typography.sizes.lg} ${CONFIG.typography.weights.light} ${CONFIG.spacing.margins.mb[12]}`}>
+                <span className={`gold-gradient ${CONFIG.typography.weights.medium}`}>CPC、CPM、CPA</span>
                 {language === 'zh' ? ' 全模式投放 | 广告预算直达平台，无中间商赚差价' : ' Full-Model Placement | Direct Budget Access, No Middleman Markup'}
               </p>
               
               {/* 投放平台官方logo */}
-              <div className="mt-16">
-                <h3 className="text-lg font-semibold text-gray-800 mb-8">
+              <div className={CONFIG.spacing.margins.mt[16]}>
+                <h3 className={`${CONFIG.typography.sizes.lg} ${CONFIG.typography.weights.semibold} text-gray-800 ${CONFIG.spacing.margins.mb[8]}`}>
                   {language === 'zh' ? '官方授权投放平台' : 'Officially Authorized Platforms'}
                 </h3>
                 
                 {/* 国外平台 */}
-                <div className="mb-12">
-                  <p className="text-sm text-gray-500 mb-6 font-medium">
+                <div className={CONFIG.spacing.margins.mb[12]}>
+                  <p className={`${CONFIG.typography.sizes.sm} text-gray-500 ${CONFIG.spacing.margins.mb[6]} ${CONFIG.typography.weights.medium}`}>
                     {language === 'zh' ? '海外平台官方认证' : 'International Platform Certifications'}
                   </p>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-8 justify-items-center">
+                  <div className={`grid ${CONFIG.layout.grids.cols[2]} ${CONFIG.layout.grids.cols['md-4']} ${CONFIG.spacing.gaps[8]} ${CONFIG.layout.grids.justifyItems}`}>
                     {[
                       { name: 'Meta Business', logo: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiByeD0iMjAiIGZpbGw9IiMxODc3RjIiLz4KPHN2ZyB4PSIyMCIgeT0iMjAiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgdmlld0JveD0iMCAwIDYwIDYwIiBmaWxsPSJub25lIj4KPHBhdGggZD0iTTMwIDVMMjUgMjBIMTBMMjAgMzBMMTUgNTBMMzAgNDBMNDUgNTBMNDAgMzBMNTAgMjBIMzVMMzAgNVoiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPgo8L3N2Zz4=' },
                       { name: 'TikTok Creator', logo: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiByeD0iMjAiIGZpbGw9IiMwMDAwMDAiLz4KPHN2ZyB4PSIyMCIgeT0iMjAiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgdmlld0JveD0iMCAwIDYwIDYwIiBmaWxsPSJub25lIj4KPHBhdGggZD0iTTI1IDEwSDM1VjUwSDI1VjEwWk00MCAyMEg1MFY0MEg0MFYyMFoiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPgo8L3N2Zz4=' },
                       { name: 'YouTube Connect', logo: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiByeD0iMjAiIGZpbGw9IiNGRjAwMDAiLz4KPHN2ZyB4PSIyMCIgeT0iMjAiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgdmlld0JveD0iMCAwIDYwIDYwIiBmaWxsPSJub25lIj4KPHBhdGggZD0iTTEwIDIwSDUwVjQwSDEwVjIwWk0yMCAyNUwzNSAzMEwyMCAzNVYyNVoiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPgo8L3N2Zz4=' },
                       { name: 'X Ads', logo: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiByeD0iMjAiIGZpbGw9IiMwMDAwMDAiLz4KPHN2ZyB4PSIyMCIgeT0iMjAiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgdmlld0JveD0iMCAwIDYwIDYwIiBmaWxsPSJub25lIj4KPHBhdGggZD0iTTEwIDEwTDUwIDUwTTUwIDEwTDEwIDUwIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjQiLz4KPC9zdmc+Cjwvc3ZnPgo8L3N2Zz4=' }
                     ].map((platform, index) => (
-                      <div key={index} className="flex flex-col items-center group platform-logo">
-                        <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center shadow-sm border border-gray-100 group-hover:shadow-md transition-all duration-300">
+                      <div key={index} className={`${CONFIG.layout.flex.col} items-center group platform-logo`}>
+                        <div className={`${CONFIG.components.icons.containers.xl} bg-white ${CONFIG.components.cards.radius} ${CONFIG.layout.flex.center} ${CONFIG.components.cards.shadow} ${CONFIG.components.cards.border} group-hover:shadow-md ${CONFIG.transitions.all} ${CONFIG.transitions.durations[300]}`}>
                           <img 
                             src={platform.logo}
                             alt={platform.name}
-                            className="w-12 h-12 object-contain"
+                            className={`${CONFIG.components.platforms.logo.sizeLarge} object-contain`}
                             onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
                               const target = e.currentTarget;
                               target.style.display = 'none';
                               const parent = target.parentElement;
                               if (parent) {
-                                parent.innerHTML = `<span class="text-xs font-medium text-gray-700 text-center px-2">${platform.name}</span>`;
+                                parent.innerHTML = `<span class="${CONFIG.typography.sizes.xs} ${CONFIG.typography.weights.medium} text-gray-700 text-center ${CONFIG.spacing.padding.px[2]}">${platform.name}</span>`;
                               }
                             }}
                           />
                         </div>
-                        <span className="text-xs text-gray-600 mt-2 font-medium text-center">{platform.name}</span>
+                        <span className={`${CONFIG.typography.sizes.xs} text-gray-600 ${CONFIG.spacing.margins.mt[2]} ${CONFIG.typography.weights.medium} text-center`}>{platform.name}</span>
                       </div>
                     ))}
                   </div>
@@ -573,10 +906,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
                 
                 {/* 国内平台 */}
                 <div>
-                  <p className="text-sm text-gray-500 mb-6 font-medium">
+                  <p className={`${CONFIG.typography.sizes.sm} text-gray-500 ${CONFIG.spacing.margins.mb[6]} ${CONFIG.typography.weights.medium}`}>
                     {language === 'zh' ? '国内平台官方服务商' : 'Domestic Platform Official Partners'}
                   </p>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 justify-items-center">
+                  <div className={`grid ${CONFIG.layout.grids.cols[2]} ${CONFIG.layout.grids.cols['md-3']} ${CONFIG.layout.grids.cols['lg-6']} ${CONFIG.spacing.gaps[6]} ${CONFIG.layout.grids.justifyItems}`}>
                     {[
                       { name: '巨量星图', logo: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiByeD0iMjAiIGZpbGw9IiMwMDAwMDAiLz4KPHN2ZyB4PSIyMCIgeT0iMjAiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgdmlld0JveD0iMCAwIDYwIDYwIiBmaWxsPSJub25lIj4KPHBhdGggZD0iTTMwIDVMMzUgMjBMNTAgMTVMNDAzMEw1NSAzNUw0MCA0NUw0NSA2MEwzMCA1MEwxNSA1NUwyNSAzNUwxMCAzMEwyNSAyMEwyMCA1TDMwIDVaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4KPC9zdmc+' },
                       { name: '磁力聚星', logo: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiByeD0iMjAiIGZpbGw9IiNGRjZBMDAiLz4KPHN2ZyB4PSIyMCIgeT0iMjAiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgdmlld0JveD0iMCAwIDYwIDYwIiBmaWxsPSJub25lIj4KPGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iNCIvPgo8Y2lyY2xlIGN4PSIzMCIgY3k9IjMwIiByPSI2IiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4KPC9zdmc+' },
@@ -585,23 +918,23 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
                       { name: '花火', logo: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiByeD0iMjAiIGZpbGw9IiNGRjQ1MDAiLz4KPHN2ZyB4PSIyMCIgeT0iMjAiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgdmlld0JveD0iMCAwIDYwIDYwIiBmaWxsPSJub25lIj4KPGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iOCIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTMwIDVWMjJNMzAgMzhWNTVNNTUgMzBIMzhNMjIgMzBINSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIzIi8+Cjwvc3ZnPgo8L3N2Zz4=' },
                       { name: '微任务', logo: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiByeD0iMjAiIGZpbGw9IiMwN0MxNjAiLz4KPHN2ZyB4PSIyMCIgeT0iMjAiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgdmlld0JveD0iMCAwIDYwIDYwIiBmaWxsPSJub25lIj4KPHJlY3QgeD0iMTAiIHk9IjEwIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHJ4PSI4IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjMiLz4KPHBhdGggZD0iTTIwIDI1TDI1IDMwTDM1IDIwIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjMiIGZpbGw9Im5vbmUiLz4KPC9zdmc+Cjwvc3ZnPgo8L3N2Zz4=' }
                     ].map((platform, index) => (
-                      <div key={index} className="flex flex-col items-center group platform-logo">
-                        <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-sm border border-gray-100 group-hover:shadow-md transition-all duration-300">
+                      <div key={index} className={`${CONFIG.layout.flex.col} items-center group platform-logo`}>
+                        <div className={`${CONFIG.components.icons.containers.large} bg-white ${CONFIG.components.cards.radius} ${CONFIG.layout.flex.center} ${CONFIG.components.cards.shadow} ${CONFIG.components.cards.border} group-hover:shadow-md ${CONFIG.transitions.all} ${CONFIG.transitions.durations[300]}`}>
                           <img 
                             src={platform.logo}
                             alt={platform.name}
-                            className="w-10 h-10 object-contain"
+                            className={`${CONFIG.components.platforms.logo.size} object-contain`}
                             onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
                               const target = e.currentTarget;
                               target.style.display = 'none';
                               const parent = target.parentElement;
                               if (parent) {
-                                parent.innerHTML = `<span class="text-xs font-medium text-gray-700 text-center px-1">${platform.name}</span>`;
+                                parent.innerHTML = `<span class="${CONFIG.typography.sizes.xs} ${CONFIG.typography.weights.medium} text-gray-700 text-center ${CONFIG.spacing.padding.px[1]}">${platform.name}</span>`;
                               }
                             }}
                           />
                         </div>
-                        <span className="text-xs text-gray-600 mt-2 font-medium text-center">{platform.name}</span>
+                        <span className={`${CONFIG.typography.sizes.xs} text-gray-600 ${CONFIG.spacing.margins.mt[2]} ${CONFIG.typography.weights.medium} text-center`}>{platform.name}</span>
                       </div>
                     ))}
                   </div>
@@ -613,37 +946,37 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
       </section>
 
       {/* 专业化服务矩阵 */}
-      <section className="relative py-24 px-6">
-        <div className="max-w-7xl mx-auto">
+      <section className={`${CONFIG.layout.positions.relative} ${CONFIG.spacing.sections.padding}`}>
+        <div className={`${CONFIG.spacing.containers.maxWidth['7xl']} ${CONFIG.spacing.containers.margin}`}>
           <div 
             data-animate="services"
-            className={`text-center mb-20 scroll-element ${isVisible.services ? 'visible' : ''}`}
+            className={`text-center ${CONFIG.spacing.margins.mb[20]} scroll-element ${isVisible.services ? 'visible' : ''}`}
           >
-            <h2 className="text-3xl md:text-5xl font-bold mb-6 text-black tracking-tight leading-tight">
+            <h2 className={`${CONFIG.typography.sizes['3xl']} ${CONFIG.breakpoints.screens.md}${CONFIG.typography.sizes['5xl']} ${CONFIG.typography.weights.bold} ${CONFIG.spacing.margins.mb[6]} text-black ${CONFIG.typography.tracking.tight} ${CONFIG.typography.leading.tight}`}>
               {content[language].services.title}
             </h2>
-            <p className="text-xl text-gray-600 max-w-4xl mx-auto font-light leading-relaxed">
+            <p className={`${CONFIG.typography.sizes.xl} text-gray-600 ${CONFIG.spacing.containers.maxWidth['4xl']} ${CONFIG.spacing.containers.margin} ${CONFIG.typography.weights.light} ${CONFIG.typography.leading.relaxed}`}>
               {content[language].services.subtitle}
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className={`grid ${CONFIG.layout.grids.cols[1]} ${CONFIG.layout.grids.cols['md-2']} ${CONFIG.layout.grids.cols['lg-4']} ${CONFIG.spacing.gaps[8]}`}>
             {content[language].services.items.map((service, index) => (
               <div
                 key={index}
                 data-animate={`service-${index}`}
-                className={`scroll-element bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-500 text-center ${
+                className={`scroll-element bg-white ${CONFIG.components.cards.radius} ${CONFIG.components.cards.padding.small} ${CONFIG.components.cards.shadow} ${CONFIG.components.cards.border} ${CONFIG.components.cards.hoverShadow} ${CONFIG.transitions.all} ${CONFIG.transitions.durations[500]} text-center ${
                   isVisible[`service-${index}`] ? 'visible' : ''
                 }`}
-                style={{ transitionDelay: `${index * 0.1}s` }}
+                style={{ transitionDelay: `${index * parseFloat(CONFIG.animations.delays.short.replace('s', '')) * 1000}ms` }}
               >
-                <div className="w-14 h-14 bg-gray-100 rounded-xl flex items-center justify-center mb-4 mx-auto">
-                  <service.icon size={24} className="text-gray-600" />
+                <div className={`${CONFIG.components.icons.containers.medium} bg-gray-100 ${CONFIG.components.buttons.radius.xl} ${CONFIG.layout.flex.center} ${CONFIG.spacing.margins.mb[4]} ${CONFIG.spacing.containers.margin}`}>
+                  <service.icon size={CONFIG.components.icons.sizes.large} className="text-gray-600" />
                 </div>
-                <h3 className="text-lg font-semibold text-black mb-3 leading-snug">
+                <h3 className={`${CONFIG.typography.sizes.lg} ${CONFIG.typography.weights.semibold} text-black ${CONFIG.spacing.margins.mb[3]} ${CONFIG.typography.leading.snug}`}>
                   {service.title}
                 </h3>
-                <p className="text-gray-700 leading-relaxed font-light text-sm">
+                <p className={`text-gray-700 ${CONFIG.typography.leading.relaxed} ${CONFIG.typography.weights.light} ${CONFIG.typography.sizes.sm}`}>
                   {service.description}
                 </p>
               </div>
@@ -653,35 +986,35 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
       </section>
 
       {/* 数据驱动成果 */}
-      <section className="relative py-24 px-6">
-        <div className="max-w-7xl mx-auto">
+      <section className={`${CONFIG.layout.positions.relative} ${CONFIG.spacing.sections.padding}`}>
+        <div className={`${CONFIG.spacing.containers.maxWidth['7xl']} ${CONFIG.spacing.containers.margin}`}>
           <div 
             data-animate="performance"
-            className={`text-center mb-20 scroll-element ${isVisible.performance ? 'visible' : ''}`}
+            className={`text-center ${CONFIG.spacing.margins.mb[20]} scroll-element ${isVisible.performance ? 'visible' : ''}`}
           >
-            <h2 className="text-3xl md:text-5xl font-bold mb-6 text-black tracking-tight leading-tight">
+            <h2 className={`${CONFIG.typography.sizes['3xl']} ${CONFIG.breakpoints.screens.md}${CONFIG.typography.sizes['5xl']} ${CONFIG.typography.weights.bold} ${CONFIG.spacing.margins.mb[6]} text-black ${CONFIG.typography.tracking.tight} ${CONFIG.typography.leading.tight}`}>
               {content[language].performance.title}
             </h2>
-            <p className="text-xl text-gray-600 max-w-4xl mx-auto font-light leading-relaxed">
+            <p className={`${CONFIG.typography.sizes.xl} text-gray-600 ${CONFIG.spacing.containers.maxWidth['4xl']} ${CONFIG.spacing.containers.margin} ${CONFIG.typography.weights.light} ${CONFIG.typography.leading.relaxed}`}>
               {content[language].performance.subtitle}
             </p>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className={`grid ${CONFIG.layout.grids.cols[2]} ${CONFIG.layout.grids.cols['lg-4']} ${CONFIG.spacing.gaps[8]}`}>
             {content[language].performance.stats.map((stat, index) => (
               <div
                 key={index}
                 data-animate={`perf-${index}`}
-                className={`text-center scroll-element bg-white rounded-2xl p-6 shadow-sm border border-gray-100 ${
+                className={`text-center scroll-element bg-white ${CONFIG.components.cards.radius} ${CONFIG.components.cards.padding.small} ${CONFIG.components.cards.shadow} ${CONFIG.components.cards.border} ${
                   isVisible[`perf-${index}`] ? 'visible' : ''
                 }`}
-                style={{ transitionDelay: `${index * 0.1}s` }}
+                style={{ transitionDelay: `${index * parseFloat(CONFIG.animations.delays.short.replace('s', '')) * 1000}ms` }}
               >
-                <div className="text-3xl md:text-4xl font-bold mb-3">
+                <div className={`${CONFIG.typography.sizes['3xl']} ${CONFIG.breakpoints.screens.md}${CONFIG.typography.sizes['4xl']} ${CONFIG.typography.weights.bold} ${CONFIG.spacing.margins.mb[3]}`}>
                   <span className="gold-gradient">{stat.metric}</span>
                 </div>
-                <div className="text-lg font-semibold text-gray-800 mb-2">{stat.label}</div>
-                <div className="text-sm text-gray-600 font-light">{stat.desc}</div>
+                <div className={`${CONFIG.typography.sizes.lg} ${CONFIG.typography.weights.semibold} text-gray-800 ${CONFIG.spacing.margins.mb[2]}`}>{stat.label}</div>
+                <div className={`${CONFIG.typography.sizes.sm} text-gray-600 ${CONFIG.typography.weights.light}`}>{stat.desc}</div>
               </div>
             ))}
           </div>
@@ -689,28 +1022,28 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
       </section>
 
       {/* CTA区域 */}
-      <section className="relative py-24 px-6">
-        <div className="max-w-4xl mx-auto">
+      <section className={`${CONFIG.layout.positions.relative} ${CONFIG.spacing.sections.padding}`}>
+        <div className={`${CONFIG.spacing.containers.maxWidth['4xl']} ${CONFIG.spacing.containers.margin}`}>
           <div 
             data-animate="cta"
             className={`text-center scroll-element ${isVisible.cta ? 'visible' : ''}`}
           >
-            <h2 className="text-3xl md:text-5xl font-bold mb-8 text-black tracking-tight leading-tight">
+            <h2 className={`${CONFIG.typography.sizes['3xl']} ${CONFIG.breakpoints.screens.md}${CONFIG.typography.sizes['5xl']} ${CONFIG.typography.weights.bold} ${CONFIG.spacing.margins.mb[8]} text-black ${CONFIG.typography.tracking.tight} ${CONFIG.typography.leading.tight}`}>
               {content[language].cta.title}
             </h2>
-            <p className="text-xl text-gray-600 mb-6 leading-relaxed font-light">
+            <p className={`${CONFIG.typography.sizes.xl} text-gray-600 ${CONFIG.spacing.margins.mb[6]} ${CONFIG.typography.leading.relaxed} ${CONFIG.typography.weights.light}`}>
               {content[language].cta.subtitle}
             </p>
-            <p className="text-lg text-gray-700 mb-12 leading-relaxed font-light">
-              <span className="gold-gradient-dark font-medium">
+            <p className={`${CONFIG.typography.sizes.lg} text-gray-700 ${CONFIG.spacing.margins.mb[12]} ${CONFIG.typography.leading.relaxed} ${CONFIG.typography.weights.light}`}>
+              <span className={`gold-gradient-dark ${CONFIG.typography.weights.medium}`}>
                 {content[language].cta.description}
               </span>
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-6 justify-center">
-              <button className="group relative px-10 py-4 bg-black text-white rounded-full font-medium text-lg hover:bg-gray-800 transition-all duration-500 hover:scale-105">
+            <div className={`${CONFIG.layout.flex.col} sm:${CONFIG.layout.flex.rowReverse} ${CONFIG.spacing.gaps[6]} justify-center`}>
+              <button className={`group ${CONFIG.layout.positions.relative} ${CONFIG.components.buttons.sizes.large} bg-black text-white ${CONFIG.components.buttons.radius.full} ${CONFIG.typography.weights.medium} ${CONFIG.typography.sizes.lg} hover:${CONFIG.colors.gradients.hover.black} ${CONFIG.transitions.all} ${CONFIG.transitions.durations[500]} hover:${CONFIG.animations.transforms.hoverScale.small}`}>
                 {content[language].cta.button}
-                <ChevronRight size={20} className="inline-block ml-2 group-hover:translate-x-1 transition-transform" />
+                <ChevronRight size={CONFIG.components.icons.sizes.medium} className={`inline-block ml-2 group-hover:translate-x-1 ${CONFIG.transitions.properties.transform}`} />
               </button>
             </div>
           </div>
@@ -718,15 +1051,15 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
       </section>
 
       {/* Footer */}
-      <footer className="relative py-16 px-6 border-t border-gray-200">
-        <div className="max-w-7xl mx-auto">
+      <footer className={`${CONFIG.layout.positions.relative} ${CONFIG.spacing.sections.footer} border-t border-gray-200`}>
+        <div className={`${CONFIG.spacing.containers.maxWidth['7xl']} ${CONFIG.spacing.containers.margin}`}>
           <div className="text-center">
-            <p className="text-gray-600 font-light text-lg">
-              <span className="gold-gradient font-medium">
+            <p className={`text-gray-600 ${CONFIG.typography.weights.light} ${CONFIG.typography.sizes.lg}`}>
+              <span className={`gold-gradient ${CONFIG.typography.weights.medium}`}>
                 {language === 'zh' ? '跨境内容营销解决方案提供商' : 'Cross-Border Content Marketing Solutions Provider'}
               </span>
             </p>
-            <p className="text-sm mt-3 text-gray-500 font-light">© 2024 Mega Volume Production Inc. All rights reserved.</p>
+            <p className={`${CONFIG.typography.sizes.sm} ${CONFIG.spacing.margins.mt[3]} text-gray-500 ${CONFIG.typography.weights.light}`}>© 2024 Mega Volume Production Inc. All rights reserved.</p>
           </div>
         </div>
       </footer>
@@ -734,21 +1067,21 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
       {/* 数据管理入口按钮 - 固定在右下角 */}
       <button
         onClick={onNavigateToSystem}
-        className="fixed bottom-8 right-8 z-50 group px-6 py-3 bg-gray-900 text-white rounded-full border border-gray-800 hover:bg-black transition-all duration-500 backdrop-blur-sm hover:scale-105"
+        className={`${CONFIG.positioning.fixed.dataManagement} group ${CONFIG.components.buttons.sizes.medium} bg-gray-900 text-white ${CONFIG.components.buttons.radius.full} border border-gray-800 hover:bg-black ${CONFIG.transitions.all} ${CONFIG.transitions.durations[500]} backdrop-blur-sm hover:${CONFIG.animations.transforms.hoverScale.small}`}
       >
-        <span className="flex items-center gap-2 font-medium">
+        <span className={`${CONFIG.layout.flex.center} ${CONFIG.spacing.gaps[2]} ${CONFIG.typography.weights.medium}`}>
           {language === 'zh' ? '数据管理系统' : 'Data Management'}
-          <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform duration-300" />
+          <ChevronRight size={CONFIG.components.icons.sizes.small} className={`group-hover:translate-x-1 ${CONFIG.transitions.properties.transform} ${CONFIG.transitions.durations[300]}`} />
         </span>
       </button>
 
       {/* 回到顶部 */}
-      {scrollY > 1000 && (
+      {scrollY > CONFIG.scroll.trigger.minScroll && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-8 right-52 z-50 w-12 h-12 bg-gray-100 text-gray-700 rounded-full flex items-center justify-center hover:scale-110 transition-all duration-500 shadow-lg border border-gray-200"
+          className={`${CONFIG.positioning.fixed.scrollTop} ${CONFIG.components.icons.containers.small} bg-gray-100 text-gray-700 ${CONFIG.components.buttons.radius.full} ${CONFIG.layout.flex.center} hover:${CONFIG.animations.transforms.hoverScale.medium} ${CONFIG.transitions.all} ${CONFIG.transitions.durations[500]} shadow-lg border border-gray-200`}
         >
-          <ArrowUp size={20} />
+          <ArrowUp size={CONFIG.components.icons.sizes.medium} />
         </button>
       )}
     </div>
