@@ -8,21 +8,21 @@ const AudioWaveAnimation: React.FC = () => {
   const CONFIG = {
     // 基础视觉配置
     opacity: 0.3,
-    background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #0a0a0a 100%)',
+    background: 'transparent',
     
     // 条形配置
-    barSpacing: 18,              // 条形基础间距
-    barWidthRatio: 0.6,          // 条形宽度占间距的比例
-    minBarCount: 100,             // 最少条形数量
+    barSpacing: 22,              // 条形基础间距
+    barWidthRatio: 0.5,          // 条形宽度占间距的比例
+    minBarCount: 80,             // 最少条形数量
     
     // 高度配置
-    maxHeightRatio: 0.95,        // 最大高度占画布高度的比例
-    minHeight: 8,                // 最小条形高度
+    maxHeightRatio: 1,        // 最大高度占画布高度的比例
+    minHeight: 3,                // 最小条形高度
     
     // 缩放配置
     zoomConfig: {
-      minZoom: 0.3,              // 最小缩放比例（镜头最远）
-      maxZoom: 2.5,              // 最大缩放比例（镜头最近）
+      minZoom: 0.4,              // 最小缩放比例（镜头最远）
+      maxZoom: 8,              // 最大缩放比例（镜头最近）
       sensitivity: 0.008,        // 滚动敏感度
       mouseZoomBoost: 0,       // 鼠标悬停时的额外缩放
     },
@@ -33,10 +33,10 @@ const AudioWaveAnimation: React.FC = () => {
     
     // 波动参数（向右流动）
     waveFlow: {
-      speed: 0.003,               // 波向右流动的速度
-      primaryFreq: 0.08,         // 主波频率
-      secondaryFreq: 0.15,       // 次波频率
-      lengthVariation: 0.6,      // 长短变化幅度
+      speed: 0.004,               // 波向右流动的速度
+      primaryFreq: 0.02,         // 主波频率
+      secondaryFreq: 0.04,       // 次波频率
+      lengthVariation: 0.2,      // 长短变化幅度
     },
     
     // 颜色配置
@@ -46,7 +46,7 @@ const AudioWaveAnimation: React.FC = () => {
     },
     opacityRange: {
       min: 0.2,                 // 最小透明度
-      max: 0.6                   // 最大透明度
+      max: 0.65                   // 最大透明度
     }
   };
 
