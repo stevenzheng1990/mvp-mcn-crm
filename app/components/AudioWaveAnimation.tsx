@@ -13,27 +13,27 @@ const AudioWaveAnimation: React.FC = () => {
     // 条形配置
     barSpacing: 18,              // 条形基础间距
     barWidthRatio: 0.6,          // 条形宽度占间距的比例
-    minBarCount: 120,             // 最少条形数量
+    minBarCount: 100,             // 最少条形数量
     
     // 高度配置
-    maxHeightRatio: 0.85,        // 最大高度占画布高度的比例
+    maxHeightRatio: 0.95,        // 最大高度占画布高度的比例
     minHeight: 8,                // 最小条形高度
     
     // 缩放配置
     zoomConfig: {
       minZoom: 0.3,              // 最小缩放比例（镜头最远）
-      maxZoom: 3.5,              // 最大缩放比例（镜头最近）
-      sensitivity: 0.005,        // 滚动敏感度
-      mouseZoomBoost: 0.0,       // 鼠标悬停时的额外缩放
+      maxZoom: 2.5,              // 最大缩放比例（镜头最近）
+      sensitivity: 0.008,        // 滚动敏感度
+      mouseZoomBoost: 0,       // 鼠标悬停时的额外缩放
     },
     
     // 鼠标交互
-    mouseInfluenceRadius: 220,   // 鼠标影响半径
+    mouseInfluenceRadius: 200,   // 鼠标影响半径
     mouseBoostRatio: 0.35,       // 鼠标影响的高度增幅
     
     // 波动参数（向右流动）
     waveFlow: {
-      speed: 0.008,               // 波向右流动的速度
+      speed: 0.003,               // 波向右流动的速度
       primaryFreq: 0.08,         // 主波频率
       secondaryFreq: 0.15,       // 次波频率
       lengthVariation: 0.6,      // 长短变化幅度
@@ -45,8 +45,8 @@ const AudioWaveAnimation: React.FC = () => {
       max: 220                   // 最大灰度值
     },
     opacityRange: {
-      min: 0.18,                 // 最小透明度
-      max: 0.5                   // 最大透明度
+      min: 0.2,                 // 最小透明度
+      max: 0.6                   // 最大透明度
     }
   };
 
@@ -68,11 +68,11 @@ const AudioWaveAnimation: React.FC = () => {
     const targetZoom = CONFIG.zoomConfig.minZoom + 
       scrollProgress * (CONFIG.zoomConfig.maxZoom - CONFIG.zoomConfig.minZoom);
     
-    // 直接设置缩放值，不使用平滑过渡（测试用）
+    // 直接设置缩放值，让效果更明显
     zoomRef.current = targetZoom;
     
-    // 调试信息
-    console.log('Scroll Y:', scrollY, 'Progress:', scrollProgress, 'Zoom:', targetZoom);
+    // 调试信息（可以在控制台查看）
+    console.log('Scroll:', scrollY, 'Progress:', scrollProgress.toFixed(2), 'Zoom:', targetZoom.toFixed(2));
   }, []);
 
   useEffect(() => {
@@ -127,7 +127,7 @@ const AudioWaveAnimation: React.FC = () => {
       const barCount = Math.max(CONFIG.minBarCount, Math.floor(canvasWidth / scaledSpacing));
       const barWidth = (canvasWidth / barCount) * CONFIG.barWidthRatio;
       const spacing = canvasWidth / barCount;
-      const maxBarHeight = canvasHeight * CONFIG.maxHeightRatio * enhancedZoom; // 重要：高度也要缩放
+      const maxBarHeight = canvasHeight * CONFIG.maxHeightRatio * enhancedZoom; // 高度也要缩放
       const centerY = canvasHeight / 2;
       
       // 时间偏移用于波向右流动
