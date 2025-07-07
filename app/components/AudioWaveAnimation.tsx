@@ -7,7 +7,7 @@ const AudioWaveAnimation = () => {
   // ========== 配置参数区域 ==========
   const CONFIG = {
     // 基础视觉配置
-    opacity: 0.86,
+    opacity: 0.96,
     background: 'transparent',
     
     // 条形配置

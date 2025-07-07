@@ -364,13 +364,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
   const content = {
     zh: {
       hero: {
-        title: "跨境内容营销新纪元",
-        subtitle: "业界唯一在北美和中国同时建立完整内容营销生态系统的MCN机构",
-        description: "70+签约KOL × 600+北美创作者 × 全平台官方授权 = 真正的跨境营销一站式解决方案"
+        title: "十方众声 声动十方",
+        subtitle: "业界唯一在北美和中国同时建立完整内容营销生态的MCN机构",
+        description: "100+签约KOL × 600+北美创作者 × 全平台官方授权 = 真正的跨境营销一站式解决方案"
       },
       advantages: {
-        title: "跨境双向 独家生态优势",
-        subtitle: "打破传统跨境营销的地域壁垒和文化隔阂",
+        title: "达人资源+投放渠道 独家生态优势",
+        subtitle: "完整生态的全站推广解决方案",
         items: [
           {
             title: "独家跨境双向通道",
@@ -379,8 +379,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
           },
           {
             title: "一手达人资源直采",
-            description: "所有KOL合作均为第一手资源对接，彻底避免传统多层代理模式带来的信息衰减和成本层层加码",
-            highlight: "第一手"
+            description: "所有KOL合作均为直联资源对接，彻底避免传统多层代理模式带来的信息衰减和成本层层加码",
+            highlight: "直联资源对接"
           },
           {
             title: "全链条生态闭环",
@@ -391,16 +391,16 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
       },
       creators: {
         title: "矩阵化达人资源 全域精准触达",
-        subtitle: "超过70名深度孵化的签约KOL + 北美地区超过600名长期合作的优质达人",
+        subtitle: "超过100名深度孵化的签约KOL + 北美地区超过600名长期合作的优质达人",
         stats: [
-          { number: "70+", label: "签约KOL", desc: "深度孵化签约达人" },
+          { number: "100+", label: "签约KOL", desc: "深度孵化签约达人" },
           { number: "600+", label: "合作创作者", desc: "北美长期合作伙伴" },
-          { number: "30+", label: "核心城市", desc: "覆盖美加主要市场" },
+          { number: "30+", label: "核心城市", desc: "覆盖美加中主要市场" },
           { number: "$825B", label: "市场价值", desc: "北美亚裔消费力" }
         ]
       },
       platforms: {
-        title: "全平台官方授权 程序化投放赋能",
+        title: "全平台官方授权 受众精准覆盖",
         subtitle: "同时获得中外主流媒体平台官方认证的专业MCN机构",
         description: "拥有完整的程序化广告投放资质和专业的媒介采购能力，支持CPC、CPM、CPA等多种计费模式的精准投放"
       },
@@ -435,14 +435,14 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
         subtitle: "通过专业数据分析系统，确保每一分营销预算都能产生最佳的投入产出比",
         stats: [
           { metric: "3.2x", label: "互动率提升", desc: "亚裔受众互动率" },
-          { metric: "45%", label: "获客成本降低", desc: "针对亚裔消费者" },
+          { metric: "45%", label: "获客成本降低", desc: "帮助商家最大化营销收益" },
           { metric: "2.8x", label: "转化率提升", desc: "文化对齐传播" },
-          { metric: "500+", label: "成功案例", desc: "累计campaign数量" }
+          { metric: "500+", label: "成功案例", desc: "累计Campaign数量" }
         ]
       },
       cta: {
-        title: "开启您的跨境内容营销新篇章",
-        subtitle: "无论您是希望通过海外KOL实现品牌出海，还是致力于深耕华人市场、扩大亚洲影响力",
+        title: "开启您的全平台内容营销新篇章",
+        subtitle: "无论您是希望通过海外KOL实现品牌出海，还是致力于深耕本地市场、扩大影响力",
         description: "我们都能为您量身定制最直接、最高效的达人营销解决方案",
         button: "立即合作咨询"
       }
