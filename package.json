@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "framer-motion": "^12.23.0",
     "googleapis": "^128.0.0",
     "gsap": "^3.13.0",
     "js-file-download": "^0.4.12",
@@ -18,7 +19,6 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "recharts": "^2.8.0",
-    "three": "^0.178.0",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {

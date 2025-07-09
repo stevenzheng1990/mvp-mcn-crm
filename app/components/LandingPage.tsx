@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { ChevronRight, Users, Globe, TrendingUp, Zap, Award, BarChart3, ArrowUp, Play, Star, Target, Briefcase } from 'lucide-react';
 import AudioWaveAnimation from './AudioWaveAnimation';
+import HeroSection from './HeroSection';
 
 interface LandingPageProps {
   onNavigateToSystem: () => void;
@@ -684,45 +685,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
         </button>
       </div>
 
-      {/* Hero Section */}
-      <section className={`${CONFIG.layout.positions.relative} min-h-screen ${CONFIG.layout.flex.center} ${CONFIG.spacing.sections.hero}`}>
-        <div className={`${CONFIG.spacing.containers.maxWidth['5xl']} ${CONFIG.spacing.containers.margin} text-center`}>
-          <div 
-            data-animate="hero"
-            className={`scroll-element ${isVisible.hero ? 'visible' : ''}`}
-          >
-            <h1 className={`${CONFIG.typography.sizes['4xl']} ${CONFIG.breakpoints.screens.md}${CONFIG.typography.sizes['6xl']} ${CONFIG.breakpoints.screens.lg}${CONFIG.typography.sizes['7xl']} ${CONFIG.typography.weights.bold} ${CONFIG.spacing.margins.mb[10]} ${CONFIG.spacing.padding.py[8]} bg-gradient-to-r from-black to-gray-600 bg-clip-text text-transparent ${CONFIG.typography.tracking.tight} custom-title-height`}>
-              {content[language].hero.title}
-            </h1>
-            <p className={`${CONFIG.typography.sizes.xl} ${CONFIG.breakpoints.screens.md}${CONFIG.typography.sizes['2xl']} text-gray-600 ${CONFIG.spacing.margins.mb[8]} ${CONFIG.typography.weights.light} ${CONFIG.typography.leading.relaxed} ${CONFIG.spacing.containers.maxWidth['4xl']} ${CONFIG.spacing.containers.margin}`}>
-              {content[language].hero.subtitle}
-            </p>
-            <p className={`${CONFIG.typography.sizes.lg} text-gray-700 ${CONFIG.spacing.margins.mb[12]} ${CONFIG.typography.weights.light} ${CONFIG.typography.leading.relaxed} max-w-3xl ${CONFIG.spacing.containers.margin}`}>
-              <span className={`gold-gradient ${CONFIG.typography.weights.medium}`}>
-                {content[language].hero.description.split(' × ')[0]}
-              </span>
-              {' × '}
-              <span className={`gold-gradient-dark ${CONFIG.typography.weights.medium}`}>
-                {content[language].hero.description.split(' × ')[1]}
-              </span>
-              {' × '}
-              <span className={`gold-gradient ${CONFIG.typography.weights.medium}`}>
-                {content[language].hero.description.split(' × ')[2].split(' = ')[0]}
-              </span>
-              {' = '}
-              <span className={`${CONFIG.typography.weights.semibold} text-black`}>
-                {content[language].hero.description.split(' = ')[1]}
-              </span>
-            </p>
-          </div>
-        </div>
-        
-        <div className={`${CONFIG.positioning.absolute.heroScroll} animate-bounce`}>
-          <div className={`${CONFIG.scroll.indicator.size} ${CONFIG.scroll.indicator.border} ${CONFIG.scroll.indicator.radius} ${CONFIG.scroll.indicator.padding}`}>
-            <div className={`${CONFIG.scroll.indicator.innerSize} bg-black/30 ${CONFIG.scroll.indicator.radius} ${CONFIG.spacing.containers.margin} animate-pulse`} />
-          </div>
-        </div>
-      </section>
+      <HeroSection 
+        language={language}
+        isVisible={isVisible.hero}
+        CONFIG={CONFIG}
+        content={content}
+      />
 
       {/* 跨境双向优势 */}
       <section className={`${CONFIG.layout.positions.relative} ${CONFIG.spacing.sections.padding}`}>

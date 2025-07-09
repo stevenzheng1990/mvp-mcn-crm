@@ -1,41 +1,40 @@
 import React, { useEffect, useRef, useCallback } from 'react';
-import { gsap } from 'gsap';
 
 /**
- * GSAP优化版声波动画组件 - 保持所有原始效果，提升性能和流畅度
+ * 优化版声波动画组件 - 真实音波频谱效果
  */
 const AudioWaveAnimation = () => {
   // ========== 配置参数区域 ==========
   const CONFIG = {
     // 基础视觉配置
-    opacity: 0.96,
+    opacity: 1,
     background: 'transparent',
     
     // 条形配置
-    barSpacing: 18,              
+    barSpacing: 12,              
     barWidthRatio: 0.5,          
-    minBarCount: 220,             
+    minBarCount: 280,             
     
     // 高度配置
-    maxHeightRatio: 0.95,        
-    minHeight: 4,                
+    maxHeightRatio: 1,        
+    minHeight: 1,                
     
     // 缩放配置
     zoomConfig: {
-      minZoom: 0.3,              
-      maxZoom: 3.5,              
-      sensitivity: 0.008,        
+      minZoom: 0.25,              
+      maxZoom: 6,              
+      sensitivity: 0.002,        
       mouseZoomBoost: 0,       
     },
     
     // 鼠标交互
-    mouseInfluenceRadius: 140,   
-    mouseBoostRatio: 0.7,       
+    mouseInfluenceRadius: 140,   // 增大影响半径
+    mouseBoostRatio: 0.65,       // 增强高度影响
     
     // 波动参数（真实频谱效果）
     waveFlow: {
-      speed: 0.003,               
-      primaryFreq: 0.08,         
+      speed: 0.001,               
+      primaryFreq: 0.02,         
       secondaryFreq: 0.15,       
       tertiaryFreq: 0.23,        
       asymmetryFactor: 0.3,      
@@ -44,26 +43,26 @@ const AudioWaveAnimation = () => {
     
     // 颜色配置 - 偏暖的淡灰色
     colorRange: {
-      r: { min: 209, max: 226 },
-      g: { min: 208, max: 225 }, 
-      b: { min: 204, max: 221 }
+      r: { min: 189, max: 219 },
+      g: { min: 188, max: 216 }, 
+      b: { min: 172, max: 201 }
     },
     // 鼠标附近的高亮颜色
     mouseColorRange: {
-      r: { min: 200, max: 236 },
-      g: { min: 195, max: 234 },
-      b: { min: 188, max: 221 }
+      r: { min: 200, max: 236 }, // 更亮的暖白色
+      g: { min: 194, max: 234 },
+      b: { min: 192, max: 227 }
     },
     opacityRange: {
-      min: 0.2,                 
-      max: 0.5                   
+      min: 0.25,                 
+      max: 0.55                   
     }
   };
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const timelineRef = useRef<gsap.core.Timeline | null>(null);
+  const animationRef = useRef<number | null>(null);
   const timeRef = useRef<number>(0);
-  const mouseRef = useRef<{ x: number; y: number }>({ x: -1000, y: -1000 });
+  const mouseRef = useRef<{ x: number; y: number }>({ x: -1000, y: -1000 }); // 初始位置在屏幕外
   const zoomRef = useRef<number>(CONFIG.zoomConfig.minZoom);
   const opacityRef = useRef<number>(1);
   const randomOffsetsRef = useRef<Array<{
@@ -71,22 +70,6 @@ const AudioWaveAnimation = () => {
     amplitude: number;
     frequency: number;
   }>>([]);
-
-  // GSAP优化：使用 gsap.ticker 替代 requestAnimationFrame
-  const tickerRef = useRef<(() => void) | null>(null);
-  
-  // 性能优化：缓存计算结果
-  const cachedValuesRef = useRef<{
-    barPositions: number[];
-    barWidths: number[];
-    lastCanvasWidth: number;
-    lastBarCount: number;
-  }>({
-    barPositions: [],
-    barWidths: [],
-    lastCanvasWidth: 0,
-    lastBarCount: 0
-  });
 
   // 初始化随机偏移
   useEffect(() => {
@@ -97,78 +80,20 @@ const AudioWaveAnimation = () => {
     }));
   }, []);
 
-  // 处理滚动事件 - GSAP优化版
+  // 处理滚动事件
   const handleScroll = useCallback(() => {
     const scrollY = window.scrollY;
     const windowHeight = window.innerHeight;
-    const scrollProgress = Math.min(scrollY / (windowHeight * 2), 1);
+    const scrollProgress = Math.min(scrollY / (windowHeight * 1.5), 1);
+    const targetZoom = CONFIG.zoomConfig.minZoom + 
+      scrollProgress * (CONFIG.zoomConfig.maxZoom - CONFIG.zoomConfig.minZoom);
+    zoomRef.current = targetZoom;
     
-    // 使用GSAP来平滑更新值
-    gsap.to(zoomRef, {
-      current: CONFIG.zoomConfig.minZoom + 
-        (CONFIG.zoomConfig.maxZoom - CONFIG.zoomConfig.minZoom) * 
-        (1 - Math.pow(1 - scrollProgress, 3)),
-      duration: 0.3,
-      ease: "power2.out"
-    });
-    
-    gsap.to(opacityRef, {
-      current: Math.max(0.1, 1 - scrollProgress * 0.8),
-      duration: 0.3,
-      ease: "power2.out"
-    });
+    // 计算透明度：滚动到底部时降低20%
+    const baseOpacity = 1;
+    const opacityReduction = 0.2;
+    opacityRef.current = baseOpacity - (scrollProgress * opacityReduction);
   }, [CONFIG.zoomConfig.minZoom, CONFIG.zoomConfig.maxZoom]);
-
-  // 鼠标事件处理 - GSAP优化版
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    
-    const rect = canvas.getBoundingClientRect();
-    const newX = e.clientX - rect.left;
-    const newY = e.clientY - rect.top;
-    
-    // 使用GSAP平滑鼠标跟踪
-    gsap.to(mouseRef.current, {
-      x: newX,
-      y: newY,
-      duration: 0.15,
-      ease: "power2.out"
-    });
-  }, []);
-
-  const handleMouseLeave = useCallback(() => {
-    // 使用GSAP平滑移出效果
-    gsap.to(mouseRef.current, {
-      x: -1000,
-      y: -1000,
-      duration: 0.8,
-      ease: "power2.out"
-    });
-  }, []);
-
-  // 性能优化：缓存计算条形位置
-  const updateBarCache = useCallback((canvasWidth: number, barCount: number) => {
-    if (cachedValuesRef.current.lastCanvasWidth === canvasWidth && 
-        cachedValuesRef.current.lastBarCount === barCount) {
-      return; // 已缓存，无需重计算
-    }
-
-    const spacing = canvasWidth / barCount;
-    const barWidth = spacing * CONFIG.barWidthRatio;
-    
-    cachedValuesRef.current.barPositions = [];
-    cachedValuesRef.current.barWidths = [];
-    
-    for (let i = 0; i < barCount; i++) {
-      const x = i * spacing + (spacing - barWidth) / 2;
-      cachedValuesRef.current.barPositions.push(x);
-      cachedValuesRef.current.barWidths.push(barWidth);
-    }
-    
-    cachedValuesRef.current.lastCanvasWidth = canvasWidth;
-    cachedValuesRef.current.lastBarCount = barCount;
-  }, [CONFIG.barWidthRatio]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -177,63 +102,78 @@ const AudioWaveAnimation = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // 设置高DPI支持
-    const dpr = window.devicePixelRatio || 1;
-    
+    // 设置画布大小
     const resizeCanvas = () => {
-      const rect = canvas.getBoundingClientRect();
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
-      ctx.scale(dpr, dpr);
-      canvas.style.width = rect.width + 'px';
-      canvas.style.height = rect.height + 'px';
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      // 不再重置鼠标位置
     };
-
+    
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    // GSAP优化的动画函数
+    // 鼠标移动事件
+    const handleMouseMove = (e: MouseEvent) => {
+      mouseRef.current = { x: e.clientX, y: e.clientY };
+    };
+
+    // 鼠标离开窗口时重置位置
+    const handleMouseLeave = () => {
+      mouseRef.current = { x: -1000, y: -1000 };
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseleave', handleMouseLeave);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    // 主动画函数
     const animate = () => {
-      const canvasWidth = canvas.width / dpr;
-      const canvasHeight = canvas.height / dpr;
+      const canvasWidth = canvas.width;
+      const canvasHeight = canvas.height;
       
-      if (canvasWidth === 0 || canvasHeight === 0) return;
-
-      // 清除画布
       ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-
-      // 计算条形数量和缓存位置
-      const barCount = Math.max(CONFIG.minBarCount, Math.floor(canvasWidth / CONFIG.barSpacing));
-      updateBarCache(canvasWidth, barCount);
       
-      const enhancedZoom = zoomRef.current;
+      // 应用缩放效果
+      const currentZoom = zoomRef.current;
+      
+      // 鼠标悬停增强缩放（只在鼠标真正在画布内时才生效）
+      let enhancedZoom = currentZoom;
+      if (mouseRef.current.x >= 0 && mouseRef.current.x <= canvasWidth && 
+          mouseRef.current.y >= 0 && mouseRef.current.y <= canvasHeight) {
+        const centerDistance = Math.sqrt(
+          Math.pow(mouseRef.current.x - canvasWidth / 2, 2) + 
+          Math.pow(mouseRef.current.y - canvasHeight / 2, 2)
+        );
+        const mouseZoomFactor = Math.max(0, 1 - centerDistance / (canvasWidth * 0.25));
+        enhancedZoom = currentZoom + mouseZoomFactor * CONFIG.zoomConfig.mouseZoomBoost;
+      }
+      
+      // 计算条形参数（数量保持不变）
+      const barCount = Math.max(CONFIG.minBarCount, Math.floor(canvasWidth / CONFIG.barSpacing));
+      const spacing = canvasWidth / barCount;
+      const barWidth = spacing * CONFIG.barWidthRatio;
       const maxBarHeight = canvasHeight * CONFIG.maxHeightRatio * enhancedZoom;
-      const baseY = canvasHeight * 0.5;
+      const baseY = canvasHeight * 0.5; // 居中
       
       // 时间偏移用于波向右流动
       const timeOffset = timeRef.current * CONFIG.waveFlow.speed;
       
-      // 性能优化：批量处理绘制操作
-      ctx.save();
-      
       // 绘制每个声波条
       for (let i = 0; i < barCount; i++) {
-        const x = cachedValuesRef.current.barPositions[i];
-        const barWidth = cachedValuesRef.current.barWidths[i];
+        const x = i * spacing + (spacing - barWidth) / 2;
         const barCenterX = x + barWidth / 2;
         
-        // 计算鼠标影响（优化：减少sqrt计算）
+        // 计算鼠标影响（只在鼠标在画布内时生效）
         let mouseInfluence = 0;
         if (mouseRef.current.x >= 0 && mouseRef.current.x <= canvasWidth && 
             mouseRef.current.y >= 0 && mouseRef.current.y <= canvasHeight) {
-          const dx = barCenterX - mouseRef.current.x;
-          const dy = baseY - mouseRef.current.y;
-          const distanceSquared = dx * dx + dy * dy;
-          const radiusSquared = CONFIG.mouseInfluenceRadius * CONFIG.mouseInfluenceRadius;
-          
-          if (distanceSquared < radiusSquared) {
-            mouseInfluence = Math.max(0, 1 - distanceSquared / radiusSquared);
-          }
+          const distanceToMouse = Math.sqrt(
+            Math.pow(barCenterX - mouseRef.current.x, 2) + 
+            Math.pow(baseY - mouseRef.current.y, 2)
+          );
+          mouseInfluence = Math.max(0, 
+            (CONFIG.mouseInfluenceRadius - distanceToMouse) / CONFIG.mouseInfluenceRadius
+          );
         }
         
         // 获取随机参数
@@ -242,24 +182,28 @@ const AudioWaveAnimation = () => {
         // 波形计算（真实频谱效果）
         const normalizedIndex = i / barCount;
         
-        // 性能优化：减少三角函数计算
-        const baseFreq = normalizedIndex * Math.PI;
-        const timeOffsetFactor = timeOffset * 8;
-        
         // 主波形
-        const primaryWave = Math.sin(baseFreq * 6 - timeOffsetFactor + randomData.phase) * randomData.amplitude;
+        const primaryWave = Math.sin(
+          normalizedIndex * Math.PI * 6 - timeOffset * 8 + randomData.phase
+        ) * randomData.amplitude;
         
         // 次波形
-        const secondaryWave = Math.sin(baseFreq * 12 - timeOffset * 12) * 0.4;
+        const secondaryWave = Math.sin(
+          normalizedIndex * Math.PI * 12 - timeOffset * 12
+        ) * 0.55;
         
         // 第三波形（高频）
-        const tertiaryWave = Math.sin(baseFreq * 24 - timeOffset * 16) * 0.2;
+        const tertiaryWave = Math.sin(
+          normalizedIndex * Math.PI * 24 - timeOffset * 16
+        ) * 0.2;
         
         // 随机扰动
-        const randomWave = Math.sin(timeRef.current * 0.05 * randomData.frequency + randomData.phase) * CONFIG.waveFlow.randomness;
+        const randomWave = Math.sin(
+          timeRef.current * 0.08 * randomData.frequency + randomData.phase
+        ) * CONFIG.waveFlow.randomness;
         
         // 非对称调制
-        const asymmetry = Math.sin(baseFreq * 3 + timeOffset * 4) * CONFIG.waveFlow.asymmetryFactor;
+        const asymmetry = Math.sin(normalizedIndex * Math.PI * 3 + timeOffset * 4) * CONFIG.waveFlow.asymmetryFactor;
         
         // 组合波形
         const combinedWave = (primaryWave + secondaryWave + tertiaryWave + randomWave) * (1 + asymmetry);
@@ -273,7 +217,7 @@ const AudioWaveAnimation = () => {
         const finalHeight = Math.max(CONFIG.minHeight, baseHeight + mouseBoost);
         
         // 计算上下分配（不对称但都有合理分布）
-        const asymmetryBias = 0.6;
+        const asymmetryBias = 0.6; // 60%向上，40%向下
         const dynamicRatio = 0.3 + Math.abs(Math.sin(i * 0.3 + timeOffset * 3)) * 0.4;
         
         const upwardHeight = finalHeight * (asymmetryBias + (1 - asymmetryBias) * dynamicRatio);
@@ -309,7 +253,7 @@ const AudioWaveAnimation = () => {
         }
         
         // 绘制主条形（向上）
-        const adjustedOpacity = opacity * (1 + mouseInfluence * 0.5);
+        const adjustedOpacity = opacity * (1 + mouseInfluence * 0.5); // 鼠标附近更不透明
         ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${Math.min(adjustedOpacity, 1)})`;
         ctx.fillRect(x, baseY - upwardHeight, barWidth, upwardHeight);
         
@@ -327,7 +271,7 @@ const AudioWaveAnimation = () => {
           ctx.fillRect(x, baseY - upwardHeight, barWidth, Math.max(2, upwardHeight * 0.05));
         }
         
-        // 鼠标附近的暖色光晕效果
+        // 鼠标附近的暖色光晕效果（更明显）
         if (mouseInfluence > 0.1) {
           const glowOpacity = mouseInfluence * 0.2 * opacityRef.current;
           const glowR = 255;
@@ -337,20 +281,13 @@ const AudioWaveAnimation = () => {
           ctx.fillRect(x - 2, baseY - upwardHeight - 3, barWidth + 4, upwardHeight + downwardHeight + 6);
         }
       }
-      
-      ctx.restore();
+
       timeRef.current += 1;
+      animationRef.current = requestAnimationFrame(animate);
     };
 
-    // 使用GSAP的ticker系统替代requestAnimationFrame
-    // 这提供了更好的性能和同步
-    tickerRef.current = animate;
-    gsap.ticker.add(animate);
-
-    // 事件监听器
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseleave', handleMouseLeave);
-    window.addEventListener('scroll', handleScroll);
+    // 启动动画
+    animate();
 
     // 清理函数
     return () => {
@@ -358,16 +295,16 @@ const AudioWaveAnimation = () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseleave', handleMouseLeave);
       window.removeEventListener('scroll', handleScroll);
-      
-      // 清理GSAP ticker和timeline
-      if (tickerRef.current) {
-        gsap.ticker.remove(tickerRef.current);
-      }
-      if (timelineRef.current) {
-        timelineRef.current.kill();
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [handleScroll, handleMouseMove, handleMouseLeave, updateBarCache, CONFIG]);
+  }, [handleScroll, CONFIG.barSpacing, CONFIG.minBarCount, CONFIG.barWidthRatio, 
+      CONFIG.maxHeightRatio, CONFIG.minHeight, CONFIG.zoomConfig.mouseZoomBoost,
+      CONFIG.mouseInfluenceRadius, CONFIG.mouseBoostRatio, CONFIG.waveFlow.speed,
+      CONFIG.waveFlow.randomness, CONFIG.waveFlow.asymmetryFactor,
+      CONFIG.opacityRange.min, CONFIG.opacityRange.max,
+      CONFIG.colorRange, CONFIG.mouseColorRange]);
 
   return (
     <canvas
