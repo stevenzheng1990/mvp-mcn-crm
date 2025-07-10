@@ -603,3 +603,271 @@
   text-decoration: underline;
   transform: translateX(2px);
 }
+
+/* HeroSection 高级动画样式 */
+
+/* 香槟金渐变动画 */
+@keyframes shimmer {
+  0%, 100% {
+    background-position: 0% 50%;
+    filter: brightness(1);
+  }
+  25% {
+    background-position: 50% 50%;
+    filter: brightness(1.1);
+  }
+  50% {
+    background-position: 100% 50%;
+    filter: brightness(1.05);
+  }
+  75% {
+    background-position: 50% 50%;
+    filter: brightness(1.1);
+  }
+}
+
+/* 3D 透视效果 */
+.perspective-container {
+  perspective: 1200px;
+  transform-style: preserve-3d;
+}
+
+/* 标题从远到近的飞入效果 */
+@keyframes fly-in {
+  0% {
+    opacity: 0;
+    transform: translateZ(-1000px) scale(0.3) rotateX(45deg);
+    filter: blur(20px);
+  }
+  50% {
+    opacity: 0.5;
+    transform: translateZ(-500px) scale(0.65) rotateX(20deg);
+    filter: blur(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateZ(0) scale(1) rotateX(0);
+    filter: blur(0);
+  }
+}
+
+/* 优雅的淡入效果 */
+@keyframes elegant-fade-up {
+  0% {
+    opacity: 0;
+    transform: translateY(40px);
+    filter: blur(10px);
+  }
+  60% {
+    opacity: 0.7;
+    filter: blur(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+/* 统计数据渐入效果 */
+@keyframes stat-reveal {
+  0% {
+    opacity: 0;
+    transform: translateY(30px) scale(0.9);
+    filter: blur(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+/* 标题字体交互效果 */
+.title-word {
+  display: inline-block;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center center;
+  will-change: transform;
+}
+
+.title-word:hover {
+  transform: scale(1.05) translateY(-2px);
+  filter: brightness(1.2);
+}
+
+/* 香槟金渐变文字 */
+.champagne-gold-gradient {
+  background: linear-gradient(
+    135deg,
+    #D4A574 0%,
+    #B8956A 20%,
+    #C9A876 40%,
+    #E5C59E 60%,
+    #B8956A 80%,
+    #D4A574 100%
+  );
+  background-size: 200% 200%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 3s ease-in-out infinite;
+  text-shadow: 0 0 30px rgba(212, 165, 116, 0.3);
+}
+
+.champagne-gold-gradient-alt {
+  background: linear-gradient(
+    135deg,
+    #C9A876 0%,
+    #A68B5B 20%,
+    #D4A574 40%,
+    #F0D9B5 60%,
+    #A68B5B 80%,
+    #C9A876 100%
+  );
+  background-size: 200% 200%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 3s ease-in-out infinite 0.5s;
+  text-shadow: 0 0 30px rgba(201, 168, 118, 0.3);
+}
+
+/* 柔和阴影效果 */
+.soft-shadow-text {
+  text-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.04),
+    0 4px 8px rgba(0, 0, 0, 0.06),
+    0 8px 16px rgba(0, 0, 0, 0.08),
+    0 16px 32px rgba(0, 0, 0, 0.1);
+}
+
+.soft-shadow-text-large {
+  text-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.04),
+    0 8px 16px rgba(0, 0, 0, 0.06),
+    0 16px 32px rgba(0, 0, 0, 0.08),
+    0 32px 64px rgba(0, 0, 0, 0.1);
+}
+
+/* 深度阴影效果 */
+.depth-shadow {
+  box-shadow: 
+    0 10px 20px -5px rgba(0, 0, 0, 0.1),
+    0 20px 40px -10px rgba(0, 0, 0, 0.05),
+    0 40px 80px -20px rgba(0, 0, 0, 0.025);
+}
+
+/* 微妙的浮动动画 */
+@keyframes subtle-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* 滚动指示器动画 */
+@keyframes scroll-indicator {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+/* 响应式优化 */
+@media (max-width: 768px) {
+  .title-word {
+    font-size: 3rem;
+    margin: 0 0.5rem;
+  }
+  
+  .champagne-gold-gradient,
+  .champagne-gold-gradient-alt {
+    font-size: 1.125rem;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .title-word {
+    font-size: 4.5rem;
+    margin: 0 0.75rem;
+  }
+  
+  .champagne-gold-gradient,
+  .champagne-gold-gradient-alt {
+    font-size: 1.375rem;
+  }
+}
+
+/* 性能优化 */
+.hero-section * {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  backface-visibility: hidden;
+}
+
+/* 减少移动端动画以提升性能 */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* 径向渐变背景 */
+.bg-gradient-radial {
+  background: radial-gradient(
+    circle at center,
+    var(--tw-gradient-from),
+    var(--tw-gradient-via),
+    var(--tw-gradient-to)
+  );
+}
+
+/* 增强的文字粗细 */
+.font-semibold {
+  font-weight: 600;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+/* 平滑的滚动行为 */
+html {
+  scroll-behavior: smooth;
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
