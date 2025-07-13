@@ -8,6 +8,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 interface HeroSectionProps {
   language?: 'zh' | 'en';
+  isVisible?: boolean;
   CONFIG?: any;
   content?: any;
 }
@@ -44,7 +45,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
           start: "top top",
           end: "bottom top",
           scrub: 0.5,
-          pin: true, // 关闭 pin，让内容正常滚动
+          pin: false, // 关闭 pin，让内容正常滚动
         }
       });
 
@@ -233,13 +234,13 @@ const HeroSection: React.FC<HeroSectionProps> = ({
         <div className="absolute bottom-1/3 -right-1/4 w-[800px] h-[800px] bg-gradient-radial from-yellow-50/20 via-yellow-100/10 to-transparent rounded-full blur-[120px]" />
       </motion.div>
 
-      <div className="max-w-7xl mx-auto px-6 text-center" style={{ marginTop: '-25vh' }}>
+      <div className="max-w-7xl mx-auto px-6 text-center" style={{ marginTop: '-5vh' }}>
         {/* 主标题 */}
         <h1 
           ref={titleRef}
-          className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight perspective-1000"
+          className="text-6xl md:text-7xl lg:text-8xl font-bold leading-tight perspective-1000"
           style={{
-            marginBottom: '50px',
+            marginBottom: '20px',
             textShadow: '0 20px 40px rgba(0,0,0,0.1), 0 10px 20px rgba(0,0,0,0.05)'
           }}
         >
@@ -263,9 +264,9 @@ const HeroSection: React.FC<HeroSectionProps> = ({
         {/* 副标题 */}
         <p 
           ref={subtitleRef}
-          className="text-xl md:text-2xl lg:text-2xl text-gray-700 font-medium max-w-4xl mx-auto leading-relaxed"
+          className="text-xl md:text-2xl lg:text-3xl text-gray-700 font-medium max-w-5xl mx-auto leading-relaxed"
           style={{
-            marginBottom: '50px',
+            marginBottom: '20px',
             textShadow: '0 8px 16px rgba(0,0,0,0.08), 0 4px 8px rgba(0,0,0,0.04)'
           }}
         >
@@ -275,7 +276,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
         {/* 统计数据 */}
         <div 
           ref={statsRef}
-          className="text-lg md:text-xl lg:text-1xl font-bold max-w-5xl mx-auto"
+          className="text-lg md:text-xl lg:text-2xl font-medium max-w-5xl mx-auto"
         >
           {/* 第一行 - KOL 数据 */}
           <div className="stat-line" style={{ marginBottom: '20px' }}>
