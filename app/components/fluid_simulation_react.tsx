@@ -2,11 +2,19 @@ import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 
 const FluidSimulation = ({ className = "", style = {} }) => {
-  const canvasRef = useRef(null);
-  const simulationRef = useRef(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const simulationRef = useRef<any>(null);
 
   useEffect(() => {
-    if (!canvasRef.current) return;
+    console.log('FluidSimulation mounting...');
+    
+    if (!canvasRef.current) {
+      console.error('Canvas ref is null');
+      return;
+    }
+
+    console.log('Canvas element:', canvasRef.current);
+    console.log('Canvas dimensions:', canvasRef.current.width, canvasRef.current.height);
 
     // ========== 可调整参数 ==========
     const RESOLUTION = 0.25;
@@ -158,8 +166,49 @@ const FluidSimulation = ({ className = "", style = {} }) => {
     `;
 
     class FluidSimulationEngine {
-      constructor(canvas) {
+      // 声明所有属性
+      private canvas: HTMLCanvasElement;
+      private renderer!: THREE.WebGLRenderer;
+      private scene!: THREE.Scene;
+      private camera!: THREE.OrthographicCamera;
+      private resolution!: number;
+      private width!: number;
+      private height!: number;
+      private cellScale!: THREE.Vector2;
+      private planeGeometry!: THREE.PlaneGeometry;
+      private isAnimating: boolean;
+      
+      private fbos!: {
+        vel_0: THREE.WebGLRenderTarget;
+        vel_1: THREE.WebGLRenderTarget;
+        vel_viscous0: THREE.WebGLRenderTarget;
+        vel_viscous1: THREE.WebGLRenderTarget;
+        div: THREE.WebGLRenderTarget;
+        pressure_0: THREE.WebGLRenderTarget;
+        pressure_1: THREE.WebGLRenderTarget;
+      };
+      
+      private materials!: {
+        externalForce: THREE.ShaderMaterial;
+        advection: THREE.ShaderMaterial;
+        viscosity: THREE.ShaderMaterial;
+        divergence: THREE.ShaderMaterial;
+        poisson: THREE.ShaderMaterial;
+        pressure: THREE.ShaderMaterial;
+        color: THREE.ShaderMaterial;
+      };
+      
+      private mouse: THREE.Vector2;
+      private lastMouse: THREE.Vector2;
+      private mouseForce: THREE.Vector2;
+      private planeMesh!: THREE.Mesh;
+
+      constructor(canvas: HTMLCanvasElement) {
+        console.log('FluidSimulationEngine initializing...');
         this.canvas = canvas;
+        this.mouse = new THREE.Vector2(0, 0);
+        this.lastMouse = new THREE.Vector2(0, 0);
+        this.mouseForce = new THREE.Vector2(0, 0);
         this.setupRenderer();
         this.setupSimulation();
         this.isAnimating = true;
@@ -173,6 +222,7 @@ const FluidSimulation = ({ className = "", style = {} }) => {
           alpha: false
         });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
+        console.log('Renderer size:', window.innerWidth, window.innerHeight);
         
         this.scene = new THREE.Scene();
         this.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
@@ -206,8 +256,8 @@ const FluidSimulation = ({ className = "", style = {} }) => {
             fragmentShader: externalForceShader,
             uniforms: {
               velocity: { value: null },
-              force: { value: new THREE.Vector2() },
-              center: { value: new THREE.Vector2() },
+              force: { value: new THREE.Vector2(0, 0) },
+              center: { value: new THREE.Vector2(0, 0) },
               fboSize: { value: new THREE.Vector2(this.width, this.height) }
             }
           }),
@@ -268,48 +318,47 @@ const FluidSimulation = ({ className = "", style = {} }) => {
           })
         };
         
-        this.mouse = new THREE.Vector2();
-        this.lastMouse = new THREE.Vector2();
-        this.mouseForce = new THREE.Vector2();
+        this.planeMesh = new THREE.Mesh(this.planeGeometry, this.materials.color);
+        this.scene.add(this.planeMesh);
         
         this.setupEventListeners();
       }
 
       setupEventListeners() {
-        this.onMouseMove = (e) => {
-          const rect = this.canvas.getBoundingClientRect();
-          this.lastMouse.copy(this.mouse);
-          this.mouse.x = (e.clientX - rect.left) / rect.width;
-          this.mouse.y = 1 - (e.clientY - rect.top) / rect.height;
+        // 添加初始扰动
+        this.addInitialDisturbance();
+
+        this.onMouseMove = (e: MouseEvent) => {
+          this.updateMousePosition(e.clientX, e.clientY);
+        };
+
+        this.onTouchMove = (e: TouchEvent) => {
+          e.preventDefault();
+          const touch = e.touches[0];
+          this.updateMousePosition(touch.clientX, touch.clientY);
+        };
+
+        this.updateMousePosition = (x: number, y: number) => {
+          this.mouse.x = x / window.innerWidth;
+          this.mouse.y = 1.0 - y / window.innerHeight;
           
           this.mouseForce.x = (this.mouse.x - this.lastMouse.x) * FORCE_SCALE;
           this.mouseForce.y = (this.mouse.y - this.lastMouse.y) * FORCE_SCALE;
-        };
-
-        this.onTouchMove = (e) => {
-          e.preventDefault();
-          if (e.touches.length > 0) {
-            const rect = this.canvas.getBoundingClientRect();
-            const touch = e.touches[0];
-            this.lastMouse.copy(this.mouse);
-            this.mouse.x = (touch.clientX - rect.left) / rect.width;
-            this.mouse.y = 1 - (touch.clientY - rect.top) / rect.height;
-            
-            this.mouseForce.x = (this.mouse.x - this.lastMouse.x) * FORCE_SCALE;
-            this.mouseForce.y = (this.mouse.y - this.lastMouse.y) * FORCE_SCALE;
-          }
+          
+          this.lastMouse.copy(this.mouse);
         };
 
         this.onResize = () => {
-          this.renderer.setSize(window.innerWidth, window.innerHeight);
-          
           this.width = Math.round(window.innerWidth * this.resolution);
           this.height = Math.round(window.innerHeight * this.resolution);
+          
           this.cellScale.set(1 / this.width, 1 / this.height);
           
-          for (let key in this.fbos) {
-            this.fbos[key].dispose();
-            this.fbos[key] = this.createFBO();
+          this.renderer.setSize(window.innerWidth, window.innerHeight);
+          
+          for (const key in this.fbos) {
+            this.fbos[key as keyof typeof this.fbos].dispose();
+            this.fbos[key as keyof typeof this.fbos] = this.createFBO();
           }
           
           const fboSize = new THREE.Vector2(this.width, this.height);
@@ -324,6 +373,37 @@ const FluidSimulation = ({ className = "", style = {} }) => {
         this.canvas.addEventListener('mousemove', this.onMouseMove);
         this.canvas.addEventListener('touchmove', this.onTouchMove);
         window.addEventListener('resize', this.onResize);
+      }
+
+      // 声明事件处理器方法
+      private onMouseMove!: (e: MouseEvent) => void;
+      private onTouchMove!: (e: TouchEvent) => void;
+      private updateMousePosition!: (x: number, y: number) => void;
+      private onResize!: () => void;
+
+      // 添加初始扰动方法
+      addInitialDisturbance() {
+        // 创建一些初始的流体运动
+        setTimeout(() => {
+          // 模拟几个随机的鼠标移动
+          for (let i = 0; i < 5; i++) {
+            setTimeout(() => {
+              const angle = (i / 5) * Math.PI * 2;
+              const radius = 0.3;
+              const centerX = 0.5 + Math.cos(angle) * radius;
+              const centerY = 0.5 + Math.sin(angle) * radius;
+              
+              this.mouse.set(centerX, centerY);
+              this.mouseForce.set(
+                Math.cos(angle) * 0.5,
+                Math.sin(angle) * 0.5
+              );
+              
+              // 应用力
+              this.applyExternalForce();
+            }, i * 100);
+          }
+        }, 500);
       }
 
       createFBO() {
@@ -406,22 +486,23 @@ const FluidSimulation = ({ className = "", style = {} }) => {
         this.swapVelocity();
       }
 
-      renderToFBO(material, fbo) {
-        const mesh = new THREE.Mesh(this.planeGeometry, material);
-        const scene = new THREE.Scene();
-        scene.add(mesh);
-        
+      renderToFBO(material: THREE.ShaderMaterial, fbo: THREE.WebGLRenderTarget) {
+        this.planeMesh.material = material;
         this.renderer.setRenderTarget(fbo);
-        this.renderer.render(scene, this.camera);
+        this.renderer.render(this.scene, this.camera);
         this.renderer.setRenderTarget(null);
       }
 
-      copyFBO(source, target) {
+      copyFBO(source: THREE.WebGLRenderTarget, target: THREE.WebGLRenderTarget) {
         const copyMaterial = new THREE.MeshBasicMaterial({ map: source.texture });
-        this.renderToFBO(copyMaterial, target);
+        this.planeMesh.material = copyMaterial;
+        this.renderer.setRenderTarget(target);
+        this.renderer.render(this.scene, this.camera);
+        this.renderer.setRenderTarget(null);
+        copyMaterial.dispose();
       }
 
-      clearFBO(fbo) {
+      clearFBO(fbo: THREE.WebGLRenderTarget) {
         this.renderer.setRenderTarget(fbo);
         this.renderer.clear();
         this.renderer.setRenderTarget(null);
@@ -434,43 +515,39 @@ const FluidSimulation = ({ className = "", style = {} }) => {
       }
 
       render() {
-        const material = this.materials.color;
-        material.uniforms.velocity.value = this.fbos.vel_0.texture;
+        this.step();
         
-        const mesh = new THREE.Mesh(this.planeGeometry, material);
-        this.scene.add(mesh);
+        this.mouseForce.x *= FORCE_DECAY;
+        this.mouseForce.y *= FORCE_DECAY;
+        
+        this.materials.color.uniforms.velocity.value = this.fbos.vel_0.texture;
+        this.planeMesh.material = this.materials.color;
         
         this.renderer.render(this.scene, this.camera);
-        
-        this.scene.remove(mesh);
       }
 
-      animate() {
-        if (!this.isAnimating) return;
+      animate = () => {
+        if (!this.isAnimating) {
+          console.log('Animation stopped');
+          return;
+        }
         
-        requestAnimationFrame(() => this.animate());
-        
-        this.step();
-        this.render();
-        
-        this.mouseForce.multiplyScalar(FORCE_DECAY);
+        console.log('Animating frame...');
       }
 
-      dispose() {
+      destroy() {
         this.isAnimating = false;
         
-        // Remove event listeners
         this.canvas.removeEventListener('mousemove', this.onMouseMove);
         this.canvas.removeEventListener('touchmove', this.onTouchMove);
         window.removeEventListener('resize', this.onResize);
         
-        // Dispose Three.js resources
-        for (let key in this.fbos) {
-          this.fbos[key].dispose();
+        for (const key in this.fbos) {
+          this.fbos[key as keyof typeof this.fbos].dispose();
         }
         
-        for (let key in this.materials) {
-          this.materials[key].dispose();
+        for (const key in this.materials) {
+          this.materials[key as keyof typeof this.materials].dispose();
         }
         
         this.planeGeometry.dispose();
@@ -479,22 +556,24 @@ const FluidSimulation = ({ className = "", style = {} }) => {
     }
 
     simulationRef.current = new FluidSimulationEngine(canvasRef.current);
+    console.log('FluidSimulation created:', simulationRef.current);
 
     return () => {
+      console.log('FluidSimulation unmounting...');
       if (simulationRef.current) {
-        simulationRef.current.dispose();
+        simulationRef.current.destroy();
       }
     };
   }, []);
 
   return (
-    <canvas
+    <canvas 
       ref={canvasRef}
-      className={`w-full h-full ${className}`}
+      className={className}
       style={{
-        display: 'block',
-        cursor: 'crosshair',
-        ...style
+        ...style,
+        display: 'block', // 确保 canvas 显示
+        backgroundColor: 'rgba(0, 0, 255, 0.1)' // 临时添加蓝色背景以便查看
       }}
     />
   );

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useCallback } from 'react';
-import FluidSimulation from './fluid_simulation_react';
+
 const ModifiedAudioWaveAnimation = () => {
   // ==================== 全局配置 ====================
   const CONFIG = {
@@ -846,13 +846,6 @@ const ModifiedAudioWaveAnimation = () => {
 
   return (
     <div className="relative w-full bg-black">
-      {/* FluidSimulation as background - fixed, full-screen, lowest z-index */}
-      <FluidSimulation 
-        className="fixed inset-0 w-full h-full" 
-        style={{ zIndex: -1 }} 
-      />
-      
-      {/* Existing AudioWave canvas - overlays transparently, events pass through */}
       <canvas
         ref={canvasRef}
         className="fixed inset-0 w-full h-full pointer-events-none"
@@ -862,7 +855,6 @@ const ModifiedAudioWaveAnimation = () => {
         }}
       />
       
-      {/* Existing scrollable content - on top */}
       <div className="relative z-10">
         {Array.from({ length: 10 }, (_, i) => (
           <div key={i} className="h-screen" />
