@@ -844,23 +844,15 @@ const ModifiedAudioWaveAnimation = () => {
     };
   }, [handleScroll]);
 
-  return (
-    <div className="relative w-full bg-black">
-      <canvas
-        ref={canvasRef}
-        className="fixed inset-0 w-full h-full pointer-events-none"
-        style={{ 
-          background: 'transparent',
-          zIndex: 0
-        }}
-      />
-      
-      <div className="relative z-10">
-        {Array.from({ length: 10 }, (_, i) => (
-          <div key={i} className="h-screen" />
-        ))}
-      </div>
-    </div>
+return (
+    <canvas
+      ref={canvasRef}
+      className="fixed inset-0 w-full h-full pointer-events-none"
+      style={{ 
+        background: 'transparent',
+        zIndex: 0
+      }}
+    />
   );
 };
 

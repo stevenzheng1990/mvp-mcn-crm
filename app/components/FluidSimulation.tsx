@@ -1,9 +1,20 @@
-import React, { useEffect, useRef } from 'react';
+// FluidSimulation.tsx
+import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 
 const FluidSimulation = ({ className = "", style = {} }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const simulationRef = useRef<any>(null);
+  const [canvasStyle, setCanvasStyle] = useState({
+    position: 'fixed' as const,
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    pointerEvents: 'auto' as const,
+    zIndex: -1
+  });
 
   useEffect(() => {
     console.log('FluidSimulation mounting...');
@@ -13,19 +24,17 @@ const FluidSimulation = ({ className = "", style = {} }) => {
       return;
     }
 
-    console.log('Canvas element:', canvasRef.current);
-    console.log('Canvas dimensions:', canvasRef.current.width, canvasRef.current.height);
-
     // ========== 可调整参数 ==========
-    const RESOLUTION = 0.25;
+    const RESOLUTION = 0.2;
     const VISCOSITY = 0.00001;
-    const FORCE_SCALE = 5;
-    const TIME_STEP = 0.016;
-    const ITERATIONS = 20;
-    const FORCE_DECAY = 0.8;
-    const FORCE_RADIUS = 50.0;
-    const BASE_COLOR = [0.1, 0.1, 0.2];
+    const FORCE_SCALE = 6; // 增加鼠标力的强度
+    const TIME_STEP = 0.012;
+    const ITERATIONS = 50;
+    const FORCE_DECAY = 0.98; // 稍微增加力的持续时间
+    const FORCE_RADIUS = 180; // 减小力的影响半径，使效果更集中
+    const BASE_COLOR = [0, 0, 0];
     const FLOW_COLOR = [1.0, 1.0, 1.0];
+    const SCROLL_FORCE_SCALE = 0.2; // 滚动产生的力的缩放
 
     // Shader sources
     const vertexShader = `
@@ -149,6 +158,7 @@ const FluidSimulation = ({ className = "", style = {} }) => {
 
     const colorShader = `
       uniform sampler2D velocity;
+      uniform float scrollOffset;
       varying vec2 vUv;
       
       void main() {
@@ -156,17 +166,19 @@ const FluidSimulation = ({ className = "", style = {} }) => {
         float len = length(vel);
         vel = vel * 0.5 + 0.5;
         
+        // 添加基于滚动的渐变效果
+        float scrollGradient = sin(scrollOffset * 0.001 + vUv.y * 3.14159) * 0.1 + 0.9;
+        
         vec3 baseColor = vec3(${BASE_COLOR[0].toFixed(1)}, ${BASE_COLOR[1].toFixed(1)}, ${BASE_COLOR[2].toFixed(1)});
         vec3 flowColor = vec3(${FLOW_COLOR[0].toFixed(1)}, ${FLOW_COLOR[1].toFixed(1)}, ${FLOW_COLOR[2].toFixed(1)});
         vec3 color = vec3(vel.x, vel.y, 1.0) * flowColor;
-        color = mix(baseColor, color, len);
+        color = mix(baseColor, color * scrollGradient, len);
         
         gl_FragColor = vec4(color, 1.0);
       }
     `;
 
     class FluidSimulationEngine {
-      // 声明所有属性
       private canvas: HTMLCanvasElement;
       private renderer!: THREE.WebGLRenderer;
       private scene!: THREE.Scene;
@@ -177,6 +189,9 @@ const FluidSimulation = ({ className = "", style = {} }) => {
       private cellScale!: THREE.Vector2;
       private planeGeometry!: THREE.PlaneGeometry;
       private isAnimating: boolean;
+      private scrollY: number = 0;
+      private lastScrollY: number = 0;
+      private scrollVelocity: number = 0;
       
       private fbos!: {
         vel_0: THREE.WebGLRenderTarget;
@@ -249,72 +264,50 @@ const FluidSimulation = ({ className = "", style = {} }) => {
           pressure_0: this.createFBO(),
           pressure_1: this.createFBO()
         };
+
+        // Clear all FBOs to prevent initial flickering
+        for (const key in this.fbos) {
+          this.clearFBO(this.fbos[key as keyof typeof this.fbos]);
+        }
         
         this.materials = {
-          externalForce: new THREE.ShaderMaterial({
-            vertexShader,
-            fragmentShader: externalForceShader,
-            uniforms: {
-              velocity: { value: null },
-              force: { value: new THREE.Vector2(0, 0) },
-              center: { value: new THREE.Vector2(0, 0) },
-              fboSize: { value: new THREE.Vector2(this.width, this.height) }
-            }
+          externalForce: this.createShaderMaterial(vertexShader, externalForceShader, {
+            velocity: { value: null },
+            force: { value: new THREE.Vector2(0, 0) },
+            center: { value: new THREE.Vector2(0, 0) },
+            fboSize: { value: new THREE.Vector2(this.width, this.height) }
           }),
-          advection: new THREE.ShaderMaterial({
-            vertexShader,
-            fragmentShader: advectionShader,
-            uniforms: {
-              velocity: { value: null },
-              dt: { value: TIME_STEP },
-              fboSize: { value: new THREE.Vector2(this.width, this.height) }
-            }
+          advection: this.createShaderMaterial(vertexShader, advectionShader, {
+            velocity: { value: null },
+            dt: { value: TIME_STEP },
+            fboSize: { value: new THREE.Vector2(this.width, this.height) }
           }),
-          viscosity: new THREE.ShaderMaterial({
-            vertexShader,
-            fragmentShader: viscosityShader,
-            uniforms: {
-              velocity: { value: null },
-              velocity_new: { value: null },
-              v: { value: VISCOSITY },
-              px: { value: this.cellScale },
-              dt: { value: TIME_STEP }
-            }
+          viscosity: this.createShaderMaterial(vertexShader, viscosityShader, {
+            velocity: { value: null },
+            velocity_new: { value: null },
+            v: { value: VISCOSITY },
+            px: { value: this.cellScale },
+            dt: { value: TIME_STEP }
           }),
-          divergence: new THREE.ShaderMaterial({
-            vertexShader,
-            fragmentShader: divergenceShader,
-            uniforms: {
-              velocity: { value: null },
-              dt: { value: TIME_STEP },
-              px: { value: this.cellScale }
-            }
+          divergence: this.createShaderMaterial(vertexShader, divergenceShader, {
+            velocity: { value: null },
+            dt: { value: TIME_STEP },
+            px: { value: this.cellScale }
           }),
-          poisson: new THREE.ShaderMaterial({
-            vertexShader,
-            fragmentShader: poissonShader,
-            uniforms: {
-              pressure: { value: null },
-              divergence: { value: null },
-              px: { value: this.cellScale }
-            }
+          poisson: this.createShaderMaterial(vertexShader, poissonShader, {
+            pressure: { value: null },
+            divergence: { value: null },
+            px: { value: this.cellScale }
           }),
-          pressure: new THREE.ShaderMaterial({
-            vertexShader,
-            fragmentShader: pressureShader,
-            uniforms: {
-              pressure: { value: null },
-              velocity: { value: null },
-              dt: { value: TIME_STEP },
-              px: { value: this.cellScale }
-            }
+          pressure: this.createShaderMaterial(vertexShader, pressureShader, {
+            pressure: { value: null },
+            velocity: { value: null },
+            dt: { value: TIME_STEP },
+            px: { value: this.cellScale }
           }),
-          color: new THREE.ShaderMaterial({
-            vertexShader,
-            fragmentShader: colorShader,
-            uniforms: {
-              velocity: { value: null }
-            }
+          color: this.createShaderMaterial(vertexShader, colorShader, {
+            velocity: { value: null },
+            scrollOffset: { value: 0 }
           })
         };
         
@@ -324,10 +317,31 @@ const FluidSimulation = ({ className = "", style = {} }) => {
         this.setupEventListeners();
       }
 
-      setupEventListeners() {
-        // 添加初始扰动
-        this.addInitialDisturbance();
+      createShaderMaterial(vertexShader: string, fragmentShader: string, uniforms: any): THREE.ShaderMaterial {
+        const material = new THREE.ShaderMaterial({
+          vertexShader,
+          fragmentShader,
+          uniforms
+        });
 
+        material.onBeforeCompile = (shader) => {
+          console.log('Compiling shader material');
+        };
+
+        return material;
+      }
+
+      setUniformSafe(material: THREE.ShaderMaterial, name: string, value: any) {
+        try {
+          if (material.uniforms && material.uniforms[name]) {
+            material.uniforms[name].value = value;
+          }
+        } catch (error) {
+          console.warn(`Failed to set uniform ${name}:`, error);
+        }
+      }
+
+      setupEventListeners() {
         this.onMouseMove = (e: MouseEvent) => {
           this.updateMousePosition(e.clientX, e.clientY);
         };
@@ -338,12 +352,34 @@ const FluidSimulation = ({ className = "", style = {} }) => {
           this.updateMousePosition(touch.clientX, touch.clientY);
         };
 
+        this.onScroll = () => {
+          this.scrollY = window.scrollY;
+          this.scrollVelocity = (this.scrollY - this.lastScrollY) * SCROLL_FORCE_SCALE;
+          
+          // 滚动时产生流体扰动
+          if (Math.abs(this.scrollVelocity) > 0.1) {
+            this.addScrollDisturbance();
+          }
+          
+          this.lastScrollY = this.scrollY;
+        };
+
         this.updateMousePosition = (x: number, y: number) => {
           this.mouse.x = x / window.innerWidth;
           this.mouse.y = 1.0 - y / window.innerHeight;
           
-          this.mouseForce.x = (this.mouse.x - this.lastMouse.x) * FORCE_SCALE;
-          this.mouseForce.y = (this.mouse.y - this.lastMouse.y) * FORCE_SCALE;
+          // 计算鼠标移动产生的力
+          const deltaX = this.mouse.x - this.lastMouse.x;
+          const deltaY = this.mouse.y - this.lastMouse.y;
+          
+          // 只有在鼠标真正移动时才更新力
+          if (Math.abs(deltaX) > 0.0001 || Math.abs(deltaY) > 0.0001) {
+            this.mouseForce.x = deltaX * FORCE_SCALE;
+            this.mouseForce.y = deltaY * FORCE_SCALE;
+            
+            // 立即应用鼠标力
+            this.applyExternalForce();
+          }
           
           this.lastMouse.copy(this.mouse);
         };
@@ -362,48 +398,49 @@ const FluidSimulation = ({ className = "", style = {} }) => {
           }
           
           const fboSize = new THREE.Vector2(this.width, this.height);
-          this.materials.externalForce.uniforms.fboSize.value = fboSize;
-          this.materials.advection.uniforms.fboSize.value = fboSize;
-          this.materials.viscosity.uniforms.px.value = this.cellScale;
-          this.materials.divergence.uniforms.px.value = this.cellScale;
-          this.materials.poisson.uniforms.px.value = this.cellScale;
-          this.materials.pressure.uniforms.px.value = this.cellScale;
+          this.setUniformSafe(this.materials.externalForce, 'fboSize', fboSize);
+          this.setUniformSafe(this.materials.advection, 'fboSize', fboSize);
+          this.setUniformSafe(this.materials.viscosity, 'px', this.cellScale);
+          this.setUniformSafe(this.materials.divergence, 'px', this.cellScale);
+          this.setUniformSafe(this.materials.poisson, 'px', this.cellScale);
+          this.setUniformSafe(this.materials.pressure, 'px', this.cellScale);
         };
 
         this.canvas.addEventListener('mousemove', this.onMouseMove);
         this.canvas.addEventListener('touchmove', this.onTouchMove);
         window.addEventListener('resize', this.onResize);
+        window.addEventListener('scroll', this.onScroll);
       }
 
-      // 声明事件处理器方法
       private onMouseMove!: (e: MouseEvent) => void;
       private onTouchMove!: (e: TouchEvent) => void;
+      private onScroll!: () => void;
       private updateMousePosition!: (x: number, y: number) => void;
       private onResize!: () => void;
 
-      // 添加初始扰动方法
-      addInitialDisturbance() {
-        // 创建一些初始的流体运动
-        setTimeout(() => {
-          // 模拟几个随机的鼠标移动
-          for (let i = 0; i < 5; i++) {
-            setTimeout(() => {
-              const angle = (i / 5) * Math.PI * 2;
-              const radius = 0.3;
-              const centerX = 0.5 + Math.cos(angle) * radius;
-              const centerY = 0.5 + Math.sin(angle) * radius;
-              
-              this.mouse.set(centerX, centerY);
-              this.mouseForce.set(
-                Math.cos(angle) * 0.5,
-                Math.sin(angle) * 0.5
-              );
-              
-              // 应用力
-              this.applyExternalForce();
-            }, i * 100);
-          }
-        }, 500);
+      addScrollDisturbance() {
+        // 引入变化：位置轻微随机偏移，保持大约居中
+        const x = 0.5 + (Math.random() - 0.5) * 0.2; // x 在 0.45 ~ 0.55 之间随机
+        const y = 0.5;
+
+        // 保存当前鼠标位置和力
+        const savedMouse = this.mouse.clone();
+        const savedForce = this.mouseForce.clone();
+
+        // 引入角度变化：力的方向不完全垂直，添加小角度偏移
+        const angleOffset = (Math.random() - 0.5) * Math.PI / 9; // +/- 15 度偏移
+        const forceMagnitude = Math.abs(this.scrollVelocity) * 0.1;
+        const forceX = Math.sin(angleOffset) * forceMagnitude;
+        const forceY = -Math.cos(angleOffset) * Math.sign(this.scrollVelocity) * forceMagnitude;
+
+        // 应用滚动扰动
+        this.mouse.set(x, y);
+        this.mouseForce.set(forceX, forceY);
+        this.applyExternalForce();
+        
+        // 恢复鼠标位置和力
+        this.mouse.copy(savedMouse);
+        this.mouseForce.copy(savedForce);
       }
 
       createFBO() {
@@ -416,7 +453,11 @@ const FluidSimulation = ({ className = "", style = {} }) => {
       }
 
       step() {
-        this.applyExternalForce();
+        // 只有在有力的时候才应用外部力
+        if (Math.abs(this.mouseForce.x) > 0.001 || Math.abs(this.mouseForce.y) > 0.001) {
+          this.applyExternalForce();
+        }
+        
         this.advect();
         this.applyViscosity();
         this.applyPressure();
@@ -424,9 +465,9 @@ const FluidSimulation = ({ className = "", style = {} }) => {
 
       applyExternalForce() {
         const material = this.materials.externalForce;
-        material.uniforms.velocity.value = this.fbos.vel_0.texture;
-        material.uniforms.force.value.copy(this.mouseForce);
-        material.uniforms.center.value.copy(this.mouse);
+        this.setUniformSafe(material, 'velocity', this.fbos.vel_0.texture);
+        this.setUniformSafe(material, 'force', this.mouseForce);
+        this.setUniformSafe(material, 'center', this.mouse);
         
         this.renderToFBO(material, this.fbos.vel_1);
         this.swapVelocity();
@@ -434,7 +475,7 @@ const FluidSimulation = ({ className = "", style = {} }) => {
 
       advect() {
         const material = this.materials.advection;
-        material.uniforms.velocity.value = this.fbos.vel_0.texture;
+        this.setUniformSafe(material, 'velocity', this.fbos.vel_0.texture);
         
         this.renderToFBO(material, this.fbos.vel_1);
         this.swapVelocity();
@@ -442,7 +483,7 @@ const FluidSimulation = ({ className = "", style = {} }) => {
 
       applyViscosity() {
         const material = this.materials.viscosity;
-        material.uniforms.velocity.value = this.fbos.vel_0.texture;
+        this.setUniformSafe(material, 'velocity', this.fbos.vel_0.texture);
         
         this.copyFBO(this.fbos.vel_0, this.fbos.vel_viscous0);
         
@@ -450,7 +491,7 @@ const FluidSimulation = ({ className = "", style = {} }) => {
           const input = i % 2 === 0 ? this.fbos.vel_viscous0 : this.fbos.vel_viscous1;
           const output = i % 2 === 0 ? this.fbos.vel_viscous1 : this.fbos.vel_viscous0;
           
-          material.uniforms.velocity_new.value = input.texture;
+          this.setUniformSafe(material, 'velocity_new', input.texture);
           this.renderToFBO(material, output);
         }
         
@@ -460,37 +501,41 @@ const FluidSimulation = ({ className = "", style = {} }) => {
 
       applyPressure() {
         const divMaterial = this.materials.divergence;
-        divMaterial.uniforms.velocity.value = this.fbos.vel_0.texture;
+        this.setUniformSafe(divMaterial, 'velocity', this.fbos.vel_0.texture);
         this.renderToFBO(divMaterial, this.fbos.div);
         
         this.clearFBO(this.fbos.pressure_0);
         this.clearFBO(this.fbos.pressure_1);
         
         const poissonMaterial = this.materials.poisson;
-        poissonMaterial.uniforms.divergence.value = this.fbos.div.texture;
+        this.setUniformSafe(poissonMaterial, 'divergence', this.fbos.div.texture);
         
         for (let i = 0; i < ITERATIONS; i++) {
           const input = i % 2 === 0 ? this.fbos.pressure_0 : this.fbos.pressure_1;
           const output = i % 2 === 0 ? this.fbos.pressure_1 : this.fbos.pressure_0;
           
-          poissonMaterial.uniforms.pressure.value = input.texture;
+          this.setUniformSafe(poissonMaterial, 'pressure', input.texture);
           this.renderToFBO(poissonMaterial, output);
         }
         
         const pressureMaterial = this.materials.pressure;
         const finalPressure = ITERATIONS % 2 === 0 ? this.fbos.pressure_0 : this.fbos.pressure_1;
-        pressureMaterial.uniforms.pressure.value = finalPressure.texture;
-        pressureMaterial.uniforms.velocity.value = this.fbos.vel_0.texture;
+        this.setUniformSafe(pressureMaterial, 'pressure', finalPressure.texture);
+        this.setUniformSafe(pressureMaterial, 'velocity', this.fbos.vel_0.texture);
         
         this.renderToFBO(pressureMaterial, this.fbos.vel_1);
         this.swapVelocity();
       }
 
       renderToFBO(material: THREE.ShaderMaterial, fbo: THREE.WebGLRenderTarget) {
-        this.planeMesh.material = material;
-        this.renderer.setRenderTarget(fbo);
-        this.renderer.render(this.scene, this.camera);
-        this.renderer.setRenderTarget(null);
+        try {
+          this.planeMesh.material = material;
+          this.renderer.setRenderTarget(fbo);
+          this.renderer.render(this.scene, this.camera);
+          this.renderer.setRenderTarget(null);
+        } catch (error) {
+          console.warn('Render to FBO failed:', error);
+        }
       }
 
       copyFBO(source: THREE.WebGLRenderTarget, target: THREE.WebGLRenderTarget) {
@@ -515,12 +560,16 @@ const FluidSimulation = ({ className = "", style = {} }) => {
       }
 
       render() {
+        // 始终应用步骤，即使没有新的力
         this.step();
         
+        // 衰减鼠标力
         this.mouseForce.x *= FORCE_DECAY;
         this.mouseForce.y *= FORCE_DECAY;
         
-        this.materials.color.uniforms.velocity.value = this.fbos.vel_0.texture;
+        // 更新滚动偏移量
+        this.setUniformSafe(this.materials.color, 'scrollOffset', this.scrollY);
+        this.setUniformSafe(this.materials.color, 'velocity', this.fbos.vel_0.texture);
         this.planeMesh.material = this.materials.color;
         
         this.renderer.render(this.scene, this.camera);
@@ -532,7 +581,13 @@ const FluidSimulation = ({ className = "", style = {} }) => {
           return;
         }
         
-        console.log('Animating frame...');
+        try {
+          this.render();
+        } catch (error) {
+          console.warn('Animation frame error:', error);
+        }
+        
+        requestAnimationFrame(this.animate);
       }
 
       destroy() {
@@ -541,6 +596,7 @@ const FluidSimulation = ({ className = "", style = {} }) => {
         this.canvas.removeEventListener('mousemove', this.onMouseMove);
         this.canvas.removeEventListener('touchmove', this.onTouchMove);
         window.removeEventListener('resize', this.onResize);
+        window.removeEventListener('scroll', this.onScroll);
         
         for (const key in this.fbos) {
           this.fbos[key as keyof typeof this.fbos].dispose();
@@ -567,15 +623,16 @@ const FluidSimulation = ({ className = "", style = {} }) => {
   }, []);
 
   return (
-    <canvas 
-      ref={canvasRef}
-      className={className}
-      style={{
-        ...style,
-        display: 'block', // 确保 canvas 显示
-        backgroundColor: 'rgba(0, 0, 255, 0.1)' // 临时添加蓝色背景以便查看
-      }}
-    />
+    <div ref={containerRef} style={{ position: 'relative', ...style }}>
+      <canvas 
+        ref={canvasRef}
+        className={className}
+        style={{
+          ...canvasStyle,
+          cursor: 'pointer' // 改为指针样式，表示可交互
+        }}
+      />
+    </div>
   );
 };
 
