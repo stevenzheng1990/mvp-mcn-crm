@@ -1,4 +1,3 @@
-// Z:\MCN\mvp-mcn-crm\app\components\LandingPage\components\AnimatedText.tsx
 import React from 'react';
 import { AnimatedTextProps } from '../LandingPage.types';
 import { DESIGN_TOKENS } from '../LandingPage.constants';

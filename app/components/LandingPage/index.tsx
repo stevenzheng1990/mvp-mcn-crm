@@ -2,17 +2,62 @@
 import React, { useState, useRef, useEffect } from 'react';
 import FluidSimulation from '../FluidSimulation';
 import { LandingPageProps, Language } from './LandingPage.types';
-import { CONTENT_DATA, DESIGN_TOKENS } from './LandingPage.constants';
+import { DESIGN_TOKENS } from './LandingPage.constants';
+
+// 更新的内容数据 - 深灰色文字
+const CONTENT_DATA = {
+  zh: {
+    title: '十方众声',
+    subtitle: '声动十方',
+    tagline: '跨境内容营销的未来',
+    description: '业界唯一在北美和中国同时建立完整内容营销生态的MCN机构',
+    stats: ['100+ KOL', '600+ 创作者', '30+ 城市'],
+    features: [
+      '跨境双向通道',
+      '直联资源对接',
+      '全链条生态闭环'
+    ],
+    metrics: [
+      { value: '3.2x', label: '互动率提升' },
+      { value: '45%', label: '获客成本降低' },
+      { value: '825B', label: '市场价值' }
+    ],
+    contact: '开启合作',
+    system: '数据系统',
+    readyToStart: '准备好了吗？'
+  },
+  en: {
+    title: 'MEGA VOLUME',
+    subtitle: 'PRODUCTION',
+    tagline: 'The Future of Cross-Border Content',
+    description: 'The only MCN with complete ecosystems in both North America and China',
+    stats: ['100+ KOLs', '600+ Creators', '30+ Cities'],
+    features: [
+      'Cross-Border Gateway',
+      'Direct Resource Access',
+      'Full-Chain Ecosystem'
+    ],
+    metrics: [
+      { value: '3.2x', label: 'Engagement Boost' },
+      { value: '45%', label: 'CAC Reduction' },
+      { value: '825B', label: 'Market Value' }
+    ],
+    contact: 'Start Collaboration',
+    system: 'Data System',
+    readyToStart: 'Ready to Start?'
+  }
+};
 import { getCssVariables } from './LandingPage.styles';
 import { useScrollProgress } from './hooks/useScrollProgress';
 
 // 子组件导入
 import AnimatedText from './components/AnimatedText';
 import LanguageSwitcher from './components/LanguageSwitcher';
-import NavigationBar from './components/NavigationBar';
+import NavigationButtons from './components/NavigationButtons';
 import ScrollIndicator from './components/ScrollIndicator';
 import TextMaskLayer from './components/TextMaskLayer';
 import PageSection from './components/PageSection';
+import BackToTopButton from './components/BackToTopButton';
 
 const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
   // 状态管理
@@ -99,13 +144,16 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
           scrollProgress={scrollProgress}
         />
 
-        {/* 底部导航栏 */}
-        <NavigationBar
+        {/* 分离的导航按钮 */}
+        <NavigationButtons
           language={language}
           content={content}
           scrollProgress={scrollProgress}
           onNavigateToSystem={onNavigateToSystem}
         />
+
+        {/* 返回顶部按钮 */}
+        <BackToTopButton scrollProgress={scrollProgress} />
 
         {/* 滚动指示器 */}
         <ScrollIndicator scrollProgress={scrollProgress} />

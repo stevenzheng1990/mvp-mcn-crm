@@ -1,4 +1,3 @@
-// Z:\MCN\mvp-mcn-crm\app\components\LandingPage\components\ScrollIndicator.tsx
 import React from 'react';
 import { ScrollIndicatorProps } from '../LandingPage.types';
 import { DESIGN_TOKENS } from '../LandingPage.constants';

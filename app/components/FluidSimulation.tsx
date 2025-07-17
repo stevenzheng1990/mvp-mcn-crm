@@ -25,16 +25,16 @@ const FluidSimulation = ({ className = "", style = {} }) => {
     }
 
     // ========== 可调整参数 ==========
-    const RESOLUTION = 0.18;
-    const VISCOSITY = 0.00003;
-    const FORCE_SCALE = 5; // 增加鼠标力的强度
-    const TIME_STEP = 0.019;
-    const ITERATIONS = 90;
-    const FORCE_DECAY = 0.85; // 稍微增加力的持续时间
-    const FORCE_RADIUS = 150; // 减小力的影响半径，使效果更集中
-    const BASE_COLOR = [0, 0, 0];
+    const RESOLUTION = 0.16;
+    const VISCOSITY = 0.00005;
+    const FORCE_SCALE = 5.5;
+    const TIME_STEP = 0.028;
+    const ITERATIONS = 80;
+    const FORCE_DECAY = 0.7;
+    const FORCE_RADIUS = 170;
+    const BASE_COLOR = [1.0, 1.0, 1.0];
     const FLOW_COLOR = [1.0, 1.0, 1.0];
-    const SCROLL_FORCE_SCALE = 0.2; // 滚动产生的力的缩放
+    const SCROLL_FORCE_SCALE = 0.2;
 
     // Shader sources
     const vertexShader = `

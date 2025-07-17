@@ -7,19 +7,34 @@ export const useScrollProgress = () => {
   const [maskOpacity, setMaskOpacity] = useState(1);
 
   useEffect(() => {
+    let ticking = false;
+
     const handleScroll = () => {
-      const scrollY = window.scrollY;
-      const windowHeight = window.innerHeight;
-      const progress = Math.min(scrollY / (windowHeight * SCROLL_CONFIG.animationDelay), 1);
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          const scrollY = window.scrollY;
+          const windowHeight = window.innerHeight;
+          const documentHeight = document.documentElement.scrollHeight;
+          const maxScrollY = documentHeight - windowHeight;
+          
+          // 限制滚动进度在合理范围内，防止快速滚动造成的异常值
+          const rawProgress = Math.min(scrollY / (windowHeight * SCROLL_CONFIG.animationDelay), 1);
+          const clampedProgress = Math.max(0, Math.min(1, rawProgress));
 
-      setScrollProgress(progress);
+          setScrollProgress(clampedProgress);
 
-      // 更新遮罩透明度
-      if (progress > SCROLL_CONFIG.fadeOutThreshold) {
-        const fadeProgress = (progress - SCROLL_CONFIG.fadeOutThreshold) / SCROLL_CONFIG.fadeOutDuration;
-        setMaskOpacity(Math.max(0, 1 - fadeProgress));
-      } else {
-        setMaskOpacity(1);
+          // 更新遮罩透明度 - 添加缓动和边界保护
+          if (clampedProgress > SCROLL_CONFIG.fadeOutThreshold) {
+            const fadeProgress = (clampedProgress - SCROLL_CONFIG.fadeOutThreshold) / SCROLL_CONFIG.fadeOutDuration;
+            const clampedFadeProgress = Math.max(0, Math.min(1, fadeProgress));
+            setMaskOpacity(Math.max(0, 1 - clampedFadeProgress));
+          } else {
+            setMaskOpacity(1);
+          }
+
+          ticking = false;
+        });
+        ticking = true;
       }
     };
 

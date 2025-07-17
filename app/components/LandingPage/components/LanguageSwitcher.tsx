@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { LanguageSwitcherProps } from '../LandingPage.types';
 import { DESIGN_TOKENS } from '../LandingPage.constants';
-import { createGlassStyles } from '../LandingPage.styles';
+import { createButtonGlassStyles } from '../LandingPage.styles';
 
 const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ 
   language, 
@@ -30,15 +30,18 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
         onMouseLeave={() => setIsHovered(false)}
         style={{
           padding: '12px 24px',
-          borderRadius: '9999px',
+          // 液体感的圆角变化
+          borderRadius: isHovered ? '20px' : '9999px',
           border: 'none',
           cursor: 'pointer',
           fontSize: DESIGN_TOKENS.typography.fontSize.small,
           fontWeight: DESIGN_TOKENS.typography.fontWeight.regular,
-          color: scrollProgress > 0.5 ? DESIGN_TOKENS.colors.text.primary : '#fff',
-          transition: `all ${DESIGN_TOKENS.animation.duration.normal} ${DESIGN_TOKENS.animation.easing.default}`,
-          transform: isHovered ? 'scale(1.05)' : 'scale(1)',
-          ...createGlassStyles(isHovered),
+          color: DESIGN_TOKENS.colors.text.primary,
+          // 液体感的缩放和过渡
+          transform: isHovered ? 'scale(1.08)' : 'scale(1)',
+          transition: `all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)`,
+          // 应用玻璃效果
+          ...createButtonGlassStyles(isHovered),
         }}
       >
         {language === 'zh' ? 'EN' : '中文'}
