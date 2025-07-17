@@ -9,7 +9,7 @@ const FluidSimulation = ({ className = "", style = {} }) => {
   const [canvasStyle, setCanvasStyle] = useState({
     position: 'fixed' as const,
     top: 0,
-    left: 0,
+    left: '0',
     width: '100%',
     height: '100%',
     pointerEvents: 'auto' as const,
@@ -18,20 +18,20 @@ const FluidSimulation = ({ className = "", style = {} }) => {
 
   useEffect(() => {
     console.log('FluidSimulation mounting...');
-    
+
     if (!canvasRef.current) {
       console.error('Canvas ref is null');
       return;
     }
 
     // ========== 可调整参数 ==========
-    const RESOLUTION = 0.2;
-    const VISCOSITY = 0.00001;
-    const FORCE_SCALE = 6; // 增加鼠标力的强度
-    const TIME_STEP = 0.012;
-    const ITERATIONS = 50;
-    const FORCE_DECAY = 0.98; // 稍微增加力的持续时间
-    const FORCE_RADIUS = 180; // 减小力的影响半径，使效果更集中
+    const RESOLUTION = 0.18;
+    const VISCOSITY = 0.00003;
+    const FORCE_SCALE = 5; // 增加鼠标力的强度
+    const TIME_STEP = 0.019;
+    const ITERATIONS = 90;
+    const FORCE_DECAY = 0.85; // 稍微增加力的持续时间
+    const FORCE_RADIUS = 150; // 减小力的影响半径，使效果更集中
     const BASE_COLOR = [0, 0, 0];
     const FLOW_COLOR = [1.0, 1.0, 1.0];
     const SCROLL_FORCE_SCALE = 0.2; // 滚动产生的力的缩放
@@ -192,7 +192,7 @@ const FluidSimulation = ({ className = "", style = {} }) => {
       private scrollY: number = 0;
       private lastScrollY: number = 0;
       private scrollVelocity: number = 0;
-      
+
       private fbos!: {
         vel_0: THREE.WebGLRenderTarget;
         vel_1: THREE.WebGLRenderTarget;
@@ -202,7 +202,7 @@ const FluidSimulation = ({ className = "", style = {} }) => {
         pressure_0: THREE.WebGLRenderTarget;
         pressure_1: THREE.WebGLRenderTarget;
       };
-      
+
       private materials!: {
         externalForce: THREE.ShaderMaterial;
         advection: THREE.ShaderMaterial;
@@ -212,11 +212,17 @@ const FluidSimulation = ({ className = "", style = {} }) => {
         pressure: THREE.ShaderMaterial;
         color: THREE.ShaderMaterial;
       };
-      
+
       private mouse: THREE.Vector2;
       private lastMouse: THREE.Vector2;
       private mouseForce: THREE.Vector2;
       private planeMesh!: THREE.Mesh;
+
+      private isAutoForce: boolean = false;
+      private autoStartTime: number = 0;
+      private savedMouse: THREE.Vector2 = new THREE.Vector2();
+      private savedLastMouse: THREE.Vector2 = new THREE.Vector2();
+      private savedForce: THREE.Vector2 = new THREE.Vector2();
 
       constructor(canvas: HTMLCanvasElement) {
         console.log('FluidSimulationEngine initializing...');
@@ -231,14 +237,14 @@ const FluidSimulation = ({ className = "", style = {} }) => {
       }
 
       setupRenderer() {
-        this.renderer = new THREE.WebGLRenderer({ 
-          canvas: this.canvas, 
+        this.renderer = new THREE.WebGLRenderer({
+          canvas: this.canvas,
           antialias: false,
           alpha: false
         });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         console.log('Renderer size:', window.innerWidth, window.innerHeight);
-        
+
         this.scene = new THREE.Scene();
         this.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
       }
@@ -247,14 +253,14 @@ const FluidSimulation = ({ className = "", style = {} }) => {
         this.resolution = RESOLUTION;
         this.width = Math.round(window.innerWidth * this.resolution);
         this.height = Math.round(window.innerHeight * this.resolution);
-        
+
         this.cellScale = new THREE.Vector2(1 / this.width, 1 / this.height);
-        
+
         this.planeGeometry = new THREE.PlaneGeometry(
           2 - this.cellScale.x * 2,
           2 - this.cellScale.y * 2
         );
-        
+
         this.fbos = {
           vel_0: this.createFBO(),
           vel_1: this.createFBO(),
@@ -269,7 +275,7 @@ const FluidSimulation = ({ className = "", style = {} }) => {
         for (const key in this.fbos) {
           this.clearFBO(this.fbos[key as keyof typeof this.fbos]);
         }
-        
+
         this.materials = {
           externalForce: this.createShaderMaterial(vertexShader, externalForceShader, {
             velocity: { value: null },
@@ -310,10 +316,10 @@ const FluidSimulation = ({ className = "", style = {} }) => {
             scrollOffset: { value: 0 }
           })
         };
-        
+
         this.planeMesh = new THREE.Mesh(this.planeGeometry, this.materials.color);
         this.scene.add(this.planeMesh);
-        
+
         this.setupEventListeners();
       }
 
@@ -355,48 +361,48 @@ const FluidSimulation = ({ className = "", style = {} }) => {
         this.onScroll = () => {
           this.scrollY = window.scrollY;
           this.scrollVelocity = (this.scrollY - this.lastScrollY) * SCROLL_FORCE_SCALE;
-          
+
           // 滚动时产生流体扰动
           if (Math.abs(this.scrollVelocity) > 0.1) {
             this.addScrollDisturbance();
           }
-          
+
           this.lastScrollY = this.scrollY;
         };
 
         this.updateMousePosition = (x: number, y: number) => {
           this.mouse.x = x / window.innerWidth;
           this.mouse.y = 1.0 - y / window.innerHeight;
-          
+
           // 计算鼠标移动产生的力
           const deltaX = this.mouse.x - this.lastMouse.x;
           const deltaY = this.mouse.y - this.lastMouse.y;
-          
+
           // 只有在鼠标真正移动时才更新力
           if (Math.abs(deltaX) > 0.0001 || Math.abs(deltaY) > 0.0001) {
             this.mouseForce.x = deltaX * FORCE_SCALE;
             this.mouseForce.y = deltaY * FORCE_SCALE;
-            
+
             // 立即应用鼠标力
             this.applyExternalForce();
           }
-          
+
           this.lastMouse.copy(this.mouse);
         };
 
         this.onResize = () => {
           this.width = Math.round(window.innerWidth * this.resolution);
           this.height = Math.round(window.innerHeight * this.resolution);
-          
+
           this.cellScale.set(1 / this.width, 1 / this.height);
-          
+
           this.renderer.setSize(window.innerWidth, window.innerHeight);
-          
+
           for (const key in this.fbos) {
             this.fbos[key as keyof typeof this.fbos].dispose();
             this.fbos[key as keyof typeof this.fbos] = this.createFBO();
           }
-          
+
           const fboSize = new THREE.Vector2(this.width, this.height);
           this.setUniformSafe(this.materials.externalForce, 'fboSize', fboSize);
           this.setUniformSafe(this.materials.advection, 'fboSize', fboSize);
@@ -437,7 +443,7 @@ const FluidSimulation = ({ className = "", style = {} }) => {
         this.mouse.set(x, y);
         this.mouseForce.set(forceX, forceY);
         this.applyExternalForce();
-        
+
         // 恢复鼠标位置和力
         this.mouse.copy(savedMouse);
         this.mouseForce.copy(savedForce);
@@ -457,7 +463,7 @@ const FluidSimulation = ({ className = "", style = {} }) => {
         if (Math.abs(this.mouseForce.x) > 0.001 || Math.abs(this.mouseForce.y) > 0.001) {
           this.applyExternalForce();
         }
-        
+
         this.advect();
         this.applyViscosity();
         this.applyPressure();
@@ -468,7 +474,7 @@ const FluidSimulation = ({ className = "", style = {} }) => {
         this.setUniformSafe(material, 'velocity', this.fbos.vel_0.texture);
         this.setUniformSafe(material, 'force', this.mouseForce);
         this.setUniformSafe(material, 'center', this.mouse);
-        
+
         this.renderToFBO(material, this.fbos.vel_1);
         this.swapVelocity();
       }
@@ -476,7 +482,7 @@ const FluidSimulation = ({ className = "", style = {} }) => {
       advect() {
         const material = this.materials.advection;
         this.setUniformSafe(material, 'velocity', this.fbos.vel_0.texture);
-        
+
         this.renderToFBO(material, this.fbos.vel_1);
         this.swapVelocity();
       }
@@ -484,17 +490,17 @@ const FluidSimulation = ({ className = "", style = {} }) => {
       applyViscosity() {
         const material = this.materials.viscosity;
         this.setUniformSafe(material, 'velocity', this.fbos.vel_0.texture);
-        
+
         this.copyFBO(this.fbos.vel_0, this.fbos.vel_viscous0);
-        
+
         for (let i = 0; i < ITERATIONS; i++) {
           const input = i % 2 === 0 ? this.fbos.vel_viscous0 : this.fbos.vel_viscous1;
           const output = i % 2 === 0 ? this.fbos.vel_viscous1 : this.fbos.vel_viscous0;
-          
+
           this.setUniformSafe(material, 'velocity_new', input.texture);
           this.renderToFBO(material, output);
         }
-        
+
         const finalViscous = ITERATIONS % 2 === 0 ? this.fbos.vel_viscous0 : this.fbos.vel_viscous1;
         this.copyFBO(finalViscous, this.fbos.vel_0);
       }
@@ -503,26 +509,26 @@ const FluidSimulation = ({ className = "", style = {} }) => {
         const divMaterial = this.materials.divergence;
         this.setUniformSafe(divMaterial, 'velocity', this.fbos.vel_0.texture);
         this.renderToFBO(divMaterial, this.fbos.div);
-        
+
         this.clearFBO(this.fbos.pressure_0);
         this.clearFBO(this.fbos.pressure_1);
-        
+
         const poissonMaterial = this.materials.poisson;
         this.setUniformSafe(poissonMaterial, 'divergence', this.fbos.div.texture);
-        
+
         for (let i = 0; i < ITERATIONS; i++) {
           const input = i % 2 === 0 ? this.fbos.pressure_0 : this.fbos.pressure_1;
           const output = i % 2 === 0 ? this.fbos.pressure_1 : this.fbos.pressure_0;
-          
+
           this.setUniformSafe(poissonMaterial, 'pressure', input.texture);
           this.renderToFBO(poissonMaterial, output);
         }
-        
+
         const pressureMaterial = this.materials.pressure;
         const finalPressure = ITERATIONS % 2 === 0 ? this.fbos.pressure_0 : this.fbos.pressure_1;
         this.setUniformSafe(pressureMaterial, 'pressure', finalPressure.texture);
         this.setUniformSafe(pressureMaterial, 'velocity', this.fbos.vel_0.texture);
-        
+
         this.renderToFBO(pressureMaterial, this.fbos.vel_1);
         this.swapVelocity();
       }
@@ -559,19 +565,56 @@ const FluidSimulation = ({ className = "", style = {} }) => {
         this.fbos.vel_1 = temp;
       }
 
+      simulateAutoMouse() {
+        const now = performance.now();
+        const elapsed = now - this.autoStartTime;
+
+        const totalDuration = 5000; // 5 seconds
+
+        if (elapsed > totalDuration) {
+          this.isAutoForce = false;
+          this.mouse.copy(this.savedMouse);
+          this.lastMouse.copy(this.savedLastMouse);
+          this.mouseForce.copy(this.savedForce);
+          return;
+        }
+
+        // 3 circles in 5 seconds, but make speed faster by increasing the number of rotations slightly
+        const rotations = 3.5; // Slightly faster than 3
+        const angle = 2 * Math.PI * (rotations * (elapsed / totalDuration));
+        const radius = 0.4; // Larger radius to be closer to edges
+
+        const autoX = 0.5 + radius * Math.cos(angle);
+        const autoY = 0.5 + radius * Math.sin(angle);
+
+        const newMouse = new THREE.Vector2(autoX, autoY);
+        const deltaX = newMouse.x - this.lastMouse.x;
+        const deltaY = newMouse.y - this.lastMouse.y;
+
+        this.mouseForce.x = deltaX * FORCE_SCALE;
+        this.mouseForce.y = deltaY * FORCE_SCALE;
+
+        this.mouse.copy(newMouse);
+        this.lastMouse.copy(newMouse);
+      }
+
       render() {
+        if (this.isAutoForce) {
+          this.simulateAutoMouse();
+        }
+
         // 始终应用步骤，即使没有新的力
         this.step();
-        
+
         // 衰减鼠标力
         this.mouseForce.x *= FORCE_DECAY;
         this.mouseForce.y *= FORCE_DECAY;
-        
+
         // 更新滚动偏移量
         this.setUniformSafe(this.materials.color, 'scrollOffset', this.scrollY);
         this.setUniformSafe(this.materials.color, 'velocity', this.fbos.vel_0.texture);
         this.planeMesh.material = this.materials.color;
-        
+
         this.renderer.render(this.scene, this.camera);
       }
 
@@ -580,32 +623,45 @@ const FluidSimulation = ({ className = "", style = {} }) => {
           console.log('Animation stopped');
           return;
         }
-        
+
         try {
           this.render();
         } catch (error) {
           console.warn('Animation frame error:', error);
         }
-        
+
         requestAnimationFrame(this.animate);
+      }
+
+      triggerAutoForce() {
+        this.isAutoForce = true;
+        this.autoStartTime = performance.now();
+        this.savedMouse.copy(this.mouse);
+        this.savedLastMouse.copy(this.lastMouse);
+        this.savedForce.copy(this.mouseForce);
+
+        // Initialize starting position
+        const initialAngle = 0;
+        const radius = 0.4;
+        this.lastMouse.set(0.5 + radius * Math.cos(initialAngle), 0.5 + radius * Math.sin(initialAngle));
       }
 
       destroy() {
         this.isAnimating = false;
-        
+
         this.canvas.removeEventListener('mousemove', this.onMouseMove);
         this.canvas.removeEventListener('touchmove', this.onTouchMove);
         window.removeEventListener('resize', this.onResize);
         window.removeEventListener('scroll', this.onScroll);
-        
+
         for (const key in this.fbos) {
           this.fbos[key as keyof typeof this.fbos].dispose();
         }
-        
+
         for (const key in this.materials) {
           this.materials[key as keyof typeof this.materials].dispose();
         }
-        
+
         this.planeGeometry.dispose();
         this.renderer.dispose();
       }
@@ -613,6 +669,13 @@ const FluidSimulation = ({ className = "", style = {} }) => {
 
     simulationRef.current = new FluidSimulationEngine(canvasRef.current);
     console.log('FluidSimulation created:', simulationRef.current);
+
+    // 页面加载1.5秒后触发一次自动力
+    setTimeout(() => {
+      if (simulationRef.current) {
+        simulationRef.current.triggerAutoForce();
+      }
+    }, 1000);
 
     return () => {
       console.log('FluidSimulation unmounting...');
@@ -624,7 +687,7 @@ const FluidSimulation = ({ className = "", style = {} }) => {
 
   return (
     <div ref={containerRef} style={{ position: 'relative', ...style }}>
-      <canvas 
+      <canvas
         ref={canvasRef}
         className={className}
         style={{

@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { LoginForm } from './components/LoginForm';
 import { Dashboard } from './components/Dashboard';
-import LandingPage from './components/LandingPage'; // 🆕 新增：着陆页组件
+import LandingPage from './components/LandingPage'; // ✅ 导入路径不变 - 因为 index.tsx 会被自动解析
 import { useDataManagement } from './hooks/useDataManagement';
 import { EditModal, DealModal, AccountModal, ImportModal, ExportModal } from './components/Modals';
 import type { ModalType } from './types';
