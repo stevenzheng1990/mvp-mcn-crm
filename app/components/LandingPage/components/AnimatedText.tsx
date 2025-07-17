@@ -1,6 +1,6 @@
 import React from 'react';
 import { AnimatedTextProps } from '../LandingPage.types';
-import { DESIGN_TOKENS } from '../LandingPage.constants';
+import { DESIGN_TOKENS } from '../LandingPage.config';
 
 const AnimatedText: React.FC<AnimatedTextProps> = ({ 
   text, 
@@ -21,8 +21,8 @@ const AnimatedText: React.FC<AnimatedTextProps> = ({
             opacity: inView ? 1 : 0,
             transform: inView ? 'translateX(0)' : `translateX(${20 + index * 2}px)`,
             filter: inView ? 'blur(0)' : 'blur(4px)',
-            transition: `all ${0.8 + index * 0.05}s ${DESIGN_TOKENS.animation.easing.default}`,
-            transitionDelay: `${delay + index * 0.05}s`,
+            transition: `all ${DESIGN_TOKENS.animation.text.baseDuration + index * DESIGN_TOKENS.animation.text.charDurationIncrement}s ${DESIGN_TOKENS.animation.easing.default}`,
+            transitionDelay: `${delay + index * DESIGN_TOKENS.animation.text.charDelay}s`,
           }}
         >
           {char === ' ' ? '\u00A0' : char}

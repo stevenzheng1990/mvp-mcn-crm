@@ -1,7 +1,7 @@
 // Z:\MCN\mvp-mcn-crm\app\components\LandingPage\components\PageSection.tsx
 import React from 'react';
 import { PageSectionProps } from '../LandingPage.types';
-import { DESIGN_TOKENS } from '../LandingPage.constants';
+import { DESIGN_TOKENS } from '../LandingPage.config';
 
 const PageSection: React.FC<PageSectionProps> = ({ 
   sectionRef, 

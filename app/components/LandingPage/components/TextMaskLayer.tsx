@@ -1,7 +1,7 @@
 // Z:\MCN\mvp-mcn-crm\app\components\LandingPage\components\TextMaskLayer.tsx
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { TextMaskLayerProps } from '../LandingPage.types';
-import { DESIGN_TOKENS, SCROLL_CONFIG } from '../LandingPage.constants';
+import { TextMaskLayerProps, FocusPoint } from '../LandingPage.types';
+import { DESIGN_TOKENS, SCROLL_CONFIG, MASK_CONFIG } from '../LandingPage.config';
 import { easeInOutQuart } from '../LandingPage.styles';
 
 const TextMaskLayer: React.FC<TextMaskLayerProps> = ({ 
@@ -12,7 +12,7 @@ const TextMaskLayer: React.FC<TextMaskLayerProps> = ({
 }) => {
   const maskRef = useRef<SVGTextElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [focusPoint, setFocusPoint] = useState({ x: 50, y: 50 });
+  const [focusPoint, setFocusPoint] = useState<FocusPoint>(MASK_CONFIG.focus.default);
   const [isCalculating, setIsCalculating] = useState(false);
   
   // 稳定的焦点计算函数
@@ -22,7 +22,6 @@ const TextMaskLayer: React.FC<TextMaskLayerProps> = ({
     setIsCalculating(true);
     
     try {
-      // 等待DOM稳定
       requestAnimationFrame(() => {
         if (!maskRef.current || !containerRef.current) {
           setIsCalculating(false);
@@ -37,19 +36,19 @@ const TextMaskLayer: React.FC<TextMaskLayerProps> = ({
           return;
         }
         
-        // 计算文字在视口中的中心位置
-        let targetX = 50; // 默认居中
-        const targetY = 50; // 垂直居中
+        // 使用配置文件中的焦点设置
+        const languageFocus = MASK_CONFIG.focus[language];
+        let targetX: number = languageFocus ? Number(languageFocus.x) : Number(MASK_CONFIG.focus.default.x);
+        const targetY: number = languageFocus ? Number(languageFocus.y) : Number(MASK_CONFIG.focus.default.y);
         
         if (language === 'zh') {
-          // 对于中文，计算"十"字的位置（第一个字符）
           const charWidth = textBBox.width / content.title.length;
           const firstCharCenterX = textBBox.x + charWidth / 2;
-          targetX = (firstCharCenterX / containerRect.width) * 100 + 50; // 相对于SVG中心的偏移
+          targetX = (firstCharCenterX / containerRect.width) * 100 + 50;
         }
         
-        // 限制在合理范围内
-        targetX = Math.max(20, Math.min(80, targetX));
+        // 限制在配置的边界内
+        targetX = Math.max(MASK_CONFIG.focus.bounds.min, Math.min(MASK_CONFIG.focus.bounds.max, targetX));
         
         setFocusPoint({ x: targetX, y: targetY });
         console.log(`Focus calculated for ${language}:`, { x: targetX, y: targetY });
@@ -58,21 +57,20 @@ const TextMaskLayer: React.FC<TextMaskLayerProps> = ({
       });
     } catch (error) {
       console.error('Error calculating focus point:', error);
-      setFocusPoint(language === 'zh' ? { x: 45, y: 50 } : { x: 50, y: 50 });
+      const fallbackFocus = MASK_CONFIG.focus[language] || MASK_CONFIG.focus.default;
+      setFocusPoint({ ...fallbackFocus });
       setIsCalculating(false);
     }
   }, [language, content.title, isCalculating]);
 
   // 重置和重新计算的函数
   const resetAndRecalculate = useCallback(() => {
-    // 重置状态
-    setFocusPoint({ x: 50, y: 50 });
+    setFocusPoint({ ...MASK_CONFIG.focus.default });
     setIsCalculating(false);
     
-    // 延迟重新计算，确保DOM更新完成
     setTimeout(() => {
       calculateTextFocus();
-    }, 300);
+    }, MASK_CONFIG.recalculateDelay);
   }, [calculateTextFocus]);
 
   // 语言切换时重新计算
@@ -85,7 +83,7 @@ const TextMaskLayer: React.FC<TextMaskLayerProps> = ({
     const handleResize = () => {
       setTimeout(() => {
         calculateTextFocus();
-      }, 100);
+      }, MASK_CONFIG.resizeDelay);
     };
 
     window.addEventListener('resize', handleResize);
@@ -97,12 +95,11 @@ const TextMaskLayer: React.FC<TextMaskLayerProps> = ({
   const zoomScale = safeScrollProgress === 0 ? 1 : 1 + (easeInOutQuart(safeScrollProgress) * SCROLL_CONFIG.zoomScale);
   
   // Z轴旋转效果（纵深感）
-  const zRotation = safeScrollProgress * 15; // 15度的Z轴旋转
-  const perspective = 1000; // 透视距离
+  const zRotation = safeScrollProgress * SCROLL_CONFIG.effects3D.maxZRotation;
   
   // 使用计算出的焦点作为变换原点
   const transformOrigin = `${focusPoint.x}% ${focusPoint.y}%`;
-  const fontSize = language === 'zh' ? '20vw' : '12vw';
+  const fontSize = DESIGN_TOKENS.typography.maskFontSize[language];
 
   return (
     <div 
@@ -113,7 +110,7 @@ const TextMaskLayer: React.FC<TextMaskLayerProps> = ({
         inset: 0,
         zIndex: 30,
         opacity: maskOpacity,
-        perspective: `${perspective}px`,
+        perspective: `${SCROLL_CONFIG.effects3D.perspective}px`,
         transformOrigin,
         willChange: 'transform, opacity',
         pointerEvents: 'none',
@@ -123,7 +120,6 @@ const TextMaskLayer: React.FC<TextMaskLayerProps> = ({
         style={{
           width: '100%',
           height: '100%',
-          // Z轴旋转 + 缩放，移除原来的Y轴旋转
           transform: `scale(${zoomScale}) rotateZ(${zRotation}deg)`,
           transformOrigin: 'inherit',
           transition: 'transform 0.1s ease-out',

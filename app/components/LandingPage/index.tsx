@@ -2,51 +2,16 @@
 import React, { useState, useRef, useEffect } from 'react';
 import FluidSimulation from '../FluidSimulation';
 import { LandingPageProps, Language } from './LandingPage.types';
-import { DESIGN_TOKENS } from './LandingPage.constants';
 
-// 更新的内容数据 - 深灰色文字
-const CONTENT_DATA = {
-  zh: {
-    title: '十方众声',
-    subtitle: '声动十方',
-    tagline: '跨境内容营销的未来',
-    description: '业界唯一在北美和中国同时建立完整内容营销生态的MCN机构',
-    stats: ['100+ KOL', '600+ 创作者', '30+ 城市'],
-    features: [
-      '跨境双向通道',
-      '直联资源对接',
-      '全链条生态闭环'
-    ],
-    metrics: [
-      { value: '3.2x', label: '互动率提升' },
-      { value: '45%', label: '获客成本降低' },
-      { value: '825B', label: '市场价值' }
-    ],
-    contact: '开启合作',
-    system: '数据系统',
-    readyToStart: '准备好了吗？'
-  },
-  en: {
-    title: 'MEGA VOLUME',
-    subtitle: 'PRODUCTION',
-    tagline: 'The Future of Cross-Border Content',
-    description: 'The only MCN with complete ecosystems in both North America and China',
-    stats: ['100+ KOLs', '600+ Creators', '30+ Cities'],
-    features: [
-      'Cross-Border Gateway',
-      'Direct Resource Access',
-      'Full-Chain Ecosystem'
-    ],
-    metrics: [
-      { value: '3.2x', label: 'Engagement Boost' },
-      { value: '45%', label: 'CAC Reduction' },
-      { value: '825B', label: 'Market Value' }
-    ],
-    contact: 'Start Collaboration',
-    system: 'Data System',
-    readyToStart: 'Ready to Start?'
-  }
-};
+// 从配置文件导入所有配置
+import { 
+  DESIGN_TOKENS, 
+  CONTENT_DATA, 
+  SCROLL_CONFIG, 
+  OBSERVER_CONFIG,
+  getContent 
+} from './LandingPage.config';
+
 import { getCssVariables } from './LandingPage.styles';
 import { useScrollProgress } from './hooks/useScrollProgress';
 
@@ -71,19 +36,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
 
   // 获取当前语言内容
-  const content = CONTENT_DATA[language];
+  const content = getContent(language);
 
   // CSS 变量
   const cssVariables = getCssVariables();
 
   // 可见性观察器
   useEffect(() => {
-    const observerOptions = {
-      root: null,
-      rootMargin: '-20% 0px',
-      threshold: 0.1
-    };
-
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         const index = Number(entry.target.getAttribute('data-section-index'));
@@ -99,7 +58,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
           });
         }
       });
-    }, observerOptions);
+    }, OBSERVER_CONFIG);
 
     sectionRefs.current.forEach((ref, index) => {
       if (ref) {
@@ -153,7 +112,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
         />
 
         {/* 返回顶部按钮 */}
-        <BackToTopButton scrollProgress={scrollProgress} />
+        <BackToTopButton 
+          scrollProgress={scrollProgress}
+          content={content}
+        />
 
         {/* 滚动指示器 */}
         <ScrollIndicator scrollProgress={scrollProgress} />
@@ -169,8 +131,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
           sectionRef={el => sectionRefs.current[0] = el}
           isVisible={visibleSections.has(0)}
           style={{
-            opacity: scrollProgress > 0.3 ? 1 : 0,
-            transform: scrollProgress > 0.3 ? 'translateY(0)' : 'translateY(50px)',
+            opacity: scrollProgress > SCROLL_CONFIG.visibility.heroSection ? 1 : 0,
+            transform: scrollProgress > SCROLL_CONFIG.visibility.heroSection ? 'translateY(0)' : 'translateY(50px)',
             transition: `all ${DESIGN_TOKENS.animation.duration.slower} ${DESIGN_TOKENS.animation.easing.default}`,
           }}
         >
@@ -340,9 +302,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
         <footer className="footer py-20 text-center">
           <p style={{
             fontSize: DESIGN_TOKENS.typography.fontSize.small,
-            color: DESIGN_TOKENS.colors.text.tertiary,
+            color: DESIGN_TOKENS.colors.footer.text,
           }}>
-            © 2024 Mega Volume Production Inc.
+            {content.footer.copyright}
           </p>
         </footer>
       </main>

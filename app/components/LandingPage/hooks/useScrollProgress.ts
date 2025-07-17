@@ -1,6 +1,6 @@
 // Z:\MCN\mvp-mcn-crm\app\components\LandingPage\hooks\useScrollProgress.ts
 import { useState, useEffect } from 'react';
-import { SCROLL_CONFIG } from '../LandingPage.constants';
+import { SCROLL_CONFIG } from '../LandingPage.config'; // 改为从 config 文件导入
 
 export const useScrollProgress = () => {
   const [scrollProgress, setScrollProgress] = useState(0);

@@ -1,7 +1,6 @@
-// Z:\MCN\mvp-mcn-crm\app\components\LandingPage\components\NavigationButtons.tsx
 import React, { useState } from 'react';
 import { NavigationBarProps } from '../LandingPage.types';
-import { DESIGN_TOKENS } from '../LandingPage.constants';
+import { DESIGN_TOKENS, SCROLL_CONFIG } from '../LandingPage.config';
 import { createButtonGlassStyles } from '../LandingPage.styles';
 
 const NavigationButtons: React.FC<NavigationBarProps> = ({ 
@@ -11,25 +10,21 @@ const NavigationButtons: React.FC<NavigationBarProps> = ({
   onNavigateToSystem 
 }) => {
   const [hoveredButton, setHoveredButton] = useState<string | null>(null);
-  const isVisible = scrollProgress > 0.5;
+  const isVisible = scrollProgress > SCROLL_CONFIG.visibility.navigationButtons;
 
   const buttonStyle = (buttonName: string) => {
     const isHovered = hoveredButton === buttonName;
     
     return {
-      padding: '12px 24px',
-      // 液体感的圆角变化
+      padding: DESIGN_TOKENS.spacing.component.navigationPadding,
       borderRadius: isHovered ? '24px' : '9999px',
       border: 'none',
       cursor: 'pointer',
       fontSize: DESIGN_TOKENS.typography.fontSize.small,
       fontWeight: DESIGN_TOKENS.typography.fontWeight.regular,
       color: DESIGN_TOKENS.colors.text.primary,
-      backgroundColor: 'transparent',
-      // 液体感的缩放效果
       transform: isHovered ? 'scale(1.08)' : 'scale(1)',
-      transition: `all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)`,
-      // 应用玻璃效果
+      transition: `all ${DESIGN_TOKENS.animation.duration.liquidTransition} ${DESIGN_TOKENS.animation.easing.liquid}`,
       ...createButtonGlassStyles(isHovered),
     };
   };
@@ -39,7 +34,7 @@ const NavigationButtons: React.FC<NavigationBarProps> = ({
       className="navigation-buttons"
       style={{
         position: 'fixed',
-        bottom: '32px',
+        bottom: DESIGN_TOKENS.layout.fixedElements.navigationButtons.bottom,
         left: '50%',
         transform: `translateX(-50%) translateY(${isVisible ? '0' : '20px'})`,
         zIndex: 50,
@@ -47,7 +42,7 @@ const NavigationButtons: React.FC<NavigationBarProps> = ({
         opacity: isVisible ? 1 : 0,
         transition: `all ${DESIGN_TOKENS.animation.duration.slow} ${DESIGN_TOKENS.animation.easing.default}`,
         display: 'flex',
-        gap: '16px',
+        gap: DESIGN_TOKENS.spacing.component.buttonGap,
       }}
     >
       <button

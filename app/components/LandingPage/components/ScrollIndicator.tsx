@@ -1,6 +1,6 @@
 import React from 'react';
 import { ScrollIndicatorProps } from '../LandingPage.types';
-import { DESIGN_TOKENS } from '../LandingPage.constants';
+import { DESIGN_TOKENS } from '../LandingPage.config';
 
 const ScrollIndicator: React.FC<ScrollIndicatorProps> = ({ scrollProgress }) => {
   const isVisible = scrollProgress <= 0.1;
