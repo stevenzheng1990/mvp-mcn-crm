@@ -30,35 +30,31 @@ const LogoMaskLayer: React.FC<LogoMaskLayerProps> = ({ scrollProgress, maskOpaci
     const baseScale = Math.min(
       dimensions.width / SVG_VIEWBOX.width,
       dimensions.height / SVG_VIEWBOX.height
-    ) * 0.3; // 
+    ) * 0.3;
+    
     // 根据滚动进度计算缩放
-    // 使用更平滑的缓动函数
     const easeInOutQuad = (t: number): number => {
       return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
     };
     
     const easedProgress = easeInOutQuad(scrollProgress);
     
-    // 从初始大小放大到超出屏幕 - 放大倍数增加
+    // 从初始大小放大到超出屏幕
     const maxScale = Math.max(
       dimensions.width / SVG_VIEWBOX.width,
       dimensions.height / SVG_VIEWBOX.height
-    ) * 13; // 最终放大到屏幕的10倍，营造穿梭感
+    ) * 13;
     
     return baseScale + (maxScale - baseScale) * easedProgress;
   };
 
-  // 计算焦点偏移 - 让放大朝向路径内部
+  // 计算焦点偏移
   const calculateFocusOffset = () => {
-    // MVP logo 的 "V" 字底部交叉处
-    // 根据SVG路径分析，V字底部的交叉点大约在
     const focusTargetX = 215;
     const focusTargetY = 353;
     
-    // 随着滚动进度，逐渐偏移中心点
-    const offsetProgress = Math.pow(scrollProgress, 2); // 使用平方让后期偏移更明显
+    const offsetProgress = Math.pow(scrollProgress, 2);
     
-    // 计算当前偏移
     const currentFocusX = svgCenterX + (focusTargetX - svgCenterX) * offsetProgress;
     const currentFocusY = svgCenterY + (focusTargetY - svgCenterY) * offsetProgress;
     
@@ -79,18 +75,19 @@ const LogoMaskLayer: React.FC<LogoMaskLayerProps> = ({ scrollProgress, maskOpaci
     return () => window.removeEventListener('resize', updateDimensions);
   }, []);
 
-  // 计算SVG的实际中心（用于基础定位）
+  // 计算SVG的实际中心
   const svgCenterX = SVG_VIEWBOX.minX + SVG_VIEWBOX.width / 2;
   const svgCenterY = SVG_VIEWBOX.minY + SVG_VIEWBOX.height / 2;
 
   const scale = calculateScale();
   const focusOffset = calculateFocusOffset();
   
-  // 计算中心点
   const centerX = dimensions.width / 2;
   const centerY = dimensions.height / 2;
-  
-  // 使用偏移后的焦点
+
+  // 🔧 关键修复：扩大 viewBox 边界，确保遮罩完全覆盖
+  const padding = 100; // 添加额外的边距
+  const expandedViewBox = `${-padding} ${-padding} ${dimensions.width + padding * 2} ${dimensions.height + padding * 2}`;
 
   return (
     <div 
@@ -103,26 +100,33 @@ const LogoMaskLayer: React.FC<LogoMaskLayerProps> = ({ scrollProgress, maskOpaci
         opacity: maskOpacity,
         pointerEvents: 'none',
         willChange: 'opacity',
+        // 🔧 添加：确保容器完全覆盖视口
+        width: '100vw',
+        height: '100vh',
+        overflow: 'hidden', // 🔧 改为 hidden，防止内容溢出
       }}
     >
       <svg 
         style={{ 
           position: 'absolute',
-          width: '100%', 
-          height: '100%',
-          overflow: 'visible', // 允许SVG内容超出边界
+          // 🔧 使 SVG 略大于视口
+          width: 'calc(100% + 200px)', 
+          height: 'calc(100% + 200px)',
+          // 🔧 居中定位
+          left: '-100px',
+          top: '-100px',
         }}
-        viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}
-        preserveAspectRatio="none"
+        viewBox={expandedViewBox}
+        preserveAspectRatio="xMidYMid slice" // 🔧 改为 slice，确保覆盖整个视口
       >
         <defs>
           <mask id="logoRevealMask">
-            {/* 白色背景 - 默认遮挡所有内容 */}
+            {/* 🔧 扩大白色背景，确保完全覆盖 */}
             <rect 
-              x="0" 
-              y="0" 
-              width={dimensions.width} 
-              height={dimensions.height} 
+              x={-padding} 
+              y={-padding} 
+              width={dimensions.width + padding * 2} 
+              height={dimensions.height + padding * 2} 
               fill="white" 
             />
             
@@ -132,36 +136,38 @@ const LogoMaskLayer: React.FC<LogoMaskLayerProps> = ({ scrollProgress, maskOpaci
                 <path
                   d={MVP_LOGO_PATH}
                   fill="black"
-                  style={{
-                    transition: 'none', // 移除过渡效果，让变换更即时
-                  }}
+                  // 🔧 添加描边，确保路径边缘平滑
+                  stroke="black"
+                  strokeWidth="1"
+                  strokeLinejoin="round"
+                  strokeLinecap="round"
                 />
               </g>
             </g>
           </mask>
         </defs>
         
-        {/* 应用遮罩的白色矩形 */}
+        {/* 🔧 应用遮罩的白色矩形，也要扩大 */}
         <rect
-          x="0"
-          y="0"
-          width={dimensions.width}
-          height={dimensions.height}
+          x={-padding}
+          y={-padding}
+          width={dimensions.width + padding * 2}
+          height={dimensions.height + padding * 2}
           fill="white"
           mask="url(#logoRevealMask)"
         />
       </svg>
       
-      {/* 可选：添加淡出边缘效果和深度感 */}
+      {/* 🔧 优化：淡出边缘效果 */}
       <div
         style={{
           position: 'absolute',
-          inset: 0,
+          inset: '-50px', // 🔧 扩大边缘效果范围
           background: `
             radial-gradient(
-              circle at ${focusOffset.x / SVG_VIEWBOX.width * 100}% ${focusOffset.y / SVG_VIEWBOX.height * 100}%, 
+              circle at ${(focusOffset.x / SVG_VIEWBOX.width * 100).toFixed(2)}% ${(focusOffset.y / SVG_VIEWBOX.height * 100).toFixed(2)}%, 
               transparent 20%, 
-              rgba(255,255,255,${0.3 * (1 - scrollProgress)}) 60%
+              rgba(255,255,255,${(0.3 * (1 - scrollProgress)).toFixed(3)}) 60%
             )
           `,
           pointerEvents: 'none',

@@ -71,16 +71,21 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
   }, []);
 
   return (
-    <div 
-      className="landing-page"
-      style={{
-        position: 'relative',
-        fontFamily: DESIGN_TOKENS.typography.fontFamily,
-        letterSpacing: DESIGN_TOKENS.typography.letterSpacing,
-        fontWeight: DESIGN_TOKENS.typography.fontWeight.light,
-        ...cssVariables,
-      }}
-    >
+      <div 
+        className="landing-page"
+        style={{
+          position: 'relative',
+          margin: 0,  // 确保没有外边距
+          padding: 0, // 确保没有内边距
+          width: '100vw', // 使用视口宽度
+          minHeight: '100vh', // 使用视口高度
+          overflow: 'hidden', // 防止内容溢出
+          fontFamily: DESIGN_TOKENS.typography.fontFamily,
+          letterSpacing: DESIGN_TOKENS.typography.letterSpacing,
+          fontWeight: DESIGN_TOKENS.typography.fontWeight.light,
+          ...cssVariables,
+        }}
+      >
       {/* 背景层 - FluidSimulation */}
       <div className="background-layer" style={{ position: 'fixed', inset: 0, zIndex: 0 }}>
         <FluidSimulation className="w-full h-full" />
@@ -307,6 +312,21 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
 
       {/* 全局样式 */}
       <style jsx global>{`
+      /* 确保没有默认边框 */
+        body {
+          margin: 0;
+          padding: 0;
+          overflow-x: hidden;
+        }
+
+        * {
+          box-sizing: border-box;
+        }
+
+        /* 防止 SVG 边缘问题 */
+        svg {
+          shape-rendering: crispEdges;
+        }
         /* 滚动优化 */
         html {
           scroll-behavior: smooth;

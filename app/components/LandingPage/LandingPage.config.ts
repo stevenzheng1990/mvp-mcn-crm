@@ -149,26 +149,26 @@ export const DESIGN_TOKENS = {
 export const CONTENT_DATA: ContentData = {
   zh: {
     title: '十方众声',
-    subtitle: '声动十方',
-    tagline: '跨境内容营销的未来',
-    description: '业界唯一在北美和中国同时建立完整内容营销生态的MCN机构',
-    stats: ['100+ KOL', '600+ 创作者', '30+ 城市'],
+    subtitle: '从十方而来，聚众声之势',
+    tagline: '一站式互联网营销机构',
+    description: '业界唯一在北美和中国同时建立完整生态的MCN机构',
+    stats: ['50+ KOL', '500+ 创作者', '30+ 城市'],
     features: [
-      '跨境双向通道',
-      '直联资源对接',
-      '全链条生态闭环'
+      '多渠道全网覆盖',
+      '直联达人资源对接',
+      '官方投放全链条闭环'
     ],
     metrics: [
       { value: '3.2x', label: '互动率提升' },
       { value: '45%', label: '获客成本降低' },
       { value: '825B', label: '市场价值' }
     ],
-    contact: '开启合作',
-    system: '数据系统',
-    readyToStart: '准备好了吗？',
+    contact: '联系我们',
+    system: '数据后台',
+    readyToStart: '齐聚十方众声，唱响无限可能',
     // 新增：页脚文案
     footer: {
-      copyright: '© 2024 Mega Volume Production Inc.',
+      copyright: '© 2022 Mega Volume Production Inc.',
     },
     // 新增：按钮提示文案
     tooltips: {
@@ -178,23 +178,23 @@ export const CONTENT_DATA: ContentData = {
   },
   en: {
     title: 'MEGA VOLUME',
-    subtitle: 'PRODUCTION',
-    tagline: 'The Future of Cross-Border Content',
-    description: 'The only MCN with complete ecosystems in both North America and China',
-    stats: ['100+ KOLs', '600+ Creators', '30+ Cities'],
+    subtitle: 'Amplifying Voices, Multiplying Impact',
+    tagline: 'Your Full-Service Digital Marketing Partner',
+    description: 'The only MCN agency with complete ecosystems in both North America and China',
+    stats: ['50+ Influencers', '500+ Creators', '30+ Cities'],
     features: [
-      'Cross-Border Gateway',
-      'Direct Resource Access',
-      'Full-Chain Ecosystem'
+      'Omnichannel Coverage',
+      'Direct Creator Network',
+      'End-to-End Campaign Management'
     ],
     metrics: [
-      { value: '3.2x', label: 'Engagement Boost' },
-      { value: '45%', label: 'CAC Reduction' },
-      { value: '825B', label: 'Market Value' }
+      { value: '3.2x', label: 'Engagement Growth' },
+      { value: '45%', label: 'Lower Acquisition Cost' },
+      { value: '$825B', label: 'Market Reach' }
     ],
-    contact: 'Start Collaboration',
-    system: 'Data System',
-    readyToStart: 'Ready to Start?',
+    contact: 'Get in Touch',
+    system: 'Analytics Dashboard',
+    readyToStart: 'Unite Voices, Unleash Possibilities',
     footer: {
       copyright: '© 2024 Mega Volume Production Inc.',
     },
@@ -207,12 +207,11 @@ export const CONTENT_DATA: ContentData = {
 
 // ===== 滚动配置 =====
 export const SCROLL_CONFIG = {
-  animationDelay: 2.9, // 动画时长系数 - 大幅增加，让滚动更慢
-  fadeOutThreshold: 0.95, // 遮罩开始淡出的滚动进度 - 延后淡出
-  fadeOutDuration: 0.05,  // 遮罩淡出持续时间 - 更快的淡出
+  animationDelay: 3, // 动画时长系数 - 大幅增加，让滚动更慢
+  fadeOutThreshold: 0.8, // 遮罩开始淡出的滚动进度 - 延后淡出
+  fadeOutDuration: 0.2,  // 遮罩淡出持续时间 - 更快的淡出
   // 可见性阈值
   visibility: {
-    heroSection: 0.9,     // 英雄区块显示的滚动进度 - 延后显示
     navigationButtons: 0.8, // 导航按钮显示的滚动进度 - 延后显示
     backToTopButton: 0.8,  // 返回顶部按钮显示的滚动进度
   },

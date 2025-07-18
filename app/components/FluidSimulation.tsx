@@ -8,8 +8,10 @@ const FluidSimulation = ({ className = "", style = {} }) => {
   const simulationRef = useRef<any>(null);
   const [canvasStyle, setCanvasStyle] = useState({
     position: 'fixed' as const,
-    top: 0,
-    left: '0',
+    top: -5,
+    bottom: -5,
+    left: -5,
+    right: -5,
     width: '100%',
     height: '100%',
     pointerEvents: 'auto' as const,
@@ -23,7 +25,7 @@ const FluidSimulation = ({ className = "", style = {} }) => {
     }
 
     // ========== 可调整参数 ==========
-    const RESOLUTION = 0.11;
+    const RESOLUTION = 0.15;
     const VISCOSITY = 0.00003;
     const FORCE_SCALE = 6;
     const TIME_STEP = 0.022;
@@ -658,12 +660,12 @@ const FluidSimulation = ({ className = "", style = {} }) => {
   }, []);
 
   return (
-    <div ref={containerRef} style={{ position: 'relative', ...style }}>
+    <div ref={containerRef} style={{ position: 'fixed', ...style }}>
       <canvas
         ref={canvasRef}
         className={className}
         style={{
-          ...canvasStyle
+          ...canvasStyle,
         }}
       />
     </div>
