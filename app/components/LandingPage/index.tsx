@@ -20,7 +20,7 @@ import AnimatedText from './components/AnimatedText';
 import LanguageSwitcher from './components/LanguageSwitcher';
 import NavigationButtons from './components/NavigationButtons';
 import ScrollIndicator from './components/ScrollIndicator';
-import TextMaskLayer from './components/TextMaskLayer';
+import LogoMaskLayer from './components/LogoMaskLayer'; // 新的Logo遮罩组件
 import PageSection from './components/PageSection';
 import BackToTopButton from './components/BackToTopButton';
 
@@ -86,10 +86,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
         <FluidSimulation className="w-full h-full" />
       </div>
 
-      {/* 文字遮罩层 */}
-      <TextMaskLayer
-        language={language}
-        content={content}
+      {/* Logo遮罩层 - 替换原有的TextMaskLayer */}
+      <LogoMaskLayer
         scrollProgress={scrollProgress}
         maskOpacity={maskOpacity}
       />
@@ -123,16 +121,14 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
 
       {/* 主内容区 */}
       <main className="main-content" style={{ position: 'relative', zIndex: 20, pointerEvents: 'none' }}>
-        {/* 遮罩占位区 */}
-        <div className="mask-spacer" style={{ height: '100vh' }} />
+        {/* 遮罩占位区 - 增加高度以延长动画 */}
+        <div className="mask-spacer" style={{ height: '290vh' }} />
 
         {/* 英雄区块 */}
         <PageSection
           sectionRef={el => sectionRefs.current[0] = el}
           isVisible={visibleSections.has(0)}
           style={{
-            opacity: scrollProgress > SCROLL_CONFIG.visibility.heroSection ? 1 : 0,
-            transform: scrollProgress > SCROLL_CONFIG.visibility.heroSection ? 'translateY(0)' : 'translateY(50px)',
             transition: `all ${DESIGN_TOKENS.animation.duration.slower} ${DESIGN_TOKENS.animation.easing.default}`,
           }}
         >

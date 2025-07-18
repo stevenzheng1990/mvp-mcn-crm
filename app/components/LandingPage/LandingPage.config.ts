@@ -1,5 +1,5 @@
 // Z:\MCN\mvp-mcn-crm\app\components\LandingPage\LandingPage.config.ts
-// 集中的配置文件 - 所有修改都在这里进行
+// 集中的配置文件 - 移除了旧遮罩系统相关配置
 
 import { ContentData } from './LandingPage.types';
 
@@ -26,11 +26,6 @@ export const DESIGN_TOKENS = {
       relaxed: 1.3,
     },
     letterSpacing: '0.02em',
-    // 遮罩文字大小
-    maskFontSize: {
-      zh: '20vw',
-      en: '12vw',
-    },
   },
   
   // 颜色系统 - 统一管理所有颜色
@@ -212,21 +207,14 @@ export const CONTENT_DATA: ContentData = {
 
 // ===== 滚动配置 =====
 export const SCROLL_CONFIG = {
-  animationDelay: 1.3, // 延长动画时长系数
-  fadeOutThreshold: 0.8, // 遮罩开始淡出的滚动进度
-  fadeOutDuration: 0.2,  // 遮罩淡出持续时间
-  zoomScale: 25,         // 最大缩放倍数
-  rotationFactor: 2,     // 旋转系数
-  // 新增：可见性阈值
+  animationDelay: 2.9, // 动画时长系数 - 大幅增加，让滚动更慢
+  fadeOutThreshold: 0.95, // 遮罩开始淡出的滚动进度 - 延后淡出
+  fadeOutDuration: 0.05,  // 遮罩淡出持续时间 - 更快的淡出
+  // 可见性阈值
   visibility: {
-    heroSection: 0.3,     // 英雄区块显示的滚动进度
-    navigationButtons: 0.5, // 导航按钮显示的滚动进度
-    backToTopButton: 0.3,  // 返回顶部按钮显示的滚动进度
-  },
-  // 新增：3D效果配置
-  effects3D: {
-    perspective: 1000,    // 透视距离
-    maxZRotation: 15,     // 最大Z轴旋转角度
+    heroSection: 0.9,     // 英雄区块显示的滚动进度 - 延后显示
+    navigationButtons: 0.8, // 导航按钮显示的滚动进度 - 延后显示
+    backToTopButton: 0.8,  // 返回顶部按钮显示的滚动进度
   },
 } as const;
 
@@ -237,28 +225,12 @@ export const OBSERVER_CONFIG = {
   threshold: 0.1,
 } as const;
 
-// ===== 遮罩配置 =====
-export const MASK_CONFIG = {
-  // 焦点计算配置
-  focus: {
-    default: { x: 50, y: 50 },
-    zh: { x: 45, y: 50 },     // 中文字符焦点偏移
-    en: { x: 50, y: 50 },     // 英文字符焦点
-    bounds: { min: 20, max: 80 }, // 焦点位置边界
-  },
-  // 重新计算延迟
-  recalculateDelay: 300,
-  // 窗口大小变化延迟
-  resizeDelay: 100,
-} as const;
-
 // ===== 导出所有配置的快捷方式 =====
 export const CONFIG = {
   DESIGN_TOKENS,
   CONTENT_DATA,
   SCROLL_CONFIG,
   OBSERVER_CONFIG,
-  MASK_CONFIG,
 } as const;
 
 // ===== 便捷的访问函数 =====

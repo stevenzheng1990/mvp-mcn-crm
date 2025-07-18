@@ -1,6 +1,6 @@
 // Z:\MCN\mvp-mcn-crm\app\components\LandingPage\hooks\useScrollProgress.ts
 import { useState, useEffect } from 'react';
-import { SCROLL_CONFIG } from '../LandingPage.config'; // 改为从 config 文件导入
+import { SCROLL_CONFIG } from '../LandingPage.config';
 
 export const useScrollProgress = () => {
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -14,16 +14,14 @@ export const useScrollProgress = () => {
         requestAnimationFrame(() => {
           const scrollY = window.scrollY;
           const windowHeight = window.innerHeight;
-          const documentHeight = document.documentElement.scrollHeight;
-          const maxScrollY = documentHeight - windowHeight;
           
-          // 限制滚动进度在合理范围内，防止快速滚动造成的异常值
+          // 使用更长的滚动距离来实现更平滑的动画
           const rawProgress = Math.min(scrollY / (windowHeight * SCROLL_CONFIG.animationDelay), 1);
           const clampedProgress = Math.max(0, Math.min(1, rawProgress));
 
           setScrollProgress(clampedProgress);
 
-          // 更新遮罩透明度 - 添加缓动和边界保护
+          // 更新遮罩透明度
           if (clampedProgress > SCROLL_CONFIG.fadeOutThreshold) {
             const fadeProgress = (clampedProgress - SCROLL_CONFIG.fadeOutThreshold) / SCROLL_CONFIG.fadeOutDuration;
             const clampedFadeProgress = Math.max(0, Math.min(1, fadeProgress));

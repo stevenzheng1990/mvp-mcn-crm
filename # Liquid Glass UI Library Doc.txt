@@ -1,0 +1,126 @@
+### 提取的关键参数（Constants）
+这些常量定义在GLSL片段着色器中，用于控制液态玻璃容器的形状、遮罩强度、采样范围、渐变和光照效果。它们决定了容器的“圆角盒子”形状、扭曲程度、边缘平滑度和光影表现。
+
+- **NUM_ZERO = 0.0**: 通用零值，用于钳位和初始化。
+- **NUM_ONE = 1.0**: 通用单位值，用于钳位、归一化和阈值比较。
+- **NUM_HALF = 0.5**: 半值，用于UV坐标居中和镜头偏移计算。
+- **NUM_TWO = 2.0**: 双倍值，用于除法和渐变归一化。
+- **POWER_EXPONENT = 6.0**: 幂指数，用于计算圆角盒子形状（rounded box）的曲率；越高，边缘越尖锐。
+- **MASK_MULTIPLIER_1 = 10000.0**: 主遮罩乘数，用于放大圆角盒子计算结果，控制整体容器大小。
+- **MASK_MULTIPLIER_2 = 9500.0**: 二次遮罩乘数，用于细微边缘调整，略小于主乘数以创建层次。
+- **MASK_MULTIPLIER_3 = 11000.0**: 三次遮罩乘数，用于额外边缘效果，略大于主乘数以扩展范围。
+- **LENS_MULTIPLIER = 5000.0**: 镜头扭曲乘数，用于计算UV偏移，控制玻璃容器的“凸透镜”放大效果。
+- **MASK_STRENGTH_1 = 8.0**: 主遮罩强度，用于平滑过渡，影响容器边缘的模糊度。
+- **MASK_STRENGTH_2 = 16.0**: 二次遮罩强度，用于创建锐利边缘或高光，值较高表示更强的对比。
+- **MASK_STRENGTH_3 = 2.0**: 三次遮罩强度，用于微调渐变，值较低表示更柔和的效果。
+- **MASK_THRESHOLD_1 = 0.95**: 主遮罩阈值，用于钳位计算，接近1表示容器边界较紧凑。
+- **MASK_THRESHOLD_2 = 0.9**: 二次遮罩阈值，用于边缘减法，略低以创建内凹效果。
+- **MASK_THRESHOLD_3 = 1.5**: 三次遮罩阈值，用于扩展计算，超过1表示更宽的渐变范围。
+- **SAMPLE_RANGE = 4.0**: 采样循环范围，用于模糊采样（从 -4 到 4），控制玻璃容器的“液体模糊”程度；范围越大，模糊越强。
+- **SAMPLE_OFFSET = 0.5**: 采样偏移步长，用于UV偏移计算，影响采样密度。
+- **GRADIENT_RANGE = 0.2**: 渐变范围，用于垂直方向的光影计算，控制高光和阴影的延伸。
+- **GRADIENT_OFFSET = 0.1**: 渐变偏移，用于调整渐变起始点，影响光影平衡。
+- **GRADIENT_EXTREME = -1000.0**: 渐变极端值，用于钳位负方向，防止溢出并创建锐利阴影。
+- **LIGHTING_INTENSITY = 0.3**: 光照强度，用于添加rb2遮罩的高光，值较低表示柔和光效。
+
+### 提取的核心算法（GLSL片段着色器逻辑）
+液态玻璃容器的效果基于鼠标位置计算一个圆角盒子形状的遮罩（mask），然后应用镜头扭曲（lens distortion）、多重采样模糊（sampling for blur）、垂直渐变光照（gradient lighting），并与原始纹理混合。算法不依赖时间（iTime未使用），而是随鼠标移动实时更新。以下是简化提取的算法步骤和关键代码片段，带有注释。无关的部分（如纹理采样中的具体通道）已删除。
+
+```glsl
+// 输入：fragCoord (片元坐标), iResolution (分辨率), iMouse (鼠标位置), iChannel0 (背景纹理)
+
+// 1. UV归一化和鼠标位置计算（容器中心跟随鼠标）
+vec2 uv = fragCoord / iResolution.xy;  // 将片元坐标归一化为 [0,1] 范围
+vec2 mouse = iMouse.xy;
+if (length(mouse) < NUM_ONE) {  // 如果鼠标未初始化，使用屏幕中心
+  mouse = iResolution.xy / NUM_TWO;
+}
+vec2 m2 = (uv - mouse / iResolution.xy);  // 计算相对UV偏移，容器以鼠标为中心
+
+// 2. 圆角盒子形状遮罩计算（核心形状，模拟玻璃容器轮廓）
+// 使用幂函数创建圆角矩形，越高阶越接近矩形
+float roundedBox = pow(abs(m2.x * iResolution.x / iResolution.y), POWER_EXPONENT) + pow(abs(m2.y), POWER_EXPONENT);
+
+// 3. 多层遮罩计算（rb1: 主平滑遮罩；rb2: 边缘高光；rb3: 渐变扩展）
+// 每个rb通过钳位和减法创建不同强度的层，用于分层效果
+float rb1 = clamp((NUM_ONE - roundedBox * MASK_MULTIPLIER_1) * MASK_STRENGTH_1, NUM_ZERO, NUM_ONE);  // 主遮罩：柔和覆盖容器内部
+float rb2 = clamp((MASK_THRESHOLD_1 - roundedBox * MASK_MULTIPLIER_2) * MASK_STRENGTH_2, NUM_ZERO, NUM_ONE) -
+             clamp(pow(MASK_THRESHOLD_2 - roundedBox * MASK_MULTIPLIER_2, NUM_ONE) * MASK_STRENGTH_2, NUM_ZERO, NUM_ONE);  // 二次遮罩：创建锐利边缘和高光，使用pow减法增强对比
+float rb3 = clamp((MASK_THRESHOLD_3 - roundedBox * MASK_MULTIPLIER_3) * MASK_STRENGTH_3, NUM_ZERO, NUM_ONE) -
+            clamp(pow(NUM_ONE - roundedBox * MASK_MULTIPLIER_3, NUM_ONE) * MASK_STRENGTH_3, NUM_ZERO, NUM_ONE);  // 三次遮罩：用于渐变扩展，类似rb2但强度更低
+
+// 4. 过渡值计算（用于混合容器内外效果）
+float transition = smoothstep(NUM_ZERO, NUM_ONE, rb1 + rb2);  // 平滑过渡：rb1 + rb2 的总和，决定效果应用的强度（0: 无，1: 全）
+
+// 5. 镜头扭曲计算（模拟玻璃折射，容器内UV偏移）
+// 如果 transition > 0，则应用扭曲
+if (transition > NUM_ZERO) {
+  vec2 lens = ((uv - NUM_HALF) * NUM_ONE * (NUM_ONE - roundedBox * LENS_MULTIPLIER) + NUM_HALF);  // 基于roundedBox扭曲UV：缩小/放大，创建凸透镜般的液体弯曲
+
+  // 6. 多重采样模糊（模拟液体扩散，循环采样周边像素）
+  vec4 fragColor = vec4(NUM_ZERO);  float total = NUM_ZERO;
+  for (float x = -SAMPLE_RANGE; x <= SAMPLE_RANGE; x++) {  for (float y = -SAMPLE_RANGE; y <= SAMPLE_RANGE; y++) {
+    vec2 offset = vec2(x, y) * SAMPLE_OFFSET / iResolution.xy;  // 计算采样点偏移
+    fragColor += texture2D(iChannel0, offset + lens);  // 累加周边纹理采样（模糊效果）
+    total += NUM_ONE;
+  }}
+  fragColor /= total;  // 平均化采样结果，创建平滑模糊
+
+  // 7. 垂直渐变计算（模拟光照射入液体的高光和阴影）
+  float gradient = clamp((clamp(m2.y, NUM_ZERO, GRADIENT_RANGE) + GRADIENT_OFFSET) / NUM_TWO, NUM_ZERO, NUM_ONE) + clamp((clamp(-m2.y, GRADIENT_EXTREME, GRADIENT_RANGE) * rb3 + GRADIENT_OFFSET) / NUM_TWO, NUM_ZERO, NUM_ONE);
+  // 第一部分：上部正渐变（高光）；第二部分：下部负渐变（阴影），结合rb3扩展
+
+  // 8. 光照应用和混合
+  vec4 lighting = clamp(fragColor + vec4(rb1) * gradient + vec4(rb2) * LIGHTING_INTENSITY, NUM_ZERO, NUM_ONE);  // 添加rb1渐变（整体光影）和rb2高光，钳位防止溢出
+  fragColor = mix(texture2D(iChannel0, uv), lighting, transition);  // 混合：原始纹理与效果，按transition渐变
+} else {
+  fragColor = texture2D(iChannel0, uv);  // 容器外：无效果，直接使用原始纹理
+}
+```
+
+### 提取的样式相关代码（JavaScript设置）
+JavaScript负责WebGL初始化、uniform传递和渲染循环。提取了与容器样式/动画相关的部分（uniforms和鼠标跟踪），忽略图像加载和顶点着色器（无关形状）。
+
+```javascript
+// 统一变量位置（传递给GLSL的容器参数）
+const uniforms = {
+  resolution: gl.getUniformLocation(program, "iResolution"),  // 分辨率：用于UV归一化
+  time: gl.getUniformLocation(program, "iTime"),  // 时间：虽定义但未使用（无时间动画）
+  mouse: gl.getUniformLocation(program, "iMouse"),  // 鼠标：实时更新容器位置和形状
+  texture: gl.getUniformLocation(program, "iChannel0")  // 纹理：背景，用于采样（液体效果源）
+};
+
+// 鼠标跟踪（动画驱动：鼠标移动更新容器位置）
+let mouse = [0, 0];
+canvas.addEventListener("mousemove", (e) => {
+  mouse = [e.clientX, canvas.height - e.clientY];  // Y轴翻转以匹配GLSL坐标系
+});
+
+// 渲染循环（每帧更新uniforms，实现实时动画）
+const render = () => {
+  // ... (未使用iTime，但循环确保鼠标响应)
+  gl.uniform3f(uniforms.resolution, canvas.width, canvas.height, 1.0);  // 更新分辨率
+  gl.uniform1f(uniforms.time, currentTime);  // 更新时间（虽未用）
+  gl.uniform4f(uniforms.mouse, mouse[0], mouse[1], 0, 0);  // 更新鼠标位置，驱动容器动画
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, texture);  // 绑定纹理
+  gl.uniform1i(uniforms.texture, 0);  // 设置通道
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);  // 绘制全屏四边形，应用着色器
+  requestAnimationFrame(render);  // 循环渲染，实现平滑动画
+};
+```
+
+### 提取的CSS样式
+CSS简单，用于容器（canvas）全屏显示，无溢出。无关背景色已保留作为基本样式。
+
+```css
+html, body {
+  margin: 0;  // 无边距，确保容器全屏
+  overflow: hidden;  // 隐藏溢出，防止滚动干扰动画
+}
+canvas {
+  display: block;  // 块级显示
+  width: 100vw;  // 全视口宽度
+  height: 100vh;  // 全视口高度
+}
+```
