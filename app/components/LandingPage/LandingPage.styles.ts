@@ -50,6 +50,39 @@ export const createButtonGlassStyles = (isHovered: boolean = false) => {
   };
 };
 
+// 新增：卡片玻璃效果（用于服务卡片等）
+export const createCardGlassStyles = (isHovered: boolean = false) => {
+  const normalIntensity = DESIGN_TOKENS.glassEffect.intensity.card.normal;
+  const hoveredIntensity = DESIGN_TOKENS.glassEffect.intensity.card.hovered;
+  const intensity = isHovered ? hoveredIntensity : normalIntensity;
+  
+  return {
+    backgroundColor: `color-mix(in srgb, var(--glass-base) ${DESIGN_TOKENS.colors.glass.opacity.card}%, transparent)`,
+    backdropFilter: `blur(${DESIGN_TOKENS.glassEffect.blur.light}) saturate(var(--glass-saturation))`,
+    WebkitBackdropFilter: `blur(${DESIGN_TOKENS.glassEffect.blur.light}) saturate(var(--glass-saturation))`,
+    boxShadow: `
+      inset 0 0 0 1px color-mix(in srgb, var(--glass-light) calc(var(--glass-reflex-light) * ${intensity.lightReflex}%), transparent),
+      inset 1px 2px 0px -1px color-mix(in srgb, var(--glass-light) calc(var(--glass-reflex-light) * ${intensity.lightReflex + 60}%), transparent),
+      inset -1px -1px 0px -1px color-mix(in srgb, var(--glass-light) calc(var(--glass-reflex-light) * ${intensity.lightReflex + 50}%), transparent),
+      inset -0.2px -0.5px 2px 0px color-mix(in srgb, var(--glass-dark) calc(var(--glass-reflex-dark) * ${intensity.darkReflex}%), transparent),
+      0px 2px 8px 0px color-mix(in srgb, var(--glass-dark) calc(var(--glass-reflex-dark) * ${intensity.darkReflex - 2}%), transparent),
+      0px 8px 24px 0px color-mix(in srgb, var(--glass-dark) calc(var(--glass-reflex-dark) * ${intensity.darkReflex - 4}%), transparent)
+    `,
+  };
+};
+
+// 新增：区块玻璃效果（用于大型内容区块）
+export const createSectionGlassStyles = () => ({
+  backgroundColor: `color-mix(in srgb, var(--glass-base) ${DESIGN_TOKENS.colors.glass.opacity.section}%, transparent)`,
+  backdropFilter: `blur(${DESIGN_TOKENS.glassEffect.blur.heavy}) saturate(calc(var(--glass-saturation) * 0.8))`,
+  WebkitBackdropFilter: `blur(${DESIGN_TOKENS.glassEffect.blur.heavy}) saturate(calc(var(--glass-saturation) * 0.8))`,
+  boxShadow: `
+    inset 0 0 0 1px color-mix(in srgb, var(--glass-light) calc(var(--glass-reflex-light) * 5%), transparent),
+    inset 0 1px 0 0 color-mix(in srgb, var(--glass-light) calc(var(--glass-reflex-light) * 30%), transparent),
+    0px 4px 16px 0px color-mix(in srgb, var(--glass-dark) calc(var(--glass-reflex-dark) * 5%), transparent)
+  `,
+});
+
 // 扩展的玻璃效果（用于导航栏）
 export const createExtendedGlassStyles = () => ({
   backgroundColor: `color-mix(in srgb, var(--glass-base) ${DESIGN_TOKENS.colors.glass.opacity.navigation}%, transparent)`,
