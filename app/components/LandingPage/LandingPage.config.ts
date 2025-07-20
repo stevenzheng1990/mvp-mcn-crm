@@ -1,5 +1,5 @@
-// Z:\MCN\mvp-mcn-crm\app\components\LandingPage\LandingPage.config.ts
-// 集中的配置文件 - 移除了旧遮罩系统相关配置
+// app/components/LandingPage/LandingPage.config.ts
+// 集中的配置文件 - 增强版内容
 
 import { ContentData } from './LandingPage.types';
 
@@ -96,8 +96,8 @@ export const DESIGN_TOKENS = {
   // 玻璃效果
   glassEffect: {
     blur: {
-      light: '8px',
-      medium: '12px',
+      light: '6px',   // 降低模糊度
+      medium: '8px',  // 降低模糊度
     },
     saturation: '150%',
     // 玻璃效果强度
@@ -145,9 +145,132 @@ export const DESIGN_TOKENS = {
   },
 } as const;
 
-// ===== 内容数据 - 统一管理所有文案 =====
+// ===== 内容数据 - 增强版内容 =====
 export const CONTENT_DATA: ContentData = {
   zh: {
+    hero: {
+      title: '十方众声',
+      subtitle: '从十方而来，聚众声之势',
+      tagline: '新一代内容营销生态构建者'
+    },
+    about: {
+      title: '关于我们',
+      description: [
+        '在内容驱动商业增长的时代，十方众声凭借专业的内容营销能力和丰富的创作者资源，为品牌构建与消费者的深度连接。',
+        '作为业界唯一在北美和中国同时建立完整生态的MCN机构，我们不仅是内容的生产者和传播者，更是品牌数字化转型的战略伙伴。'
+      ],
+      stats: [
+        { value: '70+', label: '签约创作者' },
+        { value: '600+', label: '合作达人' },
+        { value: '15+', label: '覆盖行业' }
+      ]
+    },
+    advantages: {
+      title: '核心优势',
+      items: [
+        {
+          title: '一手资源对接',
+          description: '直接对接创作者，避免多层中介，提升沟通效率和内容质量',
+          metric: '35%成本降低'
+        },
+        {
+          title: '数据驱动决策',
+          description: '实时追踪内容表现，28个核心指标分析，智能预警系统',
+          metric: '3.2倍效果提升'
+        },
+        {
+          title: '跨文化运营',
+          description: '深度理解东西方市场，提供精准洞察和本地化解决方案',
+          metric: '85%客户留存'
+        }
+      ]
+    },
+    forCreators: {
+      title: '创作者赋能',
+      subtitle: '共创价值，共享成长',
+      benefits: [
+        {
+          title: '收益最大化',
+          description: '平均月收入提升42%，单次合作报价5千-5万',
+          highlight: '80%收益分成'
+        },
+        {
+          title: '专业成长',
+          description: '定期培训、免费设备、一对一指导、流量策略支持'
+        },
+        {
+          title: '品质商务',
+          description: '月均3-5个优质机会，92%创作者满意度，长期合作培养'
+        }
+      ],
+      testimonial: {
+        quote: '加入十方众声半年，我的粉丝从8万增长到18万，月收入从几千提升到5万+',
+        author: '美妆博主 小艾'
+      }
+    },
+    forBrands: {
+      title: '品牌服务',
+      subtitle: '精准触达，高效转化',
+      services: [
+        {
+          title: '内容营销策略',
+          description: '基于数据分析的定制化策略，目标受众精准定位',
+          results: '品牌声量提升280%'
+        },
+        {
+          title: '达人营销执行',
+          description: '全流程服务，从创意到落地，确保内容质量和执行效果',
+          results: '互动率6.8%（行业2.1%）'
+        },
+        {
+          title: '程序化投放',
+          description: '多平台广告优化，实时监控调整，ROI最大化',
+          results: 'ROAS平均3.5:1'
+        }
+      ]
+    },
+    process: {
+      title: '合作流程',
+      steps: [
+        {
+          number: '01',
+          title: '需求分析',
+          description: '深入了解品牌定位和营销目标，制定个性化方案'
+        },
+        {
+          number: '02',
+          title: '策略制定',
+          description: '基于数据洞察，设计内容矩阵和传播节奏'
+        },
+        {
+          number: '03',
+          title: '创作者匹配',
+          description: '精准匹配适合的创作者，确保内容调性一致'
+        },
+        {
+          number: '04',
+          title: '内容创作',
+          description: '专业团队全程把控，确保内容质量和品牌安全'
+        },
+        {
+          number: '05',
+          title: '数据优化',
+          description: '实时监测效果，持续优化提升ROI'
+        }
+      ]
+    },
+    conclusion: {
+      title: '携手共创',
+      message: '在这个内容为王的时代，让我们一起用专业的能力和真诚的态度，让每一个声音都被听见。'
+    },
+    cta: {
+      title: '齐聚十方众声，唱响无限可能',
+      buttons: {
+        brands: '品牌合作',
+        creators: '创作者加入'
+      }
+    },
+    // 以下保持原有内容
     title: '十方众声',
     subtitle: '从十方而来，聚众声之势',
     tagline: '一站式互联网营销机构',
@@ -166,17 +289,138 @@ export const CONTENT_DATA: ContentData = {
     contact: '联系我们',
     system: '数据后台',
     readyToStart: '齐聚十方众声，唱响无限可能',
-    // 新增：页脚文案
     footer: {
-      copyright: '© 2022 Mega Volume Production Inc.',
+      copyright: '© 2024 Mega Volume Production Inc.',
     },
-    // 新增：按钮提示文案
     tooltips: {
       backToTop: '返回内容顶部',
       languageSwitch: '切换语言',
     },
   },
   en: {
+    hero: {
+      title: 'MEGA VOLUME',
+      subtitle: 'Amplifying Voices, Multiplying Impact',
+      tagline: 'Next-Gen Content Marketing Ecosystem'
+    },
+    about: {
+      title: 'About Us',
+      description: [
+        'In an era where authentic storytelling drives consumer decisions, Mega Volume Production stands at the forefront of content marketing evolution.',
+        'As the only MCN agency with operational excellence in both North American and Asian markets, we craft campaigns that resonate across cultural boundaries.'
+      ],
+      stats: [
+        { value: '70+', label: 'Exclusive Creators' },
+        { value: '600+', label: 'Partner Influencers' },
+        { value: '15+', label: 'Industries Served' }
+      ]
+    },
+    advantages: {
+      title: 'Our Advantages',
+      items: [
+        {
+          title: 'Direct Creator Network',
+          description: 'Direct relationships ensure better communication and cost efficiency',
+          metric: '35% Cost Reduction'
+        },
+        {
+          title: 'Data-Driven Approach',
+          description: 'Real-time analytics with 28 core metrics and smart alerts',
+          metric: '3.2x Performance Boost'
+        },
+        {
+          title: 'Cross-Cultural Expertise',
+          description: 'Deep understanding of both Western and Asian markets',
+          metric: '85% Client Retention'
+        }
+      ]
+    },
+    forCreators: {
+      title: 'For Creators',
+      subtitle: 'Your Growth Partner',
+      benefits: [
+        {
+          title: 'Revenue Maximization',
+          description: '45% average monthly income increase, $2.5K-$15K per campaign',
+          highlight: '80/20 Creator Split'
+        },
+        {
+          title: 'Professional Development',
+          description: 'Monthly workshops, free equipment access, personal coaching'
+        },
+        {
+          title: 'Quality Partnerships',
+          description: '3-5 monthly opportunities, 92% creator satisfaction rate'
+        }
+      ],
+      testimonial: {
+        quote: 'Within 4 months, I\'ve completed 12 brand campaigns and grown from 50K to 120K followers',
+        author: 'Fashion Creator'
+      }
+    },
+    forBrands: {
+      title: 'For Brands',
+      subtitle: 'Strategic Content Marketing',
+      services: [
+        {
+          title: 'Content Strategy',
+          description: 'Data-driven strategies with precise audience targeting',
+          results: '280% Brand Awareness Lift'
+        },
+        {
+          title: 'Creator Campaigns',
+          description: 'End-to-end campaign management with quality control',
+          results: '6.8% Engagement (vs 2.1%)'
+        },
+        {
+          title: 'Programmatic Media',
+          description: 'Multi-platform optimization for maximum ROI',
+          results: '3.5:1 Average ROAS'
+        }
+      ]
+    },
+    process: {
+      title: 'How We Work',
+      steps: [
+        {
+          number: '01',
+          title: 'Discovery',
+          description: 'Understanding your brand positioning and marketing objectives'
+        },
+        {
+          number: '02',
+          title: 'Strategy',
+          description: 'Data-informed content matrix and distribution planning'
+        },
+        {
+          number: '03',
+          title: 'Matching',
+          description: 'Precise creator selection for authentic brand alignment'
+        },
+        {
+          number: '04',
+          title: 'Creation',
+          description: 'Professional oversight ensuring quality and brand safety'
+        },
+        {
+          number: '05',
+          title: 'Optimization',
+          description: 'Real-time monitoring and continuous improvement'
+        }
+      ]
+    },
+    conclusion: {
+      title: 'Let\'s Create Together',
+      message: 'In a world where attention is currency and authenticity is paramount, let\'s amplify your voice and accelerate your success.'
+    },
+    cta: {
+      title: 'Unite Voices, Unleash Possibilities',
+      buttons: {
+        brands: 'Brand Partnership',
+        creators: 'Join as Creator'
+      }
+    },
+    // 以下保持原有内容
     title: 'MEGA VOLUME',
     subtitle: 'Amplifying Voices, Multiplying Impact',
     tagline: 'Your Full-Service Digital Marketing Partner',
@@ -207,12 +451,12 @@ export const CONTENT_DATA: ContentData = {
 
 // ===== 滚动配置 =====
 export const SCROLL_CONFIG = {
-  animationDelay: 3, // 动画时长系数 - 大幅增加，让滚动更慢
-  fadeOutThreshold: 0.8, // 遮罩开始淡出的滚动进度 - 延后淡出
-  fadeOutDuration: 0.2,  // 遮罩淡出持续时间 - 更快的淡出
+  animationDelay: 3, // 动画时长系数
+  fadeOutThreshold: 0.8, // 遮罩开始淡出的滚动进度
+  fadeOutDuration: 0.2,  // 遮罩淡出持续时间
   // 可见性阈值
   visibility: {
-    navigationButtons: 0.8, // 导航按钮显示的滚动进度 - 延后显示
+    navigationButtons: 0.8, // 导航按钮显示的滚动进度
     backToTopButton: 0.8,  // 返回顶部按钮显示的滚动进度
   },
 } as const;
@@ -220,7 +464,7 @@ export const SCROLL_CONFIG = {
 // ===== 观察器配置 =====
 export const OBSERVER_CONFIG = {
   root: null,
-  rootMargin: '-20% 0px',
+  rootMargin: '20% 0px -20% 0px',  // 顶部20%开始消失，底部20%开始出现
   threshold: 0.1,
 } as const;
 

@@ -1,4 +1,5 @@
-import React from 'react';
+// app/components/LandingPage/components/AnimatedText.tsx
+import React, { useEffect, useState } from 'react';
 import { AnimatedTextProps } from '../LandingPage.types';
 import { DESIGN_TOKENS } from '../LandingPage.config';
 
@@ -8,7 +9,14 @@ const AnimatedText: React.FC<AnimatedTextProps> = ({
   delay = 0, 
   inView = true 
 }) => {
+  const [hasAnimatedIn, setHasAnimatedIn] = useState(false);
   const chars = text.split('');
+
+  useEffect(() => {
+    if (inView && !hasAnimatedIn) {
+      setHasAnimatedIn(true);
+    }
+  }, [inView, hasAnimatedIn]);
 
   return (
     <span className={`animated-text ${className}`} style={{ display: 'inline-block' }}>
@@ -19,10 +27,17 @@ const AnimatedText: React.FC<AnimatedTextProps> = ({
           style={{
             display: 'inline-block',
             opacity: inView ? 1 : 0,
-            transform: inView ? 'translateX(0)' : `translateX(${20 + index * 2}px)`,
+            transform: inView 
+              ? 'translateX(0)' 
+              : hasAnimatedIn 
+                ? `translateX(-${20 + index * 2}px)`  // 向左消失
+                : `translateX(${20 + index * 2}px)`,   // 从右出现
             filter: inView ? 'blur(0)' : 'blur(4px)',
             transition: `all ${DESIGN_TOKENS.animation.text.baseDuration + index * DESIGN_TOKENS.animation.text.charDurationIncrement}s ${DESIGN_TOKENS.animation.easing.default}`,
-            transitionDelay: `${delay + index * DESIGN_TOKENS.animation.text.charDelay}s`,
+            transitionDelay: inView 
+              ? `${delay + index * DESIGN_TOKENS.animation.text.charDelay}s`
+              : `${index * DESIGN_TOKENS.animation.text.charDelay * 0.5}s`,  // 消失时延迟减半
+            willChange: 'transform, opacity, filter',
           }}
         >
           {char === ' ' ? '\u00A0' : char}

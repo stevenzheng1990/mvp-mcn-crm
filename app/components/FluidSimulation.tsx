@@ -28,13 +28,13 @@ const FluidSimulation = ({ className = "", style = {} }) => {
     const RESOLUTION = 0.15;
     const VISCOSITY = 0.00003;
     const FORCE_SCALE = 6;
-    const TIME_STEP = 0.022;
-    const ITERATIONS = 50;
-    const FORCE_DECAY = 0.8;
-    const FORCE_RADIUS = 190;
+    const TIME_STEP = 0.024;
+    const ITERATIONS = 70;
+    const FORCE_DECAY = 0.7;
+    const FORCE_RADIUS = 210;
     const BASE_COLOR = [1.0, 1.0, 1.0];
     const FLOW_COLOR = [1.0, 1.0, 1.0];
-    const SCROLL_FORCE_SCALE = 0.3;
+    const SCROLL_FORCE_SCALE = 0.26;
 
     // Shader sources
     const vertexShader = `
@@ -223,6 +223,10 @@ const FluidSimulation = ({ className = "", style = {} }) => {
       private savedMouse: THREE.Vector2 = new THREE.Vector2();
       private savedLastMouse: THREE.Vector2 = new THREE.Vector2();
       private savedForce: THREE.Vector2 = new THREE.Vector2();
+
+      // 新增：用于平滑自动转圈的变量
+      private lastAutoUpdateTime: number = 0;
+      private autoUpdateInterval: number = 16; // 约60fps，但可调整为更大值以节省性能，例如33为30fps
 
       constructor(canvas: HTMLCanvasElement) {
         this.canvas = canvas;
@@ -554,11 +558,10 @@ const FluidSimulation = ({ className = "", style = {} }) => {
         this.fbos.vel_1 = temp;
       }
 
-      simulateAutoMouse() {
-        const now = performance.now();
+      simulateAutoMouse(now: number) {
         const elapsed = now - this.autoStartTime;
 
-        const totalDuration = 5000;
+        const totalDuration = 6000; // 增加持续时间到6秒，使转圈更慢更顺滑
 
         if (elapsed > totalDuration) {
           this.isAutoForce = false;
@@ -568,9 +571,9 @@ const FluidSimulation = ({ className = "", style = {} }) => {
           return;
         }
 
-        const rotations = 3.5;
+        const rotations = 2.5; // 减少转圈次数到2.5圈，使更顺滑
         const angle = 2 * Math.PI * (rotations * (elapsed / totalDuration));
-        const radius = 0.4;
+        const radius = 0.25; // 减小半径到0.25，使范围更小、更靠近中心
 
         const autoX = 0.5 + radius * Math.cos(angle);
         const autoY = 0.5 + radius * Math.sin(angle);
@@ -579,16 +582,23 @@ const FluidSimulation = ({ className = "", style = {} }) => {
         const deltaX = newMouse.x - this.lastMouse.x;
         const deltaY = newMouse.y - this.lastMouse.y;
 
-        this.mouseForce.x = deltaX * FORCE_SCALE;
-        this.mouseForce.y = deltaY * FORCE_SCALE;
+        // 平滑delta：使用更小的FORCE_SCALE乘数，或添加缓动
+        this.mouseForce.x = deltaX * FORCE_SCALE * 0.8; // 略微减小力规模以使更顺滑
+        this.mouseForce.y = deltaY * FORCE_SCALE * 0.8;
 
         this.mouse.copy(newMouse);
         this.lastMouse.copy(newMouse);
       }
 
       render() {
+        const now = performance.now();
+
         if (this.isAutoForce) {
-          this.simulateAutoMouse();
+          // 只在间隔时间后更新自动鼠标位置，以减少计算频率
+          if (now - this.lastAutoUpdateTime >= this.autoUpdateInterval) {
+            this.simulateAutoMouse(now);
+            this.lastAutoUpdateTime = now;
+          }
         }
 
         this.step();
@@ -616,12 +626,13 @@ const FluidSimulation = ({ className = "", style = {} }) => {
       triggerAutoForce() {
         this.isAutoForce = true;
         this.autoStartTime = performance.now();
+        this.lastAutoUpdateTime = this.autoStartTime;
         this.savedMouse.copy(this.mouse);
         this.savedLastMouse.copy(this.lastMouse);
         this.savedForce.copy(this.mouseForce);
 
         const initialAngle = 0;
-        const radius = 0.4;
+        const radius = 0.25; // 与simulateAutoMouse中的radius一致
         this.lastMouse.set(0.5 + radius * Math.cos(initialAngle), 0.5 + radius * Math.sin(initialAngle));
       }
 

@@ -1,4 +1,4 @@
-// Z:\MCN\mvp-mcn-crm\app\components\LandingPage\LandingPage.styles.ts
+// app/components/LandingPage/LandingPage.styles.ts
 // 只保留样式生成函数，所有配置从 config 文件导入
 
 import { DESIGN_TOKENS } from './LandingPage.config';
@@ -14,11 +14,11 @@ export const getCssVariables = () => ({
   '--glass-blur': DESIGN_TOKENS.glassEffect.blur.medium,
 } as React.CSSProperties);
 
-// 玻璃效果样式生成函数
+// 玻璃效果样式生成函数 - 降低模糊度，增加透明度
 export const createGlassStyles = (isDarkMode: boolean = false) => ({
-  backgroundColor: `color-mix(in srgb, var(--glass-base) ${isDarkMode ? '20%' : DESIGN_TOKENS.colors.glass.opacity.navigation}%, transparent)`,
-  backdropFilter: `blur(var(--glass-blur)) saturate(var(--glass-saturation))`,
-  WebkitBackdropFilter: `blur(var(--glass-blur)) saturate(var(--glass-saturation))`,
+  backgroundColor: `color-mix(in srgb, var(--glass-base) ${isDarkMode ? '15%' : '8%'}, transparent)`,
+  backdropFilter: `blur(${DESIGN_TOKENS.glassEffect.blur.medium}) saturate(var(--glass-saturation))`,
+  WebkitBackdropFilter: `blur(${DESIGN_TOKENS.glassEffect.blur.medium}) saturate(var(--glass-saturation))`,
   boxShadow: `
     inset 0 0 0 1px color-mix(in srgb, var(--glass-light) calc(var(--glass-reflex-light) * 10%), transparent),
     inset 1.8px 3px 0px -2px color-mix(in srgb, var(--glass-light) calc(var(--glass-reflex-light) * 90%), transparent),
@@ -29,16 +29,16 @@ export const createGlassStyles = (isDarkMode: boolean = false) => ({
   `,
 });
 
-// 增强的按钮玻璃效果（带液体感的悬停动画）
+// 增强的按钮玻璃效果（带液体感的悬停动画）- 更透明
 export const createButtonGlassStyles = (isHovered: boolean = false) => {
   const normalIntensity = DESIGN_TOKENS.glassEffect.intensity.button.normal;
   const hoveredIntensity = DESIGN_TOKENS.glassEffect.intensity.button.hovered;
   const intensity = isHovered ? hoveredIntensity : normalIntensity;
   
   return {
-    backgroundColor: `color-mix(in srgb, var(--glass-base) ${DESIGN_TOKENS.colors.glass.opacity.button}%, transparent)`,
-    backdropFilter: `blur(var(--glass-blur)) saturate(var(--glass-saturation))`,
-    WebkitBackdropFilter: `blur(var(--glass-blur)) saturate(var(--glass-saturation))`,
+    backgroundColor: `color-mix(in srgb, var(--glass-base) ${isHovered ? '10%' : '8%'}, transparent)`,
+    backdropFilter: `blur(${DESIGN_TOKENS.glassEffect.blur.medium}) saturate(var(--glass-saturation))`,
+    WebkitBackdropFilter: `blur(${DESIGN_TOKENS.glassEffect.blur.medium}) saturate(var(--glass-saturation))`,
     boxShadow: `
       inset 0 0 0 1px color-mix(in srgb, var(--glass-light) calc(var(--glass-reflex-light) * ${intensity.lightReflex}%), transparent),
       inset 1.8px 3px 0px -2px color-mix(in srgb, var(--glass-light) calc(var(--glass-reflex-light) * ${intensity.lightReflex + 80}%), transparent),
@@ -50,11 +50,11 @@ export const createButtonGlassStyles = (isHovered: boolean = false) => {
   };
 };
 
-// 扩展的玻璃效果（用于导航栏）
+// 扩展的玻璃效果（用于导航栏）- 更透明
 export const createExtendedGlassStyles = () => ({
-  backgroundColor: `color-mix(in srgb, var(--glass-base) ${DESIGN_TOKENS.colors.glass.opacity.navigation}%, transparent)`,
-  backdropFilter: `blur(var(--glass-blur)) saturate(var(--glass-saturation))`,
-  WebkitBackdropFilter: `blur(var(--glass-blur)) saturate(var(--glass-saturation))`,
+  backgroundColor: `color-mix(in srgb, var(--glass-base) 10%, transparent)`,
+  backdropFilter: `blur(${DESIGN_TOKENS.glassEffect.blur.medium}) saturate(var(--glass-saturation))`,
+  WebkitBackdropFilter: `blur(${DESIGN_TOKENS.glassEffect.blur.medium}) saturate(var(--glass-saturation))`,
   boxShadow: `
     inset 0 0 0 1px color-mix(in srgb, var(--glass-light) calc(var(--glass-reflex-light) * 10%), transparent),
     inset 1.8px 3px 0px -2px color-mix(in srgb, var(--glass-light) calc(var(--glass-reflex-light) * 90%), transparent),

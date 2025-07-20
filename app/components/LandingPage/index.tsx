@@ -1,9 +1,9 @@
-// Z:\MCN\mvp-mcn-crm\app\components\LandingPage\index.tsx
+// app/components/LandingPage/index.tsx
 import React, { useState, useRef, useEffect } from 'react';
 import FluidSimulation from '../FluidSimulation';
 import { LandingPageProps, Language } from './LandingPage.types';
 
-// 从配置文件导入所有配置
+// 导入更新后的配置
 import { 
   DESIGN_TOKENS, 
   CONTENT_DATA, 
@@ -12,7 +12,7 @@ import {
   getContent 
 } from './LandingPage.config';
 
-import { getCssVariables } from './LandingPage.styles';
+import { getCssVariables, createGlassStyles } from './LandingPage.styles';
 import { useScrollProgress } from './hooks/useScrollProgress';
 
 // 子组件导入
@@ -20,9 +20,11 @@ import AnimatedText from './components/AnimatedText';
 import LanguageSwitcher from './components/LanguageSwitcher';
 import NavigationButtons from './components/NavigationButtons';
 import ScrollIndicator from './components/ScrollIndicator';
-import LogoMaskLayer from './components/LogoMaskLayer'; // 新的Logo遮罩组件
+import LogoMaskLayer from './components/LogoMaskLayer';
 import PageSection from './components/PageSection';
 import BackToTopButton from './components/BackToTopButton';
+import AnimatedCard from './components/AnimatedCard';
+import AnimatedCounter from './components/AnimatedCounter';
 
 const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
   // 状态管理
@@ -71,27 +73,27 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
   }, []);
 
   return (
-      <div 
-        className="landing-page"
-        style={{
-          position: 'relative',
-          margin: 0,  // 确保没有外边距
-          padding: 0, // 确保没有内边距
-          width: '100vw', // 使用视口宽度
-          minHeight: '100vh', // 使用视口高度
-          overflow: 'hidden', // 防止内容溢出
-          fontFamily: DESIGN_TOKENS.typography.fontFamily,
-          letterSpacing: DESIGN_TOKENS.typography.letterSpacing,
-          fontWeight: DESIGN_TOKENS.typography.fontWeight.light,
-          ...cssVariables,
-        }}
-      >
+    <div 
+      className="landing-page"
+      style={{
+        position: 'relative',
+        margin: 0,
+        padding: 0,
+        width: '100vw',
+        minHeight: '100vh',
+        overflow: 'hidden',
+        fontFamily: DESIGN_TOKENS.typography.fontFamily,
+        letterSpacing: DESIGN_TOKENS.typography.letterSpacing,
+        fontWeight: DESIGN_TOKENS.typography.fontWeight.light,
+        ...cssVariables,
+      }}
+    >
       {/* 背景层 - FluidSimulation */}
       <div className="background-layer" style={{ position: 'fixed', inset: 0, zIndex: 0 }}>
         <FluidSimulation className="w-full h-full" />
       </div>
 
-      {/* Logo遮罩层 - 替换原有的TextMaskLayer */}
+      {/* Logo遮罩层 */}
       <LogoMaskLayer
         scrollProgress={scrollProgress}
         maskOpacity={maskOpacity}
@@ -126,10 +128,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
 
       {/* 主内容区 */}
       <main className="main-content" style={{ position: 'relative', zIndex: 20, pointerEvents: 'none' }}>
-        {/* 遮罩占位区 - 增加高度以延长动画 */}
+        {/* 遮罩占位区 */}
         <div className="mask-spacer" style={{ height: '290vh' }} />
 
-        {/* 英雄区块 */}
+        {/* Hero Section */}
         <PageSection
           sectionRef={el => sectionRefs.current[0] = el}
           isVisible={visibleSections.has(0)}
@@ -145,7 +147,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
               lineHeight: DESIGN_TOKENS.typography.lineHeight.tight,
             }}>
               <AnimatedText
-                text={content.title}
+                text={content.hero.title}
                 inView={visibleSections.has(0) && scrollProgress > 0.5}
               />
             </h1>
@@ -157,7 +159,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
               lineHeight: DESIGN_TOKENS.typography.lineHeight.tight,
             }}>
               <AnimatedText
-                text={content.subtitle}
+                text={content.hero.subtitle}
                 delay={0.3}
                 inView={visibleSections.has(0) && scrollProgress > 0.5}
               />
@@ -169,7 +171,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
               lineHeight: DESIGN_TOKENS.typography.lineHeight.normal,
             }}>
               <AnimatedText
-                text={content.tagline}
+                text={content.hero.tagline}
                 delay={0.6}
                 inView={visibleSections.has(0) && scrollProgress > 0.5}
               />
@@ -177,129 +179,506 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
           </div>
         </PageSection>
 
-        {/* 描述区块 */}
+        {/* About Section */}
         <PageSection
           sectionRef={el => sectionRefs.current[1] = el}
           isVisible={visibleSections.has(1)}
         >
-          <div className="description-content max-w-5xl text-center">
-            <p style={{
-              fontSize: DESIGN_TOKENS.typography.fontSize.heading,
-              color: DESIGN_TOKENS.colors.text.primary,
-              lineHeight: DESIGN_TOKENS.typography.lineHeight.relaxed,
+          <div style={{ maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
+            <AnimatedCard inView={visibleSections.has(1)}>
+              <h2 style={{
+                fontSize: DESIGN_TOKENS.typography.fontSize.heading,
+                fontWeight: DESIGN_TOKENS.typography.fontWeight.light,
+                marginBottom: DESIGN_TOKENS.spacing.gap.content,
+                textAlign: 'center',
+              }}>
+                {content.about.title}
+              </h2>
+            </AnimatedCard>
+            
+            <div style={{ marginBottom: DESIGN_TOKENS.spacing.gap.content }}>
+              {content.about.description.map((text, index) => (
+                <AnimatedCard key={index} delay={0.2 + index * 0.15} inView={visibleSections.has(1)}>
+                  <p style={{
+                    fontSize: DESIGN_TOKENS.typography.fontSize.body,
+                    marginBottom: '2rem',
+                    lineHeight: 1.8,
+                    color: DESIGN_TOKENS.colors.text.secondary,
+                    maxWidth: '800px',
+                    margin: '0 auto 2rem',
+                  }}>
+                    {text}
+                  </p>
+                </AnimatedCard>
+              ))}
+            </div>
+
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+              gap: DESIGN_TOKENS.spacing.gap.item,
+              textAlign: 'center',
             }}>
-              <AnimatedText
-                text={content.description}
-                inView={visibleSections.has(1)}
-              />
-            </p>
+              {content.about.stats.map((stat, index) => (
+                <AnimatedCard key={index} delay={0.5 + index * 0.1} inView={visibleSections.has(1)}>
+                  <div>
+                    <div style={{
+                      fontSize: DESIGN_TOKENS.typography.fontSize.subtitle,
+                      fontWeight: DESIGN_TOKENS.typography.fontWeight.bold,
+                      marginBottom: '0.5rem',
+                    }}>
+                      <AnimatedCounter 
+                        value={stat.value} 
+                        duration={2000} 
+                        inView={visibleSections.has(1)} 
+                      />
+                    </div>
+                    <div style={{
+                      fontSize: DESIGN_TOKENS.typography.fontSize.small,
+                      color: DESIGN_TOKENS.colors.text.secondary,
+                    }}>
+                      {stat.label}
+                    </div>
+                  </div>
+                </AnimatedCard>
+              ))}
+            </div>
           </div>
         </PageSection>
 
-        {/* 统计数据区块 */}
+        {/* Advantages Section */}
         <PageSection
           sectionRef={el => sectionRefs.current[2] = el}
           isVisible={visibleSections.has(2)}
         >
-          <div className="stats-content flex flex-col md:flex-row gap-16 md:gap-24">
-            {content.stats.map((stat, index) => (
-              <div key={`stat-${index}`} className="stat-item text-center">
-                <h3 style={{
-                  fontSize: DESIGN_TOKENS.typography.fontSize.heading,
-                  color: DESIGN_TOKENS.colors.text.primary,
-                  lineHeight: DESIGN_TOKENS.typography.lineHeight.tight,
-                }}>
-                  <AnimatedText
-                    text={stat}
-                    delay={index * 0.2}
-                    inView={visibleSections.has(2)}
-                  />
-                </h3>
-              </div>
-            ))}
+          <div style={{ maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
+            <AnimatedCard inView={visibleSections.has(2)}>
+              <h2 style={{
+                fontSize: DESIGN_TOKENS.typography.fontSize.heading,
+                fontWeight: DESIGN_TOKENS.typography.fontWeight.light,
+                marginBottom: DESIGN_TOKENS.spacing.gap.content,
+                textAlign: 'center',
+              }}>
+                {content.advantages.title}
+              </h2>
+            </AnimatedCard>
+
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+              gap: DESIGN_TOKENS.spacing.gap.item,
+            }}>
+              {content.advantages.items.map((item, index) => (
+                <AnimatedCard key={index} delay={0.2 + index * 0.15} inView={visibleSections.has(2)}>
+                  <div style={{
+                    padding: '2.5rem',
+                    height: '100%',
+                    borderRadius: '1rem',
+                    transition: 'all 0.3s ease',
+                    ...createGlassStyles(false),
+                  }}
+                  onMouseEnter={(e) => {
+                    const card = e.currentTarget as HTMLDivElement;
+                    card.style.transform = 'translateY(-8px)';
+                    Object.assign(card.style, createGlassStyles(true));
+                  }}
+                  onMouseLeave={(e) => {
+                    const card = e.currentTarget as HTMLDivElement;
+                    card.style.transform = 'translateY(0)';
+                    Object.assign(card.style, createGlassStyles(false));
+                  }}
+                  >
+                    <h3 style={{
+                      fontSize: '1.5rem',
+                      fontWeight: DESIGN_TOKENS.typography.fontWeight.regular,
+                      marginBottom: '1rem',
+                    }}>
+                      {item.title}
+                    </h3>
+                    <p style={{
+                      fontSize: DESIGN_TOKENS.typography.fontSize.body,
+                      color: DESIGN_TOKENS.colors.text.secondary,
+                      marginBottom: '1.5rem',
+                      lineHeight: 1.7,
+                    }}>
+                      {item.description}
+                    </p>
+                    {item.metric && (
+                      <div style={{
+                        fontSize: '1.2rem',
+                        fontWeight: DESIGN_TOKENS.typography.fontWeight.bold,
+                        color: DESIGN_TOKENS.colors.text.primary,
+                      }}>
+                        <AnimatedCounter 
+                          value={item.metric} 
+                          duration={2500} 
+                          inView={visibleSections.has(2)} 
+                        />
+                      </div>
+                    )}
+                  </div>
+                </AnimatedCard>
+              ))}
+            </div>
           </div>
         </PageSection>
 
-        {/* 特性区块 */}
+        {/* For Creators Section */}
         <PageSection
           sectionRef={el => sectionRefs.current[3] = el}
           isVisible={visibleSections.has(3)}
         >
-          <div className="features-content flex flex-col gap-12 max-w-4xl">
-            {content.features.map((feature, index) => (
-              <div key={`feature-${index}`} className="feature-item text-center">
-                <h3 style={{
-                  fontSize: DESIGN_TOKENS.typography.fontSize.body,
-                  color: DESIGN_TOKENS.colors.text.primary,
-                  lineHeight: DESIGN_TOKENS.typography.lineHeight.normal,
+          <div style={{ maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
+            <AnimatedCard inView={visibleSections.has(3)}>
+              <h2 style={{
+                fontSize: DESIGN_TOKENS.typography.fontSize.heading,
+                fontWeight: DESIGN_TOKENS.typography.fontWeight.light,
+                marginBottom: '1rem',
+                textAlign: 'center',
+              }}>
+                {content.forCreators.title}
+              </h2>
+              <p style={{
+                fontSize: DESIGN_TOKENS.typography.fontSize.body,
+                color: DESIGN_TOKENS.colors.text.secondary,
+                textAlign: 'center',
+                marginBottom: DESIGN_TOKENS.spacing.gap.content,
+              }}>
+                {content.forCreators.subtitle}
+              </p>
+            </AnimatedCard>
+
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+              gap: '2rem',
+              marginBottom: DESIGN_TOKENS.spacing.gap.content,
+            }}>
+              {content.forCreators.benefits.map((benefit, index) => (
+                <AnimatedCard key={index} delay={0.2 + index * 0.15} inView={visibleSections.has(3)}>
+                  <div style={{
+                    padding: '2rem',
+                    borderLeft: '3px solid rgba(80, 80, 80, 0.1)',
+                  }}>
+                    <h3 style={{
+                      fontSize: '1.3rem',
+                      fontWeight: DESIGN_TOKENS.typography.fontWeight.regular,
+                      marginBottom: '1rem',
+                    }}>
+                      {benefit.title}
+                    </h3>
+                    <p style={{
+                      fontSize: DESIGN_TOKENS.typography.fontSize.body,
+                      color: DESIGN_TOKENS.colors.text.secondary,
+                      lineHeight: 1.7,
+                    }}>
+                      {benefit.description}
+                    </p>
+                    {benefit.highlight && (
+                      <div style={{
+                        marginTop: '1rem',
+                        fontSize: '1.1rem',
+                        fontWeight: DESIGN_TOKENS.typography.fontWeight.bold,
+                        color: DESIGN_TOKENS.colors.text.primary,
+                      }}>
+                        <AnimatedCounter 
+                          value={benefit.highlight} 
+                          duration={2000} 
+                          inView={visibleSections.has(3)} 
+                        />
+                      </div>
+                    )}
+                  </div>
+                </AnimatedCard>
+              ))}
+            </div>
+
+            <AnimatedCard delay={0.8} inView={visibleSections.has(3)}>
+              <div style={{
+                padding: '3rem',
+                borderRadius: '1rem',
+                textAlign: 'center',
+                ...createGlassStyles(false),
+              }}>
+                <p style={{
+                  fontSize: '1.2rem',
+                  fontStyle: 'italic',
+                  marginBottom: '1rem',
+                  lineHeight: 1.8,
                 }}>
-                  <AnimatedText
-                    text={feature}
-                    delay={index * 0.15}
-                    inView={visibleSections.has(3)}
-                  />
-                </h3>
+                  "{content.forCreators.testimonial.quote}"
+                </p>
+                <p style={{
+                  fontSize: DESIGN_TOKENS.typography.fontSize.small,
+                  color: DESIGN_TOKENS.colors.text.secondary,
+                }}>
+                  — {content.forCreators.testimonial.author}
+                </p>
               </div>
-            ))}
+            </AnimatedCard>
           </div>
         </PageSection>
 
-        {/* 指标区块 */}
+        {/* For Brands Section */}
         <PageSection
           sectionRef={el => sectionRefs.current[4] = el}
           isVisible={visibleSections.has(4)}
         >
-          <div className="metrics-content grid grid-cols-1 md:grid-cols-3 gap-16 md:gap-24">
-            {content.metrics.map((metric, index) => (
-              <div key={`metric-${index}`} className="metric-item text-center">
-                <h3 style={{
-                  fontSize: DESIGN_TOKENS.typography.fontSize.hero,
-                  color: DESIGN_TOKENS.colors.text.primary,
-                  marginBottom: '1rem',
-                  lineHeight: DESIGN_TOKENS.typography.lineHeight.tight,
-                }}>
-                  <AnimatedText
-                    text={metric.value}
-                    delay={index * 0.15}
-                    inView={visibleSections.has(4)}
-                  />
-                </h3>
-                <p style={{
-                  fontSize: DESIGN_TOKENS.typography.fontSize.small,
-                  color: DESIGN_TOKENS.colors.text.secondary,
-                  lineHeight: DESIGN_TOKENS.typography.lineHeight.normal,
-                }}>
-                  <AnimatedText
-                    text={metric.label}
-                    delay={index * 0.15 + 0.3}
-                    inView={visibleSections.has(4)}
-                  />
-                </p>
-              </div>
-            ))}
+          <div style={{ maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
+            <AnimatedCard inView={visibleSections.has(4)}>
+              <h2 style={{
+                fontSize: DESIGN_TOKENS.typography.fontSize.heading,
+                fontWeight: DESIGN_TOKENS.typography.fontWeight.light,
+                marginBottom: '1rem',
+                textAlign: 'center',
+              }}>
+                {content.forBrands.title}
+              </h2>
+              <p style={{
+                fontSize: DESIGN_TOKENS.typography.fontSize.body,
+                color: DESIGN_TOKENS.colors.text.secondary,
+                textAlign: 'center',
+                marginBottom: DESIGN_TOKENS.spacing.gap.content,
+              }}>
+                {content.forBrands.subtitle}
+              </p>
+            </AnimatedCard>
+
+            <div style={{
+              display: 'grid',
+              gap: '2rem',
+            }}>
+              {content.forBrands.services.map((service, index) => (
+                <AnimatedCard key={index} delay={0.2 + index * 0.15} inView={visibleSections.has(4)}>
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: '1fr auto',
+                    gap: '2rem',
+                    padding: '2.5rem',
+                    borderRadius: '1rem',
+                    alignItems: 'center',
+                    ...createGlassStyles(false),
+                    transition: 'all 0.3s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    const card = e.currentTarget as HTMLDivElement;
+                    card.style.transform = 'translateX(8px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    const card = e.currentTarget as HTMLDivElement;
+                    card.style.transform = 'translateX(0)';
+                  }}
+                  >
+                    <div>
+                      <h3 style={{
+                        fontSize: '1.5rem',
+                        fontWeight: DESIGN_TOKENS.typography.fontWeight.regular,
+                        marginBottom: '1rem',
+                      }}>
+                        {service.title}
+                      </h3>
+                      <p style={{
+                        fontSize: DESIGN_TOKENS.typography.fontSize.body,
+                        color: DESIGN_TOKENS.colors.text.secondary,
+                        lineHeight: 1.7,
+                      }}>
+                        {service.description}
+                      </p>
+                    </div>
+                    {service.results && (
+                      <div style={{
+                        fontSize: '1.1rem',
+                        fontWeight: DESIGN_TOKENS.typography.fontWeight.bold,
+                        color: DESIGN_TOKENS.colors.text.primary,
+                        whiteSpace: 'nowrap',
+                      }}>
+                        <AnimatedCounter 
+                          value={service.results} 
+                          duration={2200} 
+                          inView={visibleSections.has(4)} 
+                        />
+                      </div>
+                    )}
+                  </div>
+                </AnimatedCard>
+              ))}
+            </div>
           </div>
         </PageSection>
 
-        {/* CTA区块 */}
+        {/* Process Section */}
         <PageSection
           sectionRef={el => sectionRefs.current[5] = el}
           isVisible={visibleSections.has(5)}
         >
-          <div className="cta-content text-center">
-            <h2 style={{
-              fontSize: DESIGN_TOKENS.typography.fontSize.heading,
-              color: DESIGN_TOKENS.colors.text.primary,
-              lineHeight: DESIGN_TOKENS.typography.lineHeight.tight,
+          <div style={{ maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
+            <AnimatedCard inView={visibleSections.has(5)}>
+              <h2 style={{
+                fontSize: DESIGN_TOKENS.typography.fontSize.heading,
+                fontWeight: DESIGN_TOKENS.typography.fontWeight.light,
+                marginBottom: DESIGN_TOKENS.spacing.gap.content,
+                textAlign: 'center',
+              }}>
+                {content.process.title}
+              </h2>
+            </AnimatedCard>
+
+            <div style={{
+              display: 'grid',
+              gap: '1rem',
+              maxWidth: '800px',
+              margin: '0 auto',
             }}>
-              <AnimatedText
-                text={content.readyToStart}
-                inView={visibleSections.has(5)}
-              />
-            </h2>
+              {content.process.steps.map((step, index) => (
+                <AnimatedCard key={index} delay={0.2 + index * 0.1} inView={visibleSections.has(5)}>
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'auto 1fr',
+                    gap: '2rem',
+                    padding: '2rem',
+                    alignItems: 'center',
+                    borderBottom: index < content.process.steps.length - 1 ? '1px solid rgba(80, 80, 80, 0.05)' : 'none',
+                  }}>
+                    <div style={{
+                      fontSize: '3rem',
+                      fontWeight: DESIGN_TOKENS.typography.fontWeight.bold,
+                      color: DESIGN_TOKENS.colors.text.tertiary,
+                    }}>
+                      {step.number}
+                    </div>
+                    <div>
+                      <h3 style={{
+                        fontSize: '1.3rem',
+                        fontWeight: DESIGN_TOKENS.typography.fontWeight.regular,
+                        marginBottom: '0.5rem',
+                      }}>
+                        {step.title}
+                      </h3>
+                      <p style={{
+                        fontSize: DESIGN_TOKENS.typography.fontSize.body,
+                        color: DESIGN_TOKENS.colors.text.secondary,
+                        lineHeight: 1.6,
+                      }}>
+                        {step.description}
+                      </p>
+                    </div>
+                  </div>
+                </AnimatedCard>
+              ))}
+            </div>
           </div>
         </PageSection>
 
-        {/* 页脚 */}
+        {/* Conclusion Section */}
+        <PageSection
+          sectionRef={el => sectionRefs.current[6] = el}
+          isVisible={visibleSections.has(6)}
+          style={{ minHeight: '60vh' }}
+        >
+          <div style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
+            <AnimatedCard inView={visibleSections.has(6)}>
+              <h2 style={{
+                fontSize: DESIGN_TOKENS.typography.fontSize.heading,
+                fontWeight: DESIGN_TOKENS.typography.fontWeight.light,
+                marginBottom: '2rem',
+              }}>
+                {content.conclusion.title}
+              </h2>
+              <p style={{
+                fontSize: DESIGN_TOKENS.typography.fontSize.body,
+                color: DESIGN_TOKENS.colors.text.secondary,
+                lineHeight: 1.8,
+              }}>
+                {content.conclusion.message}
+              </p>
+            </AnimatedCard>
+          </div>
+        </PageSection>
+
+        {/* CTA Section */}
+        <PageSection
+          sectionRef={el => sectionRefs.current[7] = el}
+          isVisible={visibleSections.has(7)}
+          style={{ minHeight: '50vh' }}
+        >
+          <div style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center', width: '100%' }}>
+            <AnimatedCard inView={visibleSections.has(7)}>
+              <h2 style={{
+                fontSize: DESIGN_TOKENS.typography.fontSize.subtitle,
+                fontWeight: DESIGN_TOKENS.typography.fontWeight.light,
+                marginBottom: DESIGN_TOKENS.spacing.gap.hero,
+              }}>
+                {content.cta.title}
+              </h2>
+            </AnimatedCard>
+            
+            <AnimatedCard delay={0.3} inView={visibleSections.has(7)}>
+              <div style={{
+                display: 'flex',
+                gap: '1.5rem',
+                justifyContent: 'center',
+                flexWrap: 'wrap',
+                pointerEvents: 'auto',
+              }}>
+                <button
+                  style={{
+                    padding: '1rem 3rem',
+                    fontSize: '1.1rem',
+                    color: DESIGN_TOKENS.colors.text.primary,
+                    border: 'none',
+                    borderRadius: '3rem',
+                    cursor: 'pointer',
+                    transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                    ...createGlassStyles(false),
+                  }}
+                  onMouseEnter={(e) => {
+                    const btn = e.currentTarget;
+                    btn.style.transform = 'scale(1.08)';
+                    btn.style.borderRadius = '24px';
+                    Object.assign(btn.style, createGlassStyles(true));
+                  }}
+                  onMouseLeave={(e) => {
+                    const btn = e.currentTarget;
+                    btn.style.transform = 'scale(1)';
+                    btn.style.borderRadius = '3rem';
+                    Object.assign(btn.style, createGlassStyles(false));
+                  }}
+                >
+                  {content.cta.buttons.brands}
+                </button>
+                
+                <button
+                  style={{
+                    padding: '1rem 3rem',
+                    fontSize: '1.1rem',
+                    color: DESIGN_TOKENS.colors.text.primary,
+                    border: 'none',
+                    borderRadius: '3rem',
+                    cursor: 'pointer',
+                    transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                    ...createGlassStyles(false),
+                  }}
+                  onMouseEnter={(e) => {
+                    const btn = e.currentTarget;
+                    btn.style.transform = 'scale(1.08)';
+                    btn.style.borderRadius = '24px';
+                    Object.assign(btn.style, createGlassStyles(true));
+                  }}
+                  onMouseLeave={(e) => {
+                    const btn = e.currentTarget;
+                    btn.style.transform = 'scale(1)';
+                    btn.style.borderRadius = '3rem';
+                    Object.assign(btn.style, createGlassStyles(false));
+                  }}
+                >
+                  {content.cta.buttons.creators}
+                </button>
+              </div>
+            </AnimatedCard>
+          </div>
+        </PageSection>
+
+        {/* Footer */}
         <footer className="footer py-20 text-center">
           <p style={{
             fontSize: DESIGN_TOKENS.typography.fontSize.small,
@@ -312,7 +691,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
 
       {/* 全局样式 */}
       <style jsx global>{`
-      /* 确保没有默认边框 */
         body {
           margin: 0;
           padding: 0;
@@ -323,29 +701,25 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
           box-sizing: border-box;
         }
 
-        /* 防止 SVG 边缘问题 */
         svg {
           shape-rendering: crispEdges;
         }
-        /* 滚动优化 */
+
         html {
           scroll-behavior: smooth;
         }
 
-        /* 隐藏滚动条 */
         ::-webkit-scrollbar {
           width: 0px;
           background: transparent;
         }
 
-        /* 字体渲染优化 */
         * {
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
           text-rendering: optimizeLegibility;
         }
 
-        /* 滚动指示器动画 */
         @keyframes scrollIndicatorAnimation {
           0% {
             transform: translateY(-20px);
