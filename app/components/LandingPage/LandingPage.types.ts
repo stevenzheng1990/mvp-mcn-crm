@@ -22,21 +22,25 @@ export interface MetricItem {
   label: string;
 }
 
-// 英雄区块内容
+export interface StatItem {
+  value: string;
+  label: string;
+  subtitle: string;
+}
+
+// 内容结构定义
 export interface HeroContent {
   title: string;
   subtitle: string;
   tagline: string;
 }
 
-// 关于我们内容
 export interface AboutContent {
   title: string;
   description: string[];
-  stats: MetricItem[];
+  stats: StatItem[];
 }
 
-// 优势内容
 export interface AdvantageItem {
   title: string;
   description: string;
@@ -48,7 +52,6 @@ export interface AdvantagesContent {
   items: AdvantageItem[];
 }
 
-// 创作者内容
 export interface CreatorBenefit {
   title: string;
   description: string;
@@ -65,7 +68,6 @@ export interface ForCreatorsContent {
   };
 }
 
-// 品牌服务内容
 export interface BrandService {
   title: string;
   description: string;
@@ -78,7 +80,6 @@ export interface ForBrandsContent {
   services: BrandService[];
 }
 
-// 流程内容
 export interface ProcessStep {
   number: string;
   title: string;
@@ -90,13 +91,11 @@ export interface ProcessContent {
   steps: ProcessStep[];
 }
 
-// 结语内容
 export interface ConclusionContent {
   title: string;
   message: string;
 }
 
-// CTA内容
 export interface CTAContent {
   title: string;
   buttons: {
@@ -105,20 +104,17 @@ export interface CTAContent {
   };
 }
 
-// 页脚类型
 export interface FooterContent {
   copyright: string;
 }
 
-// 提示文案类型
 export interface TooltipContent {
   backToTop: string;
   languageSwitch: string;
 }
 
-// 增强版内容语言类型
+// 完整语言内容结构
 export interface ContentLanguage {
-  // 新增的分区内容
   hero: HeroContent;
   about: AboutContent;
   advantages: AdvantagesContent;
@@ -128,7 +124,7 @@ export interface ContentLanguage {
   conclusion: ConclusionContent;
   cta: CTAContent;
   
-  // 原有内容（保持兼容）
+  // 保留原有字段以保持兼容性
   title: string;
   subtitle: string;
   tagline: string;
@@ -150,6 +146,7 @@ export interface ContentData {
 
 export type Language = 'zh' | 'en';
 
+// 组件Props定义
 export interface LanguageSwitcherProps {
   language: Language;
   onLanguageChange: (lang: Language) => void;
@@ -167,7 +164,6 @@ export interface ScrollIndicatorProps {
   scrollProgress: number;
 }
 
-// 新的Logo遮罩层类型
 export interface LogoMaskLayerProps {
   scrollProgress: number;
   maskOpacity: number;
@@ -181,7 +177,6 @@ export interface PageSectionProps {
   style?: React.CSSProperties;
 }
 
-// 返回顶部按钮类型
 export interface BackToTopButtonProps {
   scrollProgress: number;
   content: ContentLanguage;

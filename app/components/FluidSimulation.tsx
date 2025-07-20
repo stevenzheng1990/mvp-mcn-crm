@@ -26,12 +26,12 @@ const FluidSimulation = ({ className = "", style = {} }) => {
 
     // ========== 可调整参数 ==========
     const RESOLUTION = 0.15;
-    const VISCOSITY = 0.00003;
+    const VISCOSITY = 0.00002;
     const FORCE_SCALE = 6;
-    const TIME_STEP = 0.024;
-    const ITERATIONS = 70;
-    const FORCE_DECAY = 0.7;
-    const FORCE_RADIUS = 210;
+    const TIME_STEP = 0.018;
+    const ITERATIONS = 120;
+    const FORCE_DECAY = 0.3;
+    const FORCE_RADIUS = 250;
     const BASE_COLOR = [1.0, 1.0, 1.0];
     const FLOW_COLOR = [1.0, 1.0, 1.0];
     const SCROLL_FORCE_SCALE = 0.26;
@@ -561,7 +561,7 @@ const FluidSimulation = ({ className = "", style = {} }) => {
       simulateAutoMouse(now: number) {
         const elapsed = now - this.autoStartTime;
 
-        const totalDuration = 6000; // 增加持续时间到6秒，使转圈更慢更顺滑
+        const totalDuration = 5000; // 增加持续时间到6秒，使转圈更慢更顺滑
 
         if (elapsed > totalDuration) {
           this.isAutoForce = false;
@@ -571,9 +571,9 @@ const FluidSimulation = ({ className = "", style = {} }) => {
           return;
         }
 
-        const rotations = 2.5; // 减少转圈次数到2.5圈，使更顺滑
+        const rotations = 3; // 减少转圈次数到2.5圈，使更顺滑
         const angle = 2 * Math.PI * (rotations * (elapsed / totalDuration));
-        const radius = 0.25; // 减小半径到0.25，使范围更小、更靠近中心
+        const radius = 0.15; // 减小半径到0.25，使范围更小、更靠近中心
 
         const autoX = 0.5 + radius * Math.cos(angle);
         const autoY = 0.5 + radius * Math.sin(angle);
@@ -632,7 +632,7 @@ const FluidSimulation = ({ className = "", style = {} }) => {
         this.savedForce.copy(this.mouseForce);
 
         const initialAngle = 0;
-        const radius = 0.25; // 与simulateAutoMouse中的radius一致
+        const radius = 0.15; // 与simulateAutoMouse中的radius一致
         this.lastMouse.set(0.5 + radius * Math.cos(initialAngle), 0.5 + radius * Math.sin(initialAngle));
       }
 

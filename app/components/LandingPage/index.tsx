@@ -14,7 +14,7 @@ import {
 
 import { getCssVariables, createGlassStyles } from './LandingPage.styles';
 import { useScrollProgress } from './hooks/useScrollProgress';
-
+import { createFluidMappingGlassStyles } from './LandingPage.styles';
 // 子组件导入
 import AnimatedText from './components/AnimatedText';
 import LanguageSwitcher from './components/LanguageSwitcher';
@@ -25,6 +25,7 @@ import PageSection from './components/PageSection';
 import BackToTopButton from './components/BackToTopButton';
 import AnimatedCard from './components/AnimatedCard';
 import AnimatedCounter from './components/AnimatedCounter';
+import PulseWaveSpiral from './components/PulseWaveSpiral';
 
 const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
   // 状态管理
@@ -179,143 +180,126 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
           </div>
         </PageSection>
 
-        {/* About Section */}
+        {/* About Section - 动画下移，扩展统计数据 */}
         <PageSection
           sectionRef={el => sectionRefs.current[1] = el}
           isVisible={visibleSections.has(1)}
+          style={{ 
+            position: 'relative', 
+            overflow: 'hidden',
+          }}
         >
-          <div style={{ maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
-            <AnimatedCard inView={visibleSections.has(1)}>
-              <h2 style={{
-                fontSize: DESIGN_TOKENS.typography.fontSize.heading,
-                fontWeight: DESIGN_TOKENS.typography.fontWeight.light,
-                marginBottom: DESIGN_TOKENS.spacing.gap.content,
-                textAlign: 'center',
-              }}>
-                {content.about.title}
-              </h2>
-            </AnimatedCard>
+          {/* 脉冲波螺旋动画背景 - 下移到合适位置，扩大容器适应新尺寸 */}
+          <div style={{
+            position: 'absolute',
+            left: '50%',
+            top: '60%', // 下移动画位置
+            transform: 'translate(-50%, -50%)',
+            width: '1200px', // 进一步扩大容器以容纳最大半径563
+            height: '1200px',
+            zIndex: 0,
+          }}>
+            <PulseWaveSpiral 
+              inView={visibleSections.has(1)}
+              className="about-section-background"
+            />
+          </div>
+
+          <div style={{ 
+            maxWidth: '1200px', 
+            margin: '0 auto', 
+            width: '100%',
+            position: 'relative',
+            zIndex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '6vh',
+          }}>
             
-            <div style={{ marginBottom: DESIGN_TOKENS.spacing.gap.content }}>
-              {content.about.description.map((text, index) => (
-                <AnimatedCard key={index} delay={0.2 + index * 0.15} inView={visibleSections.has(1)}>
-                  <p style={{
-                    fontSize: DESIGN_TOKENS.typography.fontSize.body,
-                    marginBottom: '2rem',
-                    lineHeight: 1.8,
-                    color: DESIGN_TOKENS.colors.text.secondary,
-                    maxWidth: '800px',
-                    margin: '0 auto 2rem',
-                  }}>
-                    {text}
-                  </p>
-                </AnimatedCard>
-              ))}
+            {/* 标题 - 恢复切字缓入动画 */}
+            <div style={{ 
+              textAlign: 'center',
+              maxWidth: '900px',
+            }}>
+              <AnimatedCard inView={visibleSections.has(1)}>
+                <h2 style={{
+                  fontSize: DESIGN_TOKENS.typography.fontSize.heading,
+                  fontWeight: DESIGN_TOKENS.typography.fontWeight.light,
+                  marginBottom: DESIGN_TOKENS.spacing.gap.content,
+                  textAlign: 'center',
+                  color: DESIGN_TOKENS.colors.text.primary,
+                }}>
+                  <AnimatedText
+                    text={content.about.title}
+                    inView={visibleSections.has(1)}
+                  />
+                </h2>
+              </AnimatedCard>
+              
+              {/* 合并的描述文字 - 一个玻璃卡片 */}
+              <AnimatedCard delay={0.3} inView={visibleSections.has(1)}>
+                <div style={{
+                  padding: '2.5rem',
+                  borderRadius: '1.5rem',
+                  marginBottom: '2rem',
+                  ...createGlassStyles(false),
+                }}>
+                  {content.about.description.map((text, index) => (
+                    <p key={index} style={{
+                      fontSize: DESIGN_TOKENS.typography.fontSize.body,
+                      lineHeight: 1.8,
+                      color: DESIGN_TOKENS.colors.text.secondary,
+                      textAlign: 'center',
+                      margin: index === content.about.description.length - 1 ? 0 : '0 0 1.5rem 0',
+                    }}>
+                      {text}
+                    </p>
+                  ))}
+                </div>
+              </AnimatedCard>
             </div>
 
+            {/* 统一格式的统计数据区域 - 使用config中的数据 */}
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-              gap: DESIGN_TOKENS.spacing.gap.item,
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              gap: '3rem',
               textAlign: 'center',
+              maxWidth: '900px',
+              width: '100%',
+              position: 'relative',
+              zIndex: 2,
             }}>
               {content.about.stats.map((stat, index) => (
                 <AnimatedCard key={index} delay={0.5 + index * 0.1} inView={visibleSections.has(1)}>
                   <div>
                     <div style={{
-                      fontSize: DESIGN_TOKENS.typography.fontSize.subtitle,
+                      fontSize: 'clamp(2.2rem, 5vw, 3.5rem)',
                       fontWeight: DESIGN_TOKENS.typography.fontWeight.bold,
                       marginBottom: '0.5rem',
+                      color: DESIGN_TOKENS.colors.text.primary,
                     }}>
                       <AnimatedCounter 
                         value={stat.value} 
-                        duration={2000} 
+                        duration={2000 + index * 200} 
                         inView={visibleSections.has(1)} 
                       />
                     </div>
                     <div style={{
-                      fontSize: DESIGN_TOKENS.typography.fontSize.small,
+                      fontSize: DESIGN_TOKENS.typography.fontSize.body,
                       color: DESIGN_TOKENS.colors.text.secondary,
+                      fontWeight: DESIGN_TOKENS.typography.fontWeight.regular,
+                      marginBottom: '0.5rem',
                     }}>
                       {stat.label}
                     </div>
-                  </div>
-                </AnimatedCard>
-              ))}
-            </div>
-          </div>
-        </PageSection>
-
-        {/* Advantages Section */}
-        <PageSection
-          sectionRef={el => sectionRefs.current[2] = el}
-          isVisible={visibleSections.has(2)}
-        >
-          <div style={{ maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
-            <AnimatedCard inView={visibleSections.has(2)}>
-              <h2 style={{
-                fontSize: DESIGN_TOKENS.typography.fontSize.heading,
-                fontWeight: DESIGN_TOKENS.typography.fontWeight.light,
-                marginBottom: DESIGN_TOKENS.spacing.gap.content,
-                textAlign: 'center',
-              }}>
-                {content.advantages.title}
-              </h2>
-            </AnimatedCard>
-
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-              gap: DESIGN_TOKENS.spacing.gap.item,
-            }}>
-              {content.advantages.items.map((item, index) => (
-                <AnimatedCard key={index} delay={0.2 + index * 0.15} inView={visibleSections.has(2)}>
-                  <div style={{
-                    padding: '2.5rem',
-                    height: '100%',
-                    borderRadius: '1rem',
-                    transition: 'all 0.3s ease',
-                    ...createGlassStyles(false),
-                  }}
-                  onMouseEnter={(e) => {
-                    const card = e.currentTarget as HTMLDivElement;
-                    card.style.transform = 'translateY(-8px)';
-                    Object.assign(card.style, createGlassStyles(true));
-                  }}
-                  onMouseLeave={(e) => {
-                    const card = e.currentTarget as HTMLDivElement;
-                    card.style.transform = 'translateY(0)';
-                    Object.assign(card.style, createGlassStyles(false));
-                  }}
-                  >
-                    <h3 style={{
-                      fontSize: '1.5rem',
-                      fontWeight: DESIGN_TOKENS.typography.fontWeight.regular,
-                      marginBottom: '1rem',
+                    <div style={{
+                      fontSize: DESIGN_TOKENS.typography.fontSize.small,
+                      color: DESIGN_TOKENS.colors.text.tertiary,
                     }}>
-                      {item.title}
-                    </h3>
-                    <p style={{
-                      fontSize: DESIGN_TOKENS.typography.fontSize.body,
-                      color: DESIGN_TOKENS.colors.text.secondary,
-                      marginBottom: '1.5rem',
-                      lineHeight: 1.7,
-                    }}>
-                      {item.description}
-                    </p>
-                    {item.metric && (
-                      <div style={{
-                        fontSize: '1.2rem',
-                        fontWeight: DESIGN_TOKENS.typography.fontWeight.bold,
-                        color: DESIGN_TOKENS.colors.text.primary,
-                      }}>
-                        <AnimatedCounter 
-                          value={item.metric} 
-                          duration={2500} 
-                          inView={visibleSections.has(2)} 
-                        />
-                      </div>
-                    )}
+                      {stat.subtitle}
+                    </div>
                   </div>
                 </AnimatedCard>
               ))}

@@ -1,11 +1,8 @@
 // app/components/LandingPage/LandingPage.config.ts
-// 集中的配置文件 - 增强版内容
-
 import { ContentData } from './LandingPage.types';
 
-// ===== 设计令牌系统 =====
+// 设计令牌系统
 export const DESIGN_TOKENS = {
-  // 字体系统
   typography: {
     fontFamily: '-apple-system, BlinkMacSystemFont, "Helvetica Neue", "Arial", sans-serif',
     fontWeight: {
@@ -28,31 +25,26 @@ export const DESIGN_TOKENS = {
     letterSpacing: '0.02em',
   },
   
-  // 颜色系统 - 统一管理所有颜色
   colors: {
     text: {
-      primary: 'rgba(80, 80, 80, 0.95)',      // 主要文字颜色
-      secondary: 'rgba(80, 80, 80, 0.7)',     // 次要文字颜色
-      tertiary: 'rgba(80, 80, 80, 0.5)',      // 第三级文字颜色
+      primary: 'rgba(80, 80, 80, 0.95)',
+      secondary: 'rgba(80, 80, 80, 0.7)',
+      tertiary: 'rgba(80, 80, 80, 0.5)',
     },
-    // 玻璃效果颜色
     glass: {
       base: '#bbbbbc',
       light: '#fff',
       dark: '#000',
-      // 玻璃效果透明度
       opacity: {
-        button: 0,        // 按钮背景透明度（0=完全透明）
-        navigation: 12,   // 导航栏背景透明度
+        button: 0,
+        navigation: 12,
       },
     },
-    // 页脚颜色
     footer: {
       text: 'rgba(80, 80, 80, 0.5)',
     },
   },
   
-  // 间距系统
   spacing: {
     section: {
       minHeight: '100vh',
@@ -63,28 +55,25 @@ export const DESIGN_TOKENS = {
       content: 'clamp(3rem, 6vh, 6rem)',
       item: 'clamp(2rem, 4vh, 4rem)',
     },
-    // 组件间距
     component: {
       buttonGap: '16px',
       navigationPadding: '12px 24px',
     },
   },
   
-  // 动画系统
   animation: {
     duration: {
       fast: '200ms',
       normal: '300ms',
       slow: '500ms',
       slower: '800ms',
-      liquidTransition: '0.4s', // 液体感动画时长
+      liquidTransition: '0.4s',
     },
     easing: {
       default: 'cubic-bezier(0.4, 0, 0.2, 1)',
       bounce: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
-      liquid: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)', // 液体感缓动
+      liquid: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
     },
-    // 文字动画配置
     text: {
       baseDelay: 0,
       charDelay: 0.05,
@@ -93,14 +82,12 @@ export const DESIGN_TOKENS = {
     },
   },
   
-  // 玻璃效果
   glassEffect: {
     blur: {
-      light: '6px',   // 降低模糊度
-      medium: '8px',  // 降低模糊度
+      light: '7px',
+      medium: '9px',
     },
-    saturation: '150%',
-    // 玻璃效果强度
+    saturation: '210%',
     intensity: {
       button: {
         normal: {
@@ -115,13 +102,11 @@ export const DESIGN_TOKENS = {
     },
   },
   
-  // 布局配置
   layout: {
-    // 固定元素位置
     fixedElements: {
       languageSwitcher: {
         top: '32px',
-        position: 'center', // center | left | right
+        position: 'center',
       },
       navigationButtons: {
         bottom: '32px',
@@ -136,7 +121,6 @@ export const DESIGN_TOKENS = {
         position: 'center',
       },
     },
-    // 响应式断点
     breakpoints: {
       mobile: '768px',
       tablet: '1024px',
@@ -145,7 +129,7 @@ export const DESIGN_TOKENS = {
   },
 } as const;
 
-// ===== 内容数据 - 增强版内容 =====
+// 内容数据
 export const CONTENT_DATA: ContentData = {
   zh: {
     hero: {
@@ -160,9 +144,12 @@ export const CONTENT_DATA: ContentData = {
         '作为业界唯一在北美和中国同时建立完整生态的MCN机构，我们不仅是内容的生产者和传播者，更是品牌数字化转型的战略伙伴。'
       ],
       stats: [
-        { value: '70+', label: '签约创作者' },
-        { value: '600+', label: '合作达人' },
-        { value: '15+', label: '覆盖行业' }
+        { value: '70+', label: '签约创作者', subtitle: '全平台覆盖' },
+        { value: '600+', label: '合作达人', subtitle: '深度合作网络' },
+        { value: '15+', label: '覆盖行业', subtitle: '多元化赛道' },
+        { value: '2000万+', label: '覆盖粉丝数', subtitle: '精准触达用户' },
+        { value: '8+', label: '投放平台', subtitle: '全渠道布局' },
+        { value: '30+', label: '内容赛道', subtitle: '垂直领域专精' }
       ]
     },
     advantages: {
@@ -270,7 +257,6 @@ export const CONTENT_DATA: ContentData = {
         creators: '创作者加入'
       }
     },
-    // 以下保持原有内容
     title: '十方众声',
     subtitle: '从十方而来，聚众声之势',
     tagline: '一站式互联网营销机构',
@@ -310,9 +296,12 @@ export const CONTENT_DATA: ContentData = {
         'As the only MCN agency with operational excellence in both North American and Asian markets, we craft campaigns that resonate across cultural boundaries.'
       ],
       stats: [
-        { value: '70+', label: 'Exclusive Creators' },
-        { value: '600+', label: 'Partner Influencers' },
-        { value: '15+', label: 'Industries Served' }
+        { value: '70+', label: 'Exclusive Creators', subtitle: 'Cross-Platform Coverage' },
+        { value: '600+', label: 'Partner Influencers', subtitle: 'Deep Collaboration Network' },
+        { value: '15+', label: 'Industries Served', subtitle: 'Diversified Verticals' },
+        { value: '20M+', label: 'Follower Reach', subtitle: 'Precision Audience Targeting' },
+        { value: '8+', label: 'Media Platforms', subtitle: 'Omnichannel Strategy' },
+        { value: '30+', label: 'Content Verticals', subtitle: 'Specialized Expertise' }
       ]
     },
     advantages: {
@@ -420,7 +409,6 @@ export const CONTENT_DATA: ContentData = {
         creators: 'Join as Creator'
       }
     },
-    // 以下保持原有内容
     title: 'MEGA VOLUME',
     subtitle: 'Amplifying Voices, Multiplying Impact',
     tagline: 'Your Full-Service Digital Marketing Partner',
@@ -449,34 +437,25 @@ export const CONTENT_DATA: ContentData = {
   }
 };
 
-// ===== 滚动配置 =====
+// 滚动配置
 export const SCROLL_CONFIG = {
-  animationDelay: 3, // 动画时长系数
-  fadeOutThreshold: 0.8, // 遮罩开始淡出的滚动进度
-  fadeOutDuration: 0.2,  // 遮罩淡出持续时间
-  // 可见性阈值
+  animationDelay: 3,
+  fadeOutThreshold: 0.8,
+  fadeOutDuration: 0.2,
   visibility: {
-    navigationButtons: 0.8, // 导航按钮显示的滚动进度
-    backToTopButton: 0.8,  // 返回顶部按钮显示的滚动进度
+    navigationButtons: 0.8,
+    backToTopButton: 0.8,
   },
 } as const;
 
-// ===== 观察器配置 =====
+// 观察器配置
 export const OBSERVER_CONFIG = {
   root: null,
-  rootMargin: '20% 0px -20% 0px',  // 顶部20%开始消失，底部20%开始出现
+  rootMargin: '20% 0px -20% 0px',
   threshold: 0.1,
 } as const;
 
-// ===== 导出所有配置的快捷方式 =====
-export const CONFIG = {
-  DESIGN_TOKENS,
-  CONTENT_DATA,
-  SCROLL_CONFIG,
-  OBSERVER_CONFIG,
-} as const;
-
-// ===== 便捷的访问函数 =====
+// 便捷访问函数
 export const getContent = (language: 'zh' | 'en') => CONTENT_DATA[language];
 export const getColors = () => DESIGN_TOKENS.colors;
 export const getTypography = () => DESIGN_TOKENS.typography;
