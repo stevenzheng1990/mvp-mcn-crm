@@ -134,7 +134,7 @@ export interface ChartLabels {
 export interface ChartSeries {
   mvp: string;
   industry: string;
-  independent?: string;
+  independent: string;
 }
 
 export interface ChartMetrics {
