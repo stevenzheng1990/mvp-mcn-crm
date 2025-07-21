@@ -14,7 +14,6 @@ import {
 
 import { getCssVariables, createGlassStyles } from './LandingPage.styles';
 import { useScrollProgress } from './hooks/useScrollProgress';
-import { createFluidMappingGlassStyles } from './LandingPage.styles';
 // 子组件导入
 import AnimatedText from './components/AnimatedText';
 import LanguageSwitcher from './components/LanguageSwitcher';
@@ -25,7 +24,7 @@ import PageSection from './components/PageSection';
 import BackToTopButton from './components/BackToTopButton';
 import AnimatedCard from './components/AnimatedCard';
 import AnimatedCounter from './components/AnimatedCounter';
-import PulseWaveSpiral from './components/PulseWaveSpiral';
+import WorldMapAnimation from './components/WorldMapAnimation';
 
 const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
   // 状态管理
@@ -180,31 +179,17 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
           </div>
         </PageSection>
 
-        {/* About Section - 动画下移，扩展统计数据 */}
+        {/* About Section - 调整统计区域高度和位置 */}
         <PageSection
           sectionRef={el => sectionRefs.current[1] = el}
           isVisible={visibleSections.has(1)}
           style={{ 
             position: 'relative', 
             overflow: 'hidden',
+            minHeight: '120vh', // 增加高度
+            paddingTop: '8vh',   // 下移一点
           }}
         >
-          {/* 脉冲波螺旋动画背景 - 下移到合适位置，扩大容器适应新尺寸 */}
-          <div style={{
-            position: 'absolute',
-            left: '50%',
-            top: '60%', // 下移动画位置
-            transform: 'translate(-50%, -50%)',
-            width: '1200px', // 进一步扩大容器以容纳最大半径563
-            height: '1200px',
-            zIndex: 0,
-          }}>
-            <PulseWaveSpiral 
-              inView={visibleSections.has(1)}
-              className="about-section-background"
-            />
-          </div>
-
           <div style={{ 
             maxWidth: '1200px', 
             margin: '0 auto', 
@@ -214,10 +199,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: '6vh',
+            gap: '8vh', // 增加间距
           }}>
             
-            {/* 标题 - 恢复切字缓入动画 */}
+            {/* 标题区域 */}
             <div style={{ 
               textAlign: 'center',
               maxWidth: '900px',
@@ -260,49 +245,74 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
               </AnimatedCard>
             </div>
 
-            {/* 统一格式的统计数据区域 - 使用config中的数据 */}
+            {/* 统计数据区域 - 增加高度，包含地图动画背景 */}
             <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(3, 1fr)',
-              gap: '3rem',
-              textAlign: 'center',
-              maxWidth: '900px',
-              width: '100%',
               position: 'relative',
-              zIndex: 2,
+              width: '100%',
+              maxWidth: '900px',
+              minHeight: '50vh', // 增加统计区域高度
+              display: 'flex',
+              alignItems: 'center',
             }}>
-              {content.about.stats.map((stat, index) => (
-                <AnimatedCard key={index} delay={0.5 + index * 0.1} inView={visibleSections.has(1)}>
-                  <div>
-                    <div style={{
-                      fontSize: 'clamp(2.2rem, 5vw, 3.5rem)',
-                      fontWeight: DESIGN_TOKENS.typography.fontWeight.bold,
-                      marginBottom: '0.5rem',
-                      color: DESIGN_TOKENS.colors.text.primary,
-                    }}>
-                      <AnimatedCounter 
-                        value={stat.value} 
-                        duration={2000 + index * 200} 
-                        inView={visibleSections.has(1)} 
-                      />
+              {/* 世界地图动画背景 - 增加高度 */}
+              <div style={{
+                position: 'absolute',
+                left: '50%',
+                top: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: '1400px',
+                height: '900px', // 增加动画区域高度
+                zIndex: 0,
+              }}>
+                <WorldMapAnimation 
+                  inView={visibleSections.has(1)}
+                  className="about-section-background"
+                />
+              </div>
+
+              {/* 统计数据网格 */}
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, 1fr)',
+                gap: '4rem', // 增加间距
+                textAlign: 'center',
+                position: 'relative',
+                zIndex: 2,
+                width: '100%',
+              }}>
+                {content.about.stats.map((stat, index) => (
+                  <AnimatedCard key={index} delay={0.5 + index * 0.1} inView={visibleSections.has(1)}>
+                    <div>
+                      <div style={{
+                        fontSize: 'clamp(2.2rem, 5vw, 3.5rem)',
+                        fontWeight: DESIGN_TOKENS.typography.fontWeight.bold,
+                        marginBottom: '0.5rem',
+                        color: DESIGN_TOKENS.colors.text.primary,
+                      }}>
+                        <AnimatedCounter 
+                          value={stat.value} 
+                          duration={2000 + index * 200} 
+                          inView={visibleSections.has(1)} 
+                        />
+                      </div>
+                      <div style={{
+                        fontSize: DESIGN_TOKENS.typography.fontSize.body,
+                        color: DESIGN_TOKENS.colors.text.secondary,
+                        fontWeight: DESIGN_TOKENS.typography.fontWeight.regular,
+                        marginBottom: '0.5rem',
+                      }}>
+                        {stat.label}
+                      </div>
+                      <div style={{
+                        fontSize: DESIGN_TOKENS.typography.fontSize.small,
+                        color: DESIGN_TOKENS.colors.text.tertiary,
+                      }}>
+                        {stat.subtitle}
+                      </div>
                     </div>
-                    <div style={{
-                      fontSize: DESIGN_TOKENS.typography.fontSize.body,
-                      color: DESIGN_TOKENS.colors.text.secondary,
-                      fontWeight: DESIGN_TOKENS.typography.fontWeight.regular,
-                      marginBottom: '0.5rem',
-                    }}>
-                      {stat.label}
-                    </div>
-                    <div style={{
-                      fontSize: DESIGN_TOKENS.typography.fontSize.small,
-                      color: DESIGN_TOKENS.colors.text.tertiary,
-                    }}>
-                      {stat.subtitle}
-                    </div>
-                  </div>
-                </AnimatedCard>
-              ))}
+                  </AnimatedCard>
+                ))}
+              </div>
             </div>
           </div>
         </PageSection>
