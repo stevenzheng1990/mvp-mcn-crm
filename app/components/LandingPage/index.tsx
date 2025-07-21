@@ -25,7 +25,7 @@ import BackToTopButton from './components/BackToTopButton';
 import AnimatedCard from './components/AnimatedCard';
 import AnimatedCounter from './components/AnimatedCounter';
 import WorldMapAnimation from './components/WorldMapAnimation';
-
+import MagneticSocialLogos from './components/MagneticSocialLogos';
 const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
   // 状态管理
   const [language, setLanguage] = useState<Language>('zh');
@@ -186,8 +186,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
           style={{ 
             position: 'relative', 
             overflow: 'hidden',
-            minHeight: '120vh', // 增加高度
-            paddingTop: '8vh',   // 下移一点
+            minHeight: '150vh', // 增加高度以容纳新布局
+            paddingTop: '8vh',
           }}
         >
           <div style={{ 
@@ -199,7 +199,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: '8vh', // 增加间距
+            gap: '6vh',
           }}>
             
             {/* 标题区域 */}
@@ -245,40 +245,18 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
               </AnimatedCard>
             </div>
 
-            {/* 统计数据区域 - 增加高度，包含地图动画背景 */}
+            {/* 统计数据区域 */}
             <div style={{
               position: 'relative',
               width: '100%',
               maxWidth: '900px',
-              minHeight: '50vh', // 增加统计区域高度
-              display: 'flex',
-              alignItems: 'center',
+              zIndex: 2,
             }}>
-              {/* 世界地图动画背景 - 增加高度 */}
-              <div style={{
-                position: 'absolute',
-                left: '50%',
-                top: '50%',
-                transform: 'translate(-50%, -50%)',
-                width: '1400px',
-                height: '900px', // 增加动画区域高度
-                zIndex: 0,
-              }}>
-                <WorldMapAnimation 
-                  inView={visibleSections.has(1)}
-                  className="about-section-background"
-                />
-              </div>
-
-              {/* 统计数据网格 */}
               <div style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(3, 1fr)',
-                gap: '4rem', // 增加间距
+                gap: '4rem',
                 textAlign: 'center',
-                position: 'relative',
-                zIndex: 2,
-                width: '100%',
               }}>
                 {content.about.stats.map((stat, index) => (
                   <AnimatedCard key={index} delay={0.5 + index * 0.1} inView={visibleSections.has(1)}>
@@ -313,6 +291,36 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
                   </AnimatedCard>
                 ))}
               </div>
+            </div>
+
+            {/* 世界地图动画背景 - 移到中间，覆盖统计和logo区域 */}
+            <div style={{
+              position: 'absolute',
+              left: '50%',
+              top: '45%', // 调整位置以覆盖统计和logo区域
+              transform: 'translate(-50%, -50%)',
+              width: '2000px', // 增大宽度
+              height: '1200px', // 增大高度
+              zIndex: 0,
+              pointerEvents: 'none', // 确保不影响其他元素的交互
+            }}>
+              <WorldMapAnimation 
+                inView={visibleSections.has(1)}
+                className="about-section-background"
+              />
+            </div>
+            
+            {/* 社媒Logo磁性吸附展示 */}
+            <div style={{ 
+              pointerEvents: 'auto', 
+              position: 'relative', 
+              zIndex: 2,
+              marginTop: '4vh', // 添加一些顶部间距
+            }}>
+              <MagneticSocialLogos 
+                inView={visibleSections.has(1)} 
+                className="social-logos-section"
+              />
             </div>
           </div>
         </PageSection>
