@@ -113,6 +113,87 @@ export interface TooltipContent {
   languageSwitch: string;
 }
 
+// 新增内容结构
+export interface ContentTagsContent {
+  title: string;
+  subtitle: string;
+  tags: string[];
+}
+
+export interface ChartLabels {
+  before: string;
+  month1: string;
+  month2: string;
+  month3: string;
+  month4: string;
+  month6: string;
+  month8: string;
+  month12: string;
+}
+
+export interface ChartSeries {
+  mvp: string;
+  industry: string;
+  independent?: string;
+}
+
+export interface ChartMetrics {
+  brandAwareness: string;
+  engagement: string;
+  roi: string;
+  conversion: string;
+  retention: string;
+  reputation: string;
+}
+
+export interface CreatorIncomeChart {
+  title: string;
+  subtitle: string;
+  series: ChartSeries;
+  timeLabels: ChartLabels;
+}
+
+export interface SatisfactionChart {
+  title: string;
+  subtitle: string;
+  label: string;
+}
+
+export interface ComparisonChart {
+  title: string;
+  subtitle: string;
+  series: Omit<ChartSeries, 'independent'>;
+  metrics: ChartMetrics;
+}
+
+export interface ChartsContent {
+  creatorIncome: CreatorIncomeChart;
+  satisfaction: SatisfactionChart;
+  comparison: ComparisonChart;
+}
+
+export interface PlatformRegion {
+  title: string;
+  platforms: string[];
+}
+
+export interface PlatformSummary {
+  platforms: string;
+  platformsLabel: string;
+  successRate: string;
+  successLabel: string;
+  monitoring: string;
+  monitoringLabel: string;
+}
+
+export interface PlatformsContent {
+  title: string;
+  subtitle: string;
+  china: PlatformRegion;
+  overseas: PlatformRegion;
+  summary: PlatformSummary;
+}
+
 // 完整语言内容结构
 export interface ContentLanguage {
   hero: HeroContent;
@@ -123,6 +204,9 @@ export interface ContentLanguage {
   process: ProcessContent;
   conclusion: ConclusionContent;
   cta: CTAContent;
+  contentTags: ContentTagsContent;
+  charts: ChartsContent;
+  platforms: PlatformsContent;
   
   // 保留原有字段以保持兼容性
   title: string;

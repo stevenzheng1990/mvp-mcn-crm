@@ -15,20 +15,20 @@ const MagneticSocialLogos: React.FC<MagneticSocialLogosProps> = ({
   const gridRef = useRef<HTMLDivElement>(null);
   const logosRef = useRef<(HTMLDivElement | null)[]>([]);
 
-  // 社媒平台logo列表 - 更新为12个
+  // 社媒平台logo列表 - 更新为12个，缩小尺寸
   const socialLogos = [
-    { src: '/icons/icons8-facebook.svg', name: 'Facebook', size: 112 },
-    { src: '/icons/icons8-instagram.svg', name: 'Instagram', size: 112 },
-    { src: '/icons/icons8-tiktok.svg', name: 'TikTok', size: 112 },
-    { src: '/icons/icons8-youtube.svg', name: 'YouTube', size: 112 },
-    { src: '/icons/icons8-twitch.svg', name: 'Twitch', size: 112 },
-    { src: '/icons/Bilibili_logo.svg', name: 'Bilibili', size: 112 },
-    { src: '/icons/Xiaohongshu--Streamline-Simple-Icons.svg', name: 'Xiaohongshu', size: 112 },
-    { src: '/icons/WeChat-Logo.wine.svg', name: 'WeChat', size: 144 },
-    { src: '/icons/Toutiao_logo.svg', name: 'Toutiao', size: 112 },
-    { src: '/icons/kuaishou-seeklogo.svg', name: 'Kuaishou', size: 112 },
-    { src: '/icons/sina-weibo.svg', name: 'Weibo', size: 112 },
-    { src: '/icons/x-2.svg', name: 'Twitter', size: 96 },
+    { src: '/icons/icons8-facebook.svg', name: 'Facebook', size: 84 },
+    { src: '/icons/icons8-instagram.svg', name: 'Instagram', size: 84 },
+    { src: '/icons/icons8-tiktok.svg', name: 'TikTok', size: 84 },
+    { src: '/icons/icons8-youtube.svg', name: 'YouTube', size: 84 },
+    { src: '/icons/icons8-twitch.svg', name: 'Twitch', size: 84 },
+    { src: '/icons/Bilibili_logo.svg', name: 'Bilibili', size: 84 },
+    { src: '/icons/Xiaohongshu--Streamline-Simple-Icons.svg', name: 'Xiaohongshu', size: 84 },
+    { src: '/icons/WeChat-Logo.wine.svg', name: 'WeChat', size: 108 },
+    { src: '/icons/Toutiao_logo.svg', name: 'Toutiao', size: 84 },
+    { src: '/icons/kuaishou-seeklogo.svg', name: 'Kuaishou', size: 84 },
+    { src: '/icons/sina-weibo.svg', name: 'Weibo', size: 84 },
+    { src: '/icons/x-2.svg', name: 'Twitter', size: 72 },
   ];
 
   useEffect(() => {
@@ -118,9 +118,9 @@ const MagneticSocialLogos: React.FC<MagneticSocialLogosProps> = ({
       style={{
         position: 'relative',
         width: '100%',
-        maxWidth: '1000px', // 增加最大宽度以容纳4列
+        maxWidth: '800px', // 减小最大宽度
         margin: '0 auto',
-        padding: '4rem 2rem',
+        padding: '3rem 2rem', // 减小padding
       }}
     >
       <div 
@@ -129,7 +129,7 @@ const MagneticSocialLogos: React.FC<MagneticSocialLogosProps> = ({
           display: 'grid',
           gridTemplateColumns: 'repeat(4, 1fr)', // 改为4列
           gridTemplateRows: 'repeat(3, 1fr)', // 3行
-          gap: '4rem', // 增加间距
+          gap: '3rem', // 减小间距
           justifyItems: 'center',
           alignItems: 'center',
         }}
@@ -159,9 +159,7 @@ const MagneticSocialLogos: React.FC<MagneticSocialLogosProps> = ({
                 width: `${logo.size}px`,
                 height: `${logo.size}px`,
                 objectFit: 'contain',
-                opacity: inView ? 1 : 0,
-                transition: 'opacity 0.6s ease-out',
-                transitionDelay: `${index * 0.05}s`, // 减少延迟时间因为logo更多了
+                opacity: 1, // 移除初始透明度，始终保持完全不透明
                 pointerEvents: 'none',
                 userSelect: 'none',
               }}

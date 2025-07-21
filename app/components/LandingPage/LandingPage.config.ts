@@ -8,7 +8,9 @@ export const DESIGN_TOKENS = {
     fontWeight: {
       light: 300,
       regular: 400,
-      bold: 900,
+      semibold: 600,  // 新增半粗体
+      bold: 700,      // 调整粗体
+      black: 900,     // 重命名原来的bold为black
     },
     fontSize: {
       hero: 'clamp(2.8rem, 8.4vw, 7rem)',
@@ -137,11 +139,77 @@ export const CONTENT_DATA: ContentData = {
       subtitle: '从十方而来，聚众声之势',
       tagline: '新一代内容营销生态构建者'
     },
+    contentTags: {
+      title: '内容垂类全覆盖',
+      subtitle: '30+专业赛道，精准触达目标受众',
+      tags: ['美妆护肤', '时尚穿搭', '生活方式', '美食探店', '科技数码', '旅行度假', '健身运动', '母婴亲子', '家居装修', '汽车评测', '教育培训', '宠物生活', '金融理财', '游戏娱乐', '艺术文化', '音乐舞蹈', '影视娱乐', '体育运动', '职场商务', '心理健康', '环保生活', '手工DIY', '摄影创作', '书籍阅读', '数字藏品', '元宇宙', '人工智能', '区块链', '新能源', '可持续发展']
+    },
+    charts: {
+      creatorIncome: {
+        title: '创作者收益增长对比分析',
+        subtitle: '十方众声 vs 行业平均 vs 独立创作者收益轨迹',
+        series: {
+          mvp: '十方众声创作者',
+          industry: '行业平均水平',
+          independent: '独立创作者'
+        },
+        timeLabels: {
+          before: '入驻前',
+          month1: '第1月',
+          month2: '第2月',
+          month3: '第3月',
+          month4: '第4月',
+          month6: '第6月',
+          month8: '第8月',
+          month12: '第12月'
+        }
+      },
+      satisfaction: {
+        title: '客户满意度指标',
+        subtitle: '基于200+品牌合作伙伴真实反馈',
+        label: '综合满意度评分'
+      },
+      comparison: {
+        title: '营销效果提升对比分析',
+        subtitle: '十方众声 vs 行业平均水平 - 关键指标表现',
+        series: {
+          mvp: '十方众声',
+          industry: '行业平均'
+        },
+        metrics: {
+          brandAwareness: '品牌声量',
+          engagement: '互动率',
+          roi: 'ROI回报',
+          conversion: '转化率',
+          retention: '用户留存',
+          reputation: '口碑指数'
+        }
+      }
+    },
+    platforms: {
+      title: '全球投放平台生态',
+      subtitle: '深度整合全球主流投放平台，一站式投流服务覆盖全渠道',
+      china: {
+        title: '中国市场',
+        platforms: ['蒲公英', '巨量星图', '微博易', '小红书蒲公英', '视频号推广', '快手磁力引擎', 'B站花火', '知乎商业化']
+      },
+      overseas: {
+        title: '海外市场',
+        platforms: ['Facebook Ads', 'Google Ads', 'TikTok Ads', 'Instagram Ads', 'YouTube Ads', 'Twitter Ads', 'LinkedIn Ads', 'Snapchat Ads']
+      },
+      summary: {
+        platforms: '16+',
+        platformsLabel: '主流投放平台深度合作',
+        successRate: '98%',
+        successLabel: '投放成功率',
+        monitoring: '24/7',
+        monitoringLabel: '实时监控优化'
+      }
+    },
     about: {
-      title: '关于我们',
+      title: '聚势十方，声动全球',
       description: [
-        '在内容驱动商业增长的时代，十方众声凭借专业的内容营销能力和丰富的创作者资源，为品牌构建与消费者的深度连接。',
-        '作为业界唯一在北美和中国同时建立完整生态的MCN机构，我们不仅是内容的生产者和传播者，更是品牌数字化转型的战略伙伴。'
+        '在这个注意力稀缺的时代，真正的价值不在于声音的大小，而在于共鸣的深度。十方众声作为业界唯一在北美和中国同时建立完整生态的MCN机构，用专业的内容营销能力和丰富的创作者资源，为品牌构建与消费者的深度连接。我们跨越太平洋两岸，连接东西方文化，让每个品牌都能找到属于自己的那群人，在全球化的内容营销浪潮中占得先机。'
       ],
       stats: [
         { value: '70+', label: '签约创作者', subtitle: '全平台覆盖' },
@@ -289,11 +357,77 @@ export const CONTENT_DATA: ContentData = {
       subtitle: 'Amplifying Voices, Multiplying Impact',
       tagline: 'Next-Gen Content Marketing Ecosystem'
     },
+    contentTags: {
+      title: 'Complete Content Vertical Coverage',
+      subtitle: '30+ specialized sectors for precise audience targeting',
+      tags: ['Beauty & Skincare', 'Fashion & Style', 'Lifestyle', 'Food & Dining', 'Tech & Digital', 'Travel & Vacation', 'Fitness & Sports', 'Parenting & Family', 'Home & Decor', 'Automotive', 'Education & Training', 'Pets & Animals', 'Finance & Investment', 'Gaming & Entertainment', 'Arts & Culture', 'Music & Dance', 'Film & TV', 'Sports & Athletics', 'Business & Career', 'Mental Health', 'Sustainable Living', 'DIY & Crafts', 'Photography', 'Books & Reading', 'Digital Collectibles', 'Metaverse', 'Artificial Intelligence', 'Blockchain', 'Clean Energy', 'Sustainability']
+    },
+    charts: {
+      creatorIncome: {
+        title: 'Creator Revenue Growth Comparison',
+        subtitle: 'Mega Volume vs Industry Average vs Independent Creators',
+        series: {
+          mvp: 'Mega Volume Creators',
+          industry: 'Industry Average',
+          independent: 'Independent Creators'
+        },
+        timeLabels: {
+          before: 'Pre-Join',
+          month1: 'Month 1',
+          month2: 'Month 2',
+          month3: 'Month 3',
+          month4: 'Month 4',
+          month6: 'Month 6',
+          month8: 'Month 8',
+          month12: 'Month 12'
+        }
+      },
+      satisfaction: {
+        title: 'Customer Satisfaction Metrics',
+        subtitle: 'Based on 200+ brand partner feedback',
+        label: 'Overall Satisfaction Score'
+      },
+      comparison: {
+        title: 'Marketing Performance Improvement Analysis',
+        subtitle: 'Mega Volume vs Industry Average - Key Performance Indicators',
+        series: {
+          mvp: 'Mega Volume',
+          industry: 'Industry Average'
+        },
+        metrics: {
+          brandAwareness: 'Brand Awareness',
+          engagement: 'Engagement Rate',
+          roi: 'ROI Returns',
+          conversion: 'Conversion Rate',
+          retention: 'User Retention',
+          reputation: 'Brand Reputation'
+        }
+      }
+    },
+    platforms: {
+      title: 'Global Advertising Platform Ecosystem',
+      subtitle: 'Deep integration with leading global platforms for comprehensive omnichannel advertising services',
+      china: {
+        title: 'China Market',
+        platforms: ['Dandelion', 'Ocean Engine', 'Weibo Yi', 'Xiaohongshu Dandelion', 'WeChat Channels', 'Kuaishou Magnetic Engine', 'Bilibili Spark', 'Zhihu Commercial']
+      },
+      overseas: {
+        title: 'Global Markets',
+        platforms: ['Facebook Ads', 'Google Ads', 'TikTok Ads', 'Instagram Ads', 'YouTube Ads', 'Twitter Ads', 'LinkedIn Ads', 'Snapchat Ads']
+      },
+      summary: {
+        platforms: '16+',
+        platformsLabel: 'Leading Platform Partnerships',
+        successRate: '98%',
+        successLabel: 'Campaign Success Rate',
+        monitoring: '24/7',
+        monitoringLabel: 'Real-time Monitoring & Optimization'
+      }
+    },
     about: {
-      title: 'About Us',
+      title: 'Voices United, Impact Amplified',
       description: [
-        'In an era where authentic storytelling drives consumer decisions, Mega Volume Production stands at the forefront of content marketing evolution.',
-        'As the only MCN agency with operational excellence in both North American and Asian markets, we craft campaigns that resonate across cultural boundaries.'
+        'In this attention-scarce era, true value lies not in volume, but in the depth of connection. As the only MCN agency with operational excellence in both North American and Asian markets, Mega Volume Production leverages professional content marketing capabilities and rich creator resources to build deep connections between brands and consumers. We bridge continents and cultures, helping every brand find their tribe and gain the upper hand in the global content marketing revolution.'
       ],
       stats: [
         { value: '70+', label: 'Exclusive Creators', subtitle: 'Cross-Platform Coverage' },
