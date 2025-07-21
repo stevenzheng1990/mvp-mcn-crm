@@ -113,7 +113,7 @@ const WorldMapAnimation: React.FC<WorldMapAnimationProps> = ({
 
     // Initialize camera
     const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 10000);
-    camera.position.set(-50, 0, 290);
+    camera.position.set(-50, 0, 340);
 
     const centerVector = new THREE.Vector3(0, 0, 0);
     camera.lookAt(centerVector);
@@ -185,8 +185,8 @@ const WorldMapAnimation: React.FC<WorldMapAnimationProps> = ({
     // Map dimensions for reference
     const mapRadiusApprox = Math.sqrt(Math.pow(imageData.width / 2, 2) + Math.pow(imageData.height / 2, 2)); // ~223 for 400x200
 
-    for (let y = 0; y < imageData.height; y += 4) {
-      for (let x = 0; x < imageData.width; x += 4) {
+    for (let y = 0; y < imageData.height; y += 3) {
+      for (let x = 0; x < imageData.width; x += 3) {
         const index = (x + y * imageData.width) * 4;
         if (imageData.data[index + 3] > 128) { // alpha > half
           // Target position on map

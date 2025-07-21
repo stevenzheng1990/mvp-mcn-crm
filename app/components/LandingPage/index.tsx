@@ -297,7 +297,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
             <div style={{
               position: 'absolute',
               left: '50%',
-              top: '45%', // 调整位置以覆盖统计和logo区域
+              top: '65%', // 调整位置以覆盖统计和logo区域
               transform: 'translate(-50%, -50%)',
               width: '2000px', // 增大宽度
               height: '1200px', // 增大高度
