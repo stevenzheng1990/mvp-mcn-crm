@@ -58,14 +58,37 @@ export interface CreatorBenefit {
   highlight?: string;
 }
 
+export interface CreatorGrowthData {
+  label: string;
+  value: number;
+}
+
+export interface CreatorGrowthContent {
+  title: string;
+  subtitle: string;
+  metrics: {
+    followerGrowth: string;
+    engagementRate: string;
+    viralPosts: string;
+    interactionBoost: string;
+  };
+  data: {
+    followers: CreatorGrowthData[];
+    engagement: CreatorGrowthData[];
+    avgViews: CreatorGrowthData[];
+    monthlyIncome: CreatorGrowthData[];
+  };
+}
+
 export interface ForCreatorsContent {
   title: string;
   subtitle: string;
   benefits: CreatorBenefit[];
-  testimonial: {
+  testimonial?: {
     quote: string;
     author: string;
   };
+  creatorGrowth?: CreatorGrowthContent;
 }
 
 export interface BrandService {

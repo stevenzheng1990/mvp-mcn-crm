@@ -504,8 +504,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
 
             {/* 数据展示区域 */}
             <GrowthMetrics
-              title={content.forCreators.creatorGrowth.title}
-              subtitle={content.forCreators.creatorGrowth.subtitle}
+              title={content.forCreators.creatorGrowth?.title}
+              subtitle={content.forCreators.creatorGrowth?.subtitle}
               inView={visibleSections.has(3)}
               delay={0.8}
             />

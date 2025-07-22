@@ -32,41 +32,38 @@ const LogoMaskLayerOptimized: React.FC<LogoMaskLayerOptimizedProps> = ({
   const scale = 0.3 + (scrollProgress * 9.7); // 从0.3到10
   const opacity = maskOpacity;
 
+  const svgContent = `<svg viewBox="48.992 144.527 402.007 210.947" xmlns="http://www.w3.org/2000/svg"><path d="${MVP_LOGO_PATH}" fill="black"/></svg>`;
+  const maskUrl = `url("data:image/svg+xml,${encodeURIComponent(svgContent)}")`;
+
+  const maskStyle: React.CSSProperties & Record<string, any> = {
+    position: 'fixed',
+    inset: 0,
+    zIndex: 40,
+    opacity: opacity,
+    pointerEvents: 'none',
+    width: '100vw',
+    height: '100vh',
+    overflow: 'hidden',
+    // 使用CSS mask 替代 SVG mask
+    WebkitMaskImage: maskUrl,
+    WebkitMaskPosition: 'center',
+    WebkitMaskRepeat: 'no-repeat',
+    WebkitMaskSize: `${scale * 100}%`,
+    maskImage: maskUrl,
+    maskPosition: 'center',
+    maskRepeat: 'no-repeat',
+    maskSize: `${scale * 100}%`,
+    backgroundColor: 'white',
+    transition: 'none', // 移除过渡效果，依赖滚动平滑
+    willChange: 'mask-size, opacity',
+    transform: 'translateZ(0)', // GPU加速
+  };
+
   return (
     <div 
       ref={containerRef}
       className="logo-mask-layer-optimized"
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 40,
-        opacity: opacity,
-        pointerEvents: 'none',
-        width: '100vw',
-        height: '100vh',
-        overflow: 'hidden',
-        // 使用CSS mask 替代 SVG mask
-        WebkitMaskImage: `url("data:image/svg+xml,${encodeURIComponent(`
-          <svg viewBox="48.992 144.527 402.007 210.947" xmlns="http://www.w3.org/2000/svg">
-            <path d="${MVP_LOGO_PATH}" fill="black"/>
-          </svg>
-        )}")`,
-        WebkitMaskPosition: 'center',
-        WebkitMaskRepeat: 'no-repeat',
-        WebkitMaskSize: `${scale * 100}%`,
-        maskImage: `url("data:image/svg+xml,${encodeURIComponent(`
-          <svg viewBox="48.992 144.527 402.007 210.947" xmlns="http://www.w3.org/2000/svg">
-            <path d="${MVP_LOGO_PATH}" fill="black"/>
-          </svg>
-        )}")`,
-        maskPosition: 'center',
-        maskRepeat: 'no-repeat',
-        maskSize: `${scale * 100}%`,
-        backgroundColor: 'white',
-        transition: 'none', // 移除过渡效果，依赖滚动平滑
-        willChange: 'mask-size, opacity',
-        transform: 'translateZ(0)', // GPU加速
-      }}
+      style={maskStyle}
     />
   );
 };
