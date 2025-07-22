@@ -22,8 +22,17 @@ const LogoMaskLayer: React.FC<LogoMaskLayerProps> = ({ scrollProgress, maskOpaci
     height: 355.474 - 144.527
   };
 
-  // 计算缩放参数
-  const calculateScale = () => {
+  // 计算SVG的实际中心 - 移到前面
+  const svgCenterX = SVG_VIEWBOX.minX + SVG_VIEWBOX.width / 2;
+  const svgCenterY = SVG_VIEWBOX.minY + SVG_VIEWBOX.height / 2;
+
+  // 缓动函数提取到组件外
+  const easeInOutQuad = (t: number): number => {
+    return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+  };
+
+  // 使用 useMemo 优化缩放计算
+  const scale = React.useMemo(() => {
     if (!dimensions.width || !dimensions.height) return 1;
     
     // 基础缩放 - 让logo初始时占据屏幕的合适比例
@@ -32,24 +41,19 @@ const LogoMaskLayer: React.FC<LogoMaskLayerProps> = ({ scrollProgress, maskOpaci
       dimensions.height / SVG_VIEWBOX.height
     ) * 0.3;
     
-    // 根据滚动进度计算缩放
-    const easeInOutQuad = (t: number): number => {
-      return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-    };
-    
     const easedProgress = easeInOutQuad(scrollProgress);
     
-    // 从初始大小放大到超出屏幕
+    // 降低最大缩放倍数以提升性能
     const maxScale = Math.max(
       dimensions.width / SVG_VIEWBOX.width,
       dimensions.height / SVG_VIEWBOX.height
-    ) * 13;
+    ) * 10; // 从 13 降低到 10
     
     return baseScale + (maxScale - baseScale) * easedProgress;
-  };
+  }, [dimensions.width, dimensions.height, scrollProgress]);
 
-  // 计算焦点偏移
-  const calculateFocusOffset = () => {
+  // 使用 useMemo 优化焦点偏移计算
+  const focusOffset = React.useMemo(() => {
     const focusTargetX = 215;
     const focusTargetY = 353;
     
@@ -59,7 +63,7 @@ const LogoMaskLayer: React.FC<LogoMaskLayerProps> = ({ scrollProgress, maskOpaci
     const currentFocusY = svgCenterY + (focusTargetY - svgCenterY) * offsetProgress;
     
     return { x: currentFocusX, y: currentFocusY };
-  };
+  }, [scrollProgress, svgCenterX, svgCenterY]);
 
   // 更新尺寸
   useEffect(() => {
@@ -75,12 +79,7 @@ const LogoMaskLayer: React.FC<LogoMaskLayerProps> = ({ scrollProgress, maskOpaci
     return () => window.removeEventListener('resize', updateDimensions);
   }, []);
 
-  // 计算SVG的实际中心
-  const svgCenterX = SVG_VIEWBOX.minX + SVG_VIEWBOX.width / 2;
-  const svgCenterY = SVG_VIEWBOX.minY + SVG_VIEWBOX.height / 2;
-
-  const scale = calculateScale();
-  const focusOffset = calculateFocusOffset();
+  // scale 和 focusOffset 已经通过 useMemo 计算
   
   const centerX = dimensions.width / 2;
   const centerY = dimensions.height / 2;
@@ -99,11 +98,11 @@ const LogoMaskLayer: React.FC<LogoMaskLayerProps> = ({ scrollProgress, maskOpaci
         zIndex: 40,
         opacity: maskOpacity,
         pointerEvents: 'none',
-        willChange: 'opacity',
-        // 🔧 添加：确保容器完全覆盖视口
+        willChange: 'opacity, transform',
         width: '100vw',
         height: '100vh',
-        overflow: 'hidden', // 🔧 改为 hidden，防止内容溢出
+        overflow: 'hidden',
+        transform: 'translateZ(0)', // 开启GPU加速
       }}
     >
       <svg 
@@ -117,7 +116,7 @@ const LogoMaskLayer: React.FC<LogoMaskLayerProps> = ({ scrollProgress, maskOpaci
           top: '-100px',
         }}
         viewBox={expandedViewBox}
-        preserveAspectRatio="xMidYMid slice" // 🔧 改为 slice，确保覆盖整个视口
+        preserveAspectRatio="xMidYMid slice"
       >
         <defs>
           <mask id="logoRevealMask">
@@ -131,8 +130,14 @@ const LogoMaskLayer: React.FC<LogoMaskLayerProps> = ({ scrollProgress, maskOpaci
             />
             
             {/* Logo路径 - 黑色，作为透视窗口 */}
-            <g transform={`translate(${centerX}, ${centerY})`}>
-              <g transform={`scale(${scale}) translate(${-focusOffset.x}, ${-focusOffset.y})`}>
+            <g 
+              transform={`translate(${centerX}, ${centerY})`}
+              style={{ willChange: 'transform' }}
+            >
+              <g 
+                transform={`scale(${scale}) translate(${-focusOffset.x}, ${-focusOffset.y})`}
+                style={{ willChange: 'transform' }}
+              >
                 <path
                   d={MVP_LOGO_PATH}
                   fill="black"

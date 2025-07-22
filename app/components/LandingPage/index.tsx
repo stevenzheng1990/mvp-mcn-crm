@@ -21,11 +21,15 @@ import LanguageSwitcher from './components/LanguageSwitcher';
 import NavigationButtons from './components/NavigationButtons';
 import ScrollIndicator from './components/ScrollIndicator';
 import LogoMaskLayer from './components/LogoMaskLayer';
+import LogoMaskLayerSimple from './components/LogoMaskLayerSimple';
 import PageSection from './components/PageSection';
 import BackToTopButton from './components/BackToTopButton';
 import AnimatedCard from './components/AnimatedCard';
 import AnimatedCounter from './components/AnimatedCounter';
-import MagneticSocialLogos from './components/MagneticSocialLogos';
+import SurroundingLogos from './components/SurroundingLogos';
+import GrowthMetrics from './components/GrowthMetrics';
+import ClientSatisfactionMetrics from './components/ClientSatisfactionMetrics';
+import MarketingEffectivenessMetrics from './components/MarketingEffectivenessMetrics';
 import ModernChart from './components/ModernChart';
 import ScrollingTags from './components/ScrollingTags';
 const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
@@ -35,6 +39,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
   
   // 自定义 Hook
   const { scrollProgress, maskOpacity } = useScrollProgress();
+  
+  // ScrollingTags 可见性控制 - 基于 scrollProgress，避免额外的滚动监听
+  const isScrollingTagsVisible = scrollProgress > 0.2; // 当滚动进度超过20%时显示
   
   // Refs
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
@@ -131,7 +138,14 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
       {/* 主内容区 */}
       <main className="main-content" style={{ position: 'relative', zIndex: 20, pointerEvents: 'none' }}>
         {/* 遮罩占位区 */}
-        <div className="mask-spacer" style={{ height: '290vh' }} />
+        <div 
+          className="mask-spacer" 
+          style={{ 
+            height: '290vh',
+            willChange: 'transform',
+            transform: 'translateZ(0)', // 强制GPU加速
+          }} 
+        />
 
         {/* Hero Section */}
         <PageSection
@@ -203,7 +217,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: '12vh', // 增加间隙，提升呼吸感
+            gap: '8vh', // 调整间隙，因为统计数据区域已经缩小
           }}>
             
             {/* 标题与描述区域 */}
@@ -250,7 +264,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
               </div>
             </div>
 
-            {/* 社媒Logo磁性吸附展示 - 移到统计数据上方 */}
+            {/* 社媒Logo磁性吸附展示 */}
             <div style={{ 
               pointerEvents: 'auto', 
               position: 'relative', 
@@ -258,9 +272,11 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
               width: '100%',
               display: 'flex',
               justifyContent: 'center',
+              alignItems: 'center',
               marginBottom: '6vh',
+              padding: '0 2rem', // 添加左右padding防止边缘溢出
             }}>
-              <MagneticSocialLogos 
+              <SurroundingLogos 
                 inView={visibleSections.has(1)} 
                 className="social-logos-section"
               />
@@ -335,9 +351,25 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
           paddingBottom: '8vh',
           overflow: 'hidden'
         }}>
+          {/* 上方滚动动画 */}
+          <div style={{
+            maxWidth: '1200px',
+            margin: '0 auto',
+            padding: '0 2rem',
+            marginBottom: '3rem'
+          }}>
+            <ScrollingTags
+              tags={content.contentTags.tags}
+              speed={60}
+              inView={isScrollingTagsVisible}
+              delay={0}
+            />
+          </div>
+
+          {/* 标题和副标题 */}
           <div style={{
             textAlign: 'center',
-            marginBottom: '4rem',
+            marginBottom: '3rem',
             paddingLeft: '5vw',
             paddingRight: '5vw'
           }}>
@@ -349,8 +381,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
             }}>
               <AnimatedText
                 text={content.contentTags.title}
-                inView={visibleSections.has(1)}
-                delay={1.0}
+                inView={isScrollingTagsVisible}
+                delay={0.3}
               />
             </h3>
             <p style={{
@@ -358,14 +390,15 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
               color: '#6b7280',
               margin: 0,
               fontWeight: '300',
-              opacity: visibleSections.has(1) ? 1 : 0,
-              transform: visibleSections.has(1) ? 'translateY(0)' : 'translateY(20px)',
-              transition: 'all 0.8s ease 1.2s',
+              opacity: isScrollingTagsVisible ? 1 : 0,
+              transform: isScrollingTagsVisible ? 'translateY(0)' : 'translateY(20px)',
+              transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.2s',
             }}>
               {content.contentTags.subtitle}
             </p>
           </div>
           
+          {/* 下方滚动动画 */}
           <div style={{
             maxWidth: '1200px',
             margin: '0 auto',
@@ -373,9 +406,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
           }}>
             <ScrollingTags
               tags={content.contentTags.tags}
-              speed={30}
-              inView={visibleSections.has(1)}
-              delay={1.2}
+              speed={45}
+              inView={isScrollingTagsVisible}
+              delay={0.6}
             />
           </div>
         </div>
@@ -385,16 +418,17 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
           sectionRef={el => sectionRefs.current[3] = el}
           isVisible={visibleSections.has(3)}
           style={{ 
-            minHeight: '150vh',
-            paddingTop: '8vh',
-            paddingBottom: '8vh',
+            minHeight: '100vh',
+            paddingTop: DESIGN_TOKENS.spacing.section.padding.split(' ')[0],
+            paddingBottom: DESIGN_TOKENS.spacing.section.padding.split(' ')[0],
           }}
         >
           <div style={{ maxWidth: '1400px', margin: '0 auto', width: '100%' }}>
+            {/* 标题区域 */}
             <AnimatedCard inView={visibleSections.has(3)}>
               <h2 style={{
                 fontSize: DESIGN_TOKENS.typography.fontSize.heading,
-                fontWeight: DESIGN_TOKENS.typography.fontWeight.bold, // 增加一级粗细
+                fontWeight: DESIGN_TOKENS.typography.fontWeight.bold,
                 marginBottom: '1rem',
                 textAlign: 'center',
               }}>
@@ -420,144 +454,61 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
               </p>
             </AnimatedCard>
 
+            {/* 优势展示 - 简洁卡片 */}
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+              gridTemplateColumns: 'repeat(3, 1fr)',
               gap: '2rem',
-              marginBottom: DESIGN_TOKENS.spacing.gap.content,
+              marginBottom: '6rem',
             }}>
               {content.forCreators.benefits.map((benefit, index) => (
                 <AnimatedCard key={index} delay={0.2 + index * 0.15} inView={visibleSections.has(3)}>
                   <div style={{
-                    padding: '2rem',
-                    borderLeft: '3px solid rgba(80, 80, 80, 0.1)',
-                  }}>
+                    padding: '2.5rem',
+                    borderRadius: '1rem',
+                    ...createGlassStyles(false),
+                    transition: 'all 0.3s ease',
+                    cursor: 'pointer',
+                  }}
+                  onMouseEnter={(e) => {
+                    const card = e.currentTarget as HTMLDivElement;
+                    card.style.transform = 'translateY(-4px)';
+                    card.style.boxShadow = '0 15px 40px rgba(0, 0, 0, 0.1)';
+                  }}
+                  onMouseLeave={(e) => {
+                    const card = e.currentTarget as HTMLDivElement;
+                    card.style.transform = 'translateY(0)';
+                    card.style.boxShadow = '0 5px 20px rgba(0, 0, 0, 0.05)';
+                  }}
+                  >
                     <h3 style={{
-                      fontSize: '1.3rem',
-                      fontWeight: DESIGN_TOKENS.typography.fontWeight.semibold, // 增加一级粗细
+                      fontSize: '1.5rem',
+                      fontWeight: DESIGN_TOKENS.typography.fontWeight.bold,
                       marginBottom: '1rem',
+                      color: DESIGN_TOKENS.colors.text.primary,
                     }}>
                       {benefit.title}
                     </h3>
                     <p style={{
                       fontSize: DESIGN_TOKENS.typography.fontSize.body,
                       color: DESIGN_TOKENS.colors.text.secondary,
-                      lineHeight: 1.7,
-                      opacity: visibleSections.has(3) ? 1 : 0,
-                      transform: visibleSections.has(3) ? 'translateY(0)' : 'translateY(20px)',
-                      transition: `all 0.8s ease ${0.4 + index * 0.15}s`,
+                      lineHeight: 1.6,
+                      margin: 0,
                     }}>
                       {benefit.description}
                     </p>
-                    {benefit.highlight && (
-                      <div style={{
-                        marginTop: '1rem',
-                        fontSize: '1.1rem',
-                        fontWeight: DESIGN_TOKENS.typography.fontWeight.bold,
-                        color: DESIGN_TOKENS.colors.text.primary,
-                      }}>
-                        <AnimatedCounter 
-                          value={benefit.highlight} 
-                          duration={2000} 
-                          inView={visibleSections.has(3)} 
-                        />
-                      </div>
-                    )}
                   </div>
                 </AnimatedCard>
               ))}
             </div>
 
-            {/* 创作者收益增长图表 */}
-            <div style={{
-              display: 'flex',
-              justifyContent: 'center',
-              marginBottom: '6rem',
-              width: '100%',
-            }}>
-              <ModernChart
-                type="multiLine"
-                title={content.charts.creatorIncome.title}
-                subtitle={content.charts.creatorIncome.subtitle}
-                multiSeriesData={[
-                  {
-                    name: content.charts.creatorIncome.series.mvp,
-                    color: '#1e40af',
-                    data: [
-                      { label: content.charts.creatorIncome.timeLabels.before, value: 8500 },
-                      { label: content.charts.creatorIncome.timeLabels.month1, value: 15200 },
-                      { label: content.charts.creatorIncome.timeLabels.month2, value: 22800 },
-                      { label: content.charts.creatorIncome.timeLabels.month3, value: 31500 },
-                      { label: content.charts.creatorIncome.timeLabels.month4, value: 42300 },
-                      { label: content.charts.creatorIncome.timeLabels.month6, value: 58900 },
-                      { label: content.charts.creatorIncome.timeLabels.month8, value: 67200 },
-                      { label: content.charts.creatorIncome.timeLabels.month12, value: 85600 }
-                    ]
-                  },
-                  {
-                    name: content.charts.creatorIncome.series.industry,
-                    color: '#7c3aed',
-                    data: [
-                      { label: content.charts.creatorIncome.timeLabels.before, value: 8500 },
-                      { label: content.charts.creatorIncome.timeLabels.month1, value: 9200 },
-                      { label: content.charts.creatorIncome.timeLabels.month2, value: 11800 },
-                      { label: content.charts.creatorIncome.timeLabels.month3, value: 14200 },
-                      { label: content.charts.creatorIncome.timeLabels.month4, value: 17600 },
-                      { label: content.charts.creatorIncome.timeLabels.month6, value: 21800 },
-                      { label: content.charts.creatorIncome.timeLabels.month8, value: 25300 },
-                      { label: content.charts.creatorIncome.timeLabels.month12, value: 32400 }
-                    ]
-                  },
-                  {
-                    name: content.charts.creatorIncome.series.independent,
-                    color: '#db2777',
-                    data: [
-                      { label: content.charts.creatorIncome.timeLabels.before, value: 8500 },
-                      { label: content.charts.creatorIncome.timeLabels.month1, value: 7800 },
-                      { label: content.charts.creatorIncome.timeLabels.month2, value: 8900 },
-                      { label: content.charts.creatorIncome.timeLabels.month3, value: 10200 },
-                      { label: content.charts.creatorIncome.timeLabels.month4, value: 12100 },
-                      { label: content.charts.creatorIncome.timeLabels.month6, value: 15800 },
-                      { label: content.charts.creatorIncome.timeLabels.month8, value: 18200 },
-                      { label: content.charts.creatorIncome.timeLabels.month12, value: 22700 }
-                    ]
-                  }
-                ]}
-                data={[]} // 保留空数组以满足接口要求
-                inView={visibleSections.has(3)}
-                delay={0.8}
-              />
-            </div>
-
-            <AnimatedCard delay={0.8} inView={visibleSections.has(3)}>
-              <div style={{
-                padding: '3rem',
-                borderRadius: '1rem',
-                textAlign: 'center',
-                ...createGlassStyles(false),
-              }}>
-                <p style={{
-                  fontSize: '1.2rem',
-                  fontStyle: 'italic',
-                  marginBottom: '1rem',
-                  lineHeight: 1.8,
-                  opacity: visibleSections.has(3) ? 1 : 0,
-                  transform: visibleSections.has(3) ? 'translateY(0)' : 'translateY(20px)',
-                  transition: 'all 0.8s ease 0.9s',
-                }}>
-                  "{content.forCreators.testimonial.quote}"
-                </p>
-                <p style={{
-                  fontSize: DESIGN_TOKENS.typography.fontSize.small,
-                  color: DESIGN_TOKENS.colors.text.secondary,
-                  opacity: visibleSections.has(3) ? 1 : 0,
-                  transform: visibleSections.has(3) ? 'translateY(0)' : 'translateY(20px)',
-                  transition: 'all 0.8s ease 1.0s',
-                }}>
-                  — {content.forCreators.testimonial.author}
-                </p>
-              </div>
-            </AnimatedCard>
+            {/* 数据展示区域 */}
+            <GrowthMetrics
+              title={content.forCreators.creatorGrowth.title}
+              subtitle={content.forCreators.creatorGrowth.subtitle}
+              inView={visibleSections.has(3)}
+              delay={0.8}
+            />
           </div>
         </PageSection>
 
@@ -665,60 +616,27 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
               ))}
             </div>
 
-            {/* 客户满意度图表 */}
+            {/* 客户满意度深度分析 */}
             <div style={{
               width: '100%',
               marginBottom: '8vh',
             }}>
-              <ModernChart
-                type="radialProgress"
+              <ClientSatisfactionMetrics
                 title={content.charts.satisfaction.title}
                 subtitle={content.charts.satisfaction.subtitle}
-                data={[{ label: content.charts.satisfaction.label, value: 94 }]}
-                maxValue={100}
-                showPercentage={true}
                 inView={visibleSections.has(4)}
                 delay={0.8}
               />
             </div>
 
-            {/* 营销效果对比图表 */}
+            {/* 营销效果综合分析 */}
             <div style={{
               width: '100%',
               marginBottom: '8vh',
             }}>
-              <ModernChart
-                type="comparisonBar"
+              <MarketingEffectivenessMetrics
                 title={content.charts.comparison.title}
                 subtitle={content.charts.comparison.subtitle}
-                multiSeriesData={[
-                  {
-                    name: content.charts.comparison.series.mvp,
-                    color: '#1e40af',
-                    data: [
-                      { label: content.charts.comparison.metrics.brandAwareness, value: 285 },
-                      { label: content.charts.comparison.metrics.engagement, value: 340 },
-                      { label: content.charts.comparison.metrics.roi, value: 380 },
-                      { label: content.charts.comparison.metrics.conversion, value: 265 },
-                      { label: content.charts.comparison.metrics.retention, value: 290 },
-                      { label: content.charts.comparison.metrics.reputation, value: 315 }
-                    ]
-                  },
-                  {
-                    name: content.charts.comparison.series.industry,
-                    color: '#9ca3af',
-                    data: [
-                      { label: content.charts.comparison.metrics.brandAwareness, value: 100 },
-                      { label: content.charts.comparison.metrics.engagement, value: 100 },
-                      { label: content.charts.comparison.metrics.roi, value: 100 },
-                      { label: content.charts.comparison.metrics.conversion, value: 100 },
-                      { label: content.charts.comparison.metrics.retention, value: 100 },
-                      { label: content.charts.comparison.metrics.reputation, value: 100 }
-                    ]
-                  }
-                ]}
-                data={[]} // 保留空数组以满足接口要求
-                showPercentage={false}
                 inView={visibleSections.has(4)}
                 delay={1.0}
               />

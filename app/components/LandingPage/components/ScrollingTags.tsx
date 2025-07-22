@@ -13,7 +13,7 @@ interface ScrollingTagsProps {
 const ScrollingTags: React.FC<ScrollingTagsProps> = ({
   tags,
   direction = 'left',
-  speed = 21, // 再降低30%：30 * 0.7 = 21
+  speed = 40, // 减慢滚动速度
   inView = false,
   delay = 0,
   className = ''
@@ -48,61 +48,20 @@ const ScrollingTags: React.FC<ScrollingTagsProps> = ({
     return () => window.removeEventListener('resize', updateViewportCenter);
   }, []);
 
-  // 动态计算每个标签的失焦效果
-  useEffect(() => {
-    if (!inView || !containerRef.current) return;
-
-    let animationFrame: number;
-
-    const updateTagStyles = () => {
-      const container = containerRef.current;
-      if (!container) return;
-
-      const tags = container.querySelectorAll('[data-tag]');
-      const containerRect = container.getBoundingClientRect();
-      const containerCenterX = containerRect.left + containerRect.width / 2;
-
-      tags.forEach((tag) => {
-        const tagRect = tag.getBoundingClientRect();
-        const tagCenterX = tagRect.left + tagRect.width / 2;
-        
-        // 计算标签到视口中心的距离（只考虑X轴）
-        const distanceFromCenter = Math.abs(tagCenterX - viewportCenter.x);
-        const maxDistance = window.innerWidth * 0.6; // 最大影响距离
-        
-        // 将距离归一化到0-1范围
-        const normalizedDistance = Math.min(distanceFromCenter / maxDistance, 1);
-        
-        // 使用平滑的缓动函数计算效果强度
-        const easedDistance = Math.pow(normalizedDistance, 1.5);
-        
-        // 计算各种效果值
-        const blur = easedDistance * 3; // 最大3px模糊
-        const opacity = 1 - (easedDistance * 0.6); // 最多减少60%透明度
-        const scale = 1 - (easedDistance * 0.2); // 最多缩小20%
-        
-        // 应用样式
-        const element = tag as HTMLElement;
-        element.style.filter = `blur(${blur}px)`;
-        element.style.opacity = `${Math.max(opacity, 0.2)}`; // 最小保持20%透明度
-        element.style.transform = `scale(${Math.max(scale, 0.8)})`; // 最小保持80%尺寸
-      });
-
-      animationFrame = requestAnimationFrame(updateTagStyles);
-    };
-
-    // 延迟启动以确保DOM已渲染
-    const timer = setTimeout(() => {
-      updateTagStyles();
-    }, 100);
-
-    return () => {
-      clearTimeout(timer);
-      if (animationFrame) {
-        cancelAnimationFrame(animationFrame);
-      }
-    };
-  }, [inView, viewportCenter]);
+  // 使用CSS遮罩代替JavaScript动态效果，大幅提升性能
+  const maskGradient = `
+    linear-gradient(
+      to right,
+      transparent,
+      rgba(0,0,0,0.1) 10%,
+      rgba(0,0,0,0.5) 20%,
+      rgba(0,0,0,1) 35%,
+      rgba(0,0,0,1) 65%,
+      rgba(0,0,0,0.5) 80%,
+      rgba(0,0,0,0.1) 90%,
+      transparent
+    )
+  `;
 
   return (
     <div 
@@ -119,7 +78,13 @@ const ScrollingTags: React.FC<ScrollingTagsProps> = ({
         overflow: 'hidden',
         opacity: inView ? 1 : 0,
         transform: inView ? 'translateY(0)' : 'translateY(40px)',
-        transition: `all 1.2s cubic-bezier(0.23, 1, 0.32, 1) ${delay}s`,
+        transition: `opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${delay * 0.5}s, transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${delay * 0.5}s`,
+        willChange: 'opacity, transform',
+        backgroundColor: 'transparent',
+        WebkitMaskImage: maskGradient,
+        maskImage: maskGradient,
+        WebkitMaskSize: '100% 100%',
+        maskSize: '100% 100%',
       }}
     >
       <div style={{
@@ -128,21 +93,23 @@ const ScrollingTags: React.FC<ScrollingTagsProps> = ({
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
-        gap: '2.4rem', // 缩短20%：3rem * 0.8 = 2.4rem
+        gap: '1.5rem',
+        backgroundColor: 'transparent', // 确保背景透明
       }}>
         {duplicatedRows.map((row, rowIndex) => {
           // 3行的方向模式：右，左，右
           const rowDirection = rowIndex % 2 === 0 ? 'right' : 'left';
-          const rowSpeed = speed + (rowIndex * 5.6); // 适度的速度差异（8 * 0.7 = 5.6）
+          const rowSpeed = speed + (rowIndex * 8); // 适度的速度差异
           
           return (
             <div
               key={rowIndex}
               className="scroll-row"
               style={{
-                height: '100px', // 稍微减小高度以适应3行
+                height: '60px',
                 position: 'relative',
-                overflow: 'visible', // 改为visible以便观察边缘效果
+                overflow: 'visible',
+                backgroundColor: 'transparent', // 确保背景透明
               }}
             >
               <div
@@ -154,14 +121,15 @@ const ScrollingTags: React.FC<ScrollingTagsProps> = ({
                   height: '100%',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '3rem',
+                  gap: '1.5rem', // 缩小标签之间的间距
                   paddingLeft: '2rem',
                   paddingRight: '2rem',
                   whiteSpace: 'nowrap',
                   willChange: 'transform',
                   animation: inView ? `scroll-${rowDirection} ${rowSpeed}s linear infinite` : 'none',
-                  animationDelay: `${delay + rowIndex * 0.2}s`,
+                  animationDelay: inView ? `${delay * 0.5 + rowIndex * 0.1}s` : '0s',
                   animationFillMode: 'both',
+                  animationPlayState: inView ? 'running' : 'paused',
                 }}
               >
                 {row.map((tag, tagIndex) => (
@@ -170,30 +138,16 @@ const ScrollingTags: React.FC<ScrollingTagsProps> = ({
                     data-tag
                     className="scroll-tag"
                     style={{
-                      padding: '1rem 2rem', // 稍微缩小标签以适应3行布局
-                      borderRadius: '25px',
-                      fontSize: '1rem',
-                      fontWeight: '500',
-                      color: 'rgba(80, 80, 80, 0.9)',
-                      background: 'rgba(255, 255, 255, 0.15)',
-                      backdropFilter: 'blur(12px)',
-                      boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+                      padding: '0.5rem 1rem', // 缩小padding
+                      fontSize: '0.9rem',
+                      fontWeight: '400',
+                      color: 'rgba(80, 80, 80, 0.8)',
                       cursor: 'pointer',
                       position: 'relative',
-                      letterSpacing: '0.02em',
+                      letterSpacing: '0.01em',
                       flexShrink: 0,
-                      transition: 'background 0.3s ease, box-shadow 0.3s ease',
                       userSelect: 'none',
-                    }}
-                    onMouseEnter={(e) => {
-                      const el = e.currentTarget;
-                      el.style.background = 'rgba(255, 255, 255, 0.25)';
-                      el.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.15)';
-                    }}
-                    onMouseLeave={(e) => {
-                      const el = e.currentTarget;
-                      el.style.background = 'rgba(255, 255, 255, 0.15)';
-                      el.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.08)';
+                      transition: 'none', // 移除过渡效果
                     }}
                   >
                     {tag}
@@ -204,6 +158,7 @@ const ScrollingTags: React.FC<ScrollingTagsProps> = ({
           );
         })}
       </div>
+      
 
       <style jsx>{`
         /* 完美的无缝循环动画 */
@@ -236,21 +191,12 @@ const ScrollingTags: React.FC<ScrollingTagsProps> = ({
 
         .scroll-tag {
           transform-origin: center center;
-          will-change: transform, filter, opacity;
         }
 
         /* 优化动画性能 */
         @media (prefers-reduced-motion: reduce) {
           .scroll-track {
             animation-duration: 120s !important;
-          }
-        }
-
-        /* 确保在低端设备上的性能 */
-        @supports not (backdrop-filter: blur(12px)) {
-          .scroll-tag {
-            background: rgba(255, 255, 255, 0.25);
-            backdrop-filter: none;
           }
         }
       `}</style>

@@ -141,7 +141,7 @@ export const CONTENT_DATA: ContentData = {
     },
     contentTags: {
       title: '内容垂类全覆盖',
-      subtitle: '30+专业赛道，精准触达目标受众',
+      subtitle: '30+全领域专业赛道覆盖，保证您的声音精准触达理想目标受众。',
       tags: ['美妆护肤', '时尚穿搭', '生活方式', '美食探店', '科技数码', '旅行度假', '健身运动', '母婴亲子', '家居装修', '汽车评测', '教育培训', '宠物生活', '金融理财', '游戏娱乐', '艺术文化', '音乐舞蹈', '影视娱乐', '体育运动', '职场商务', '心理健康', '环保生活', '手工DIY', '摄影创作', '书籍阅读', '数字藏品', '元宇宙', '人工智能', '区块链', '新能源', '可持续发展']
     },
     charts: {
@@ -246,8 +246,7 @@ export const CONTENT_DATA: ContentData = {
       benefits: [
         {
           title: '收益最大化',
-          description: '平均月收入提升42%，单次合作报价5千-5万',
-          highlight: '80%收益分成'
+          description: '平均月收入提升42%，单次合作报价5千-5万'
         },
         {
           title: '专业成长',
@@ -258,9 +257,125 @@ export const CONTENT_DATA: ContentData = {
           description: '月均3-5个优质机会，92%创作者满意度，长期合作培养'
         }
       ],
-      testimonial: {
-        quote: '加入十方众声半年，我的粉丝从8万增长到18万，月收入从几千提升到5万+',
-        author: '美妆博主 小艾'
+      creatorGrowth: {
+        title: '创作者成长数据分析',
+        subtitle: '基于60+签约创作者真实数据统计',
+        metrics: {
+          followerGrowth: '平均粉丝增长率',
+          engagementRate: '平均赞藏比提升',
+          viralPosts: '平均爆贴数量',
+          interactionBoost: '平均互动率提升'
+        },
+        data: {
+          followers: [
+            { label: '入驻前', value: 8.2 },
+            { label: '1月', value: 10.1 },
+            { label: '2月', value: 12.8 },
+            { label: '3月', value: 16.4 },
+            { label: '4月', value: 20.7 },
+            { label: '5月', value: 24.9 },
+            { label: '6月', value: 29.8 },
+            { label: '7月', value: 34.2 },
+            { label: '8月', value: 38.2 },
+            { label: '9月', value: 42.1 },
+            { label: '10月', value: 45.6 },
+            { label: '11月', value: 49.2 },
+            { label: '12月', value: 52.3 },
+            { label: '13月', value: 55.8 },
+            { label: '14月', value: 58.9 },
+            { label: '15月', value: 61.8 },
+            { label: '16月', value: 64.2 },
+            { label: '17月', value: 66.8 },
+            { label: '18月', value: 68.9 },
+            { label: '19月', value: 71.2 },
+            { label: '20月', value: 73.8 },
+            { label: '21月', value: 76.1 },
+            { label: '22月', value: 78.9 },
+            { label: '23月', value: 81.2 },
+            { label: '24月', value: 84.6 }
+          ],
+          engagement: [
+            { label: '入驻前', value: 2.8 },
+            { label: '1月', value: 3.4 },
+            { label: '2月', value: 4.2 },
+            { label: '3月', value: 5.1 },
+            { label: '4月', value: 6.3 },
+            { label: '5月', value: 7.2 },
+            { label: '6月', value: 8.5 },
+            { label: '7月', value: 9.3 },
+            { label: '8月', value: 10.2 },
+            { label: '9月', value: 11.0 },
+            { label: '10月', value: 11.8 },
+            { label: '11月', value: 12.6 },
+            { label: '12月', value: 13.4 },
+            { label: '13月', value: 14.0 },
+            { label: '14月', value: 14.6 },
+            { label: '15月', value: 15.1 },
+            { label: '16月', value: 15.7 },
+            { label: '17月', value: 16.2 },
+            { label: '18月', value: 16.7 },
+            { label: '19月', value: 17.3 },
+            { label: '20月', value: 17.8 },
+            { label: '21月', value: 18.2 },
+            { label: '22月', value: 18.7 },
+            { label: '23月', value: 19.1 },
+            { label: '24月', value: 19.6 }
+          ],
+          avgViews: [
+            { label: '入驻前', value: 3.5 },
+            { label: '1月', value: 5.2 },
+            { label: '2月', value: 7.8 },
+            { label: '3月', value: 10.6 },
+            { label: '4月', value: 14.2 },
+            { label: '5月', value: 18.5 },
+            { label: '6月', value: 23.4 },
+            { label: '7月', value: 28.1 },
+            { label: '8月', value: 32.7 },
+            { label: '9月', value: 37.9 },
+            { label: '10月', value: 42.3 },
+            { label: '11月', value: 47.2 },
+            { label: '12月', value: 51.8 },
+            { label: '13月', value: 56.4 },
+            { label: '14月', value: 60.8 },
+            { label: '15月', value: 65.2 },
+            { label: '16月', value: 69.7 },
+            { label: '17月', value: 73.9 },
+            { label: '18月', value: 78.4 },
+            { label: '19月', value: 82.6 },
+            { label: '20月', value: 87.1 },
+            { label: '21月', value: 91.3 },
+            { label: '22月', value: 95.8 },
+            { label: '23月', value: 99.7 },
+            { label: '24月', value: 104.2 }
+          ],
+          monthlyIncome: [
+            { label: '入驻前', value: 8.5 },
+            { label: '1月', value: 12.3 },
+            { label: '2月', value: 18.7 },
+            { label: '3月', value: 26.4 },
+            { label: '4月', value: 35.2 },
+            { label: '5月', value: 42.8 },
+            { label: '6月', value: 51.6 },
+            { label: '7月', value: 58.9 },
+            { label: '8月', value: 67.2 },
+            { label: '9月', value: 74.8 },
+            { label: '10月', value: 82.1 },
+            { label: '11月', value: 89.7 },
+            { label: '12月', value: 96.8 },
+            { label: '13月', value: 103.4 },
+            { label: '14月', value: 109.6 },
+            { label: '15月', value: 115.2 },
+            { label: '16月', value: 120.8 },
+            { label: '17月', value: 126.1 },
+            { label: '18月', value: 131.7 },
+            { label: '19月', value: 136.9 },
+            { label: '20月', value: 142.4 },
+            { label: '21月', value: 147.5 },
+            { label: '22月', value: 152.9 },
+            { label: '23月', value: 157.8 },
+            { label: '24月', value: 163.2 }
+          ]
+        }
       }
     },
     forBrands: {
@@ -383,13 +498,13 @@ export const CONTENT_DATA: ContentData = {
         }
       },
       satisfaction: {
-        title: 'Customer Satisfaction Metrics',
-        subtitle: 'Based on 200+ brand partner feedback',
+        title: 'Client Satisfaction Deep Analytics',
+        subtitle: 'Multi-dimensional satisfaction evaluation based on quarterly reviews',
         label: 'Overall Satisfaction Score'
       },
       comparison: {
-        title: 'Marketing Performance Improvement Analysis',
-        subtitle: 'Mega Volume vs Industry Average - Key Performance Indicators',
+        title: 'Marketing Effectiveness Comprehensive Analysis',
+        subtitle: 'Professional data science approach to performance measurement',
         series: {
           mvp: 'Mega Volume',
           industry: 'Industry Average'

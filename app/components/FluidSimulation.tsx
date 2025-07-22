@@ -26,15 +26,15 @@ const FluidSimulation = ({ className = "", style = {} }) => {
 
     // ========== 可调整参数 ==========
     const RESOLUTION = 0.15;
-    const VISCOSITY = 0.00002;
+    const VISCOSITY = 0.00001;
     const FORCE_SCALE = 6;
-    const TIME_STEP = 0.018;
-    const ITERATIONS = 120;
-    const FORCE_DECAY = 0.3;
-    const FORCE_RADIUS = 250;
+    const TIME_STEP = 0.02;
+    const ITERATIONS = 40;
+    const FORCE_DECAY = 0.15;
+    const FORCE_RADIUS = 230;
     const BASE_COLOR = [1.0, 1.0, 1.0];
     const FLOW_COLOR = [1.0, 1.0, 1.0];
-    const SCROLL_FORCE_SCALE = 0.26;
+    const SCROLL_FORCE_SCALE = 0.2;
 
     // Shader sources
     const vertexShader = `
