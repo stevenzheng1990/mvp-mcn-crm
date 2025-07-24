@@ -12,32 +12,23 @@ export const getCssVariables = () => ({
   '--glass-blur': DESIGN_TOKENS.glassEffect.blur.medium,
 } as React.CSSProperties);
 
-// 统一的玻璃效果基础样式
+// 优化的轻量级玻璃效果基础样式
 const createUnifiedGlassStyles = (
   isHovered: boolean = false,
   variant: 'button' | 'card' = 'card'
 ) => {
-  // 统一的基础参数
-  const baseOpacity = variant === 'button' ? 8 : 10;
-  const hoveredOpacity = variant === 'button' ? 12 : 15;
-  const currentOpacity = isHovered ? hoveredOpacity : baseOpacity;
-  
-  // 统一的反射强度
-  const lightReflex = isHovered ? 15 : 10;
-  const darkReflex = isHovered ? 15 : 12;
+  // 简化的参数，减少计算量
+  const baseOpacity = variant === 'button' ? 0.08 : 0.12;
+  const currentOpacity = isHovered ? baseOpacity + 0.04 : baseOpacity;
 
   return {
-    backgroundColor: `color-mix(in srgb, var(--glass-base) ${currentOpacity}%, transparent)`,
-    backdropFilter: `blur(${DESIGN_TOKENS.glassEffect.blur.medium}) saturate(var(--glass-saturation))`,
-    WebkitBackdropFilter: `blur(${DESIGN_TOKENS.glassEffect.blur.medium}) saturate(var(--glass-saturation))`,
-    boxShadow: `
-      inset 0 0 0 1px color-mix(in srgb, var(--glass-light) ${lightReflex}%, transparent),
-      inset 1.8px 3px 0px -2px color-mix(in srgb, var(--glass-light) ${lightReflex + 80}%, transparent),
-      inset -2px -2px 0px -2px color-mix(in srgb, var(--glass-light) ${lightReflex + 70}%, transparent),
-      inset -0.3px -1px 4px 0px color-mix(in srgb, var(--glass-dark) ${darkReflex}%, transparent),
-      0px 1px 5px 0px color-mix(in srgb, var(--glass-dark) ${darkReflex - 2}%, transparent),
-      0px 6px 16px 0px color-mix(in srgb, var(--glass-dark) ${darkReflex - 4}%, transparent)
-    `,
+    backgroundColor: `rgba(255, 255, 255, ${currentOpacity})`,
+    backdropFilter: `blur(${DESIGN_TOKENS.glassEffect.blur.medium}) saturate(180%)`,
+    WebkitBackdropFilter: `blur(${DESIGN_TOKENS.glassEffect.blur.medium}) saturate(180%)`,
+    border: '1px solid rgba(255, 255, 255, 0.2)',
+    boxShadow: isHovered 
+      ? '0 8px 32px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.15)'
+      : '0 4px 16px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
   };
 };
 
