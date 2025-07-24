@@ -30,7 +30,6 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
         style={{
           padding: DESIGN_TOKENS.spacing.component.navigationPadding,
           borderRadius: isHovered ? '20px' : '9999px',
-          border: 'none',
           cursor: 'pointer',
           fontSize: DESIGN_TOKENS.typography.level6.fontSize,
           fontWeight: DESIGN_TOKENS.typography.level4.fontWeight,
@@ -38,6 +37,8 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
           transform: isHovered ? 'scale(1.08)' : 'scale(1)',
           transition: `all ${DESIGN_TOKENS.animation.duration.liquidTransition} ${DESIGN_TOKENS.animation.easing.liquid}`,
           ...createButtonGlassStyles(isHovered),
+          // 覆盖玻璃样式中的border设置，移除边框
+          border: 'none',
         }}
       >
         {language === 'zh' ? 'EN' : '中文'}
