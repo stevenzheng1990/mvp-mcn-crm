@@ -18,7 +18,6 @@ const NavigationButtons: React.FC<NavigationBarProps> = ({
     return {
       padding: DESIGN_TOKENS.spacing.component.navigationPadding,
       borderRadius: isHovered ? '24px' : '9999px',
-      border: 'none',
       cursor: 'pointer',
       fontSize: DESIGN_TOKENS.typography.level5.fontSize,
       fontWeight: DESIGN_TOKENS.typography.level4.fontWeight,
@@ -26,6 +25,8 @@ const NavigationButtons: React.FC<NavigationBarProps> = ({
       transform: isHovered ? 'scale(1.08)' : 'scale(1)',
       transition: `all ${DESIGN_TOKENS.animation.duration.liquidTransition} ${DESIGN_TOKENS.animation.easing.liquid}`,
       ...createButtonGlassStyles(isHovered),
+      // 覆盖玻璃样式中的border设置，移除边框
+      border: 'none',
     };
   };
 
