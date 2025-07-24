@@ -139,19 +139,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
       }}
     >
       {/* 背景层 - FluidSimulation */}
-      <div className="background-layer" style={{ 
-        position: 'fixed', 
-        top: -2,
-        left: -2,
-        right: -2,
-        bottom: -2,
-        width: 'calc(100vw + 4px)',
-        height: 'calc(100vh + 4px)',
-        zIndex: 0,
-        overflow: 'hidden'
-      }}>
-        <FluidSimulation className="w-full h-full" />
-      </div>
+      <FluidSimulation 
+        className="background-layer" 
+        style={{ 
+          zIndex: 0
+        }} 
+      />
 
 
       {/* Logo遮罩层 */}
@@ -205,7 +198,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
             maxWidth: '95vw',
           })
         }}>
-          <GlassSurface className="glass-bar">
+          <GlassSurface 
+            className="glass-bar"
+            displace={isMobile ? 0 : 0.7}
+            blur={isMobile ? 8 : 11}
+            distortionScale={isMobile ? 0 : -180}
+          >
             <div style={{
               display: 'flex',
               alignItems: 'center',
