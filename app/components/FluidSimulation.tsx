@@ -76,7 +76,7 @@ const FluidSimulation = ({ className = "", style = {} }) => {
     const FLOW_COLOR = [1.0, 1.0, 1.0];
     
     // 滚动扰动强度 (0.1-1.0)：页面滚动时产生的流体扰动力度缩放系数
-    const SCROLL_FORCE_SCALE = 0.2;
+    const SCROLL_FORCE_SCALE = 0.15;
 
     // Shader sources
     const vertexShader = `
