@@ -378,6 +378,10 @@ export const DESIGN_TOKENS = {
         columns: 3,
         gap: '2rem',
       },
+      large: {
+        columns: 3,
+        gap: '2.5rem',
+      },
     },
   },
 } as const;

@@ -74,10 +74,10 @@ export const getResponsiveValue = <T>(
 
 export const getResponsiveGrid = (device: DeviceType) => {
   const gridConfig = DESIGN_TOKENS.layout.grid;
-  return gridConfig[device] ?? gridConfig.desktop;
+  return gridConfig[device as keyof typeof gridConfig] ?? gridConfig.desktop;
 };
 
 export const getResponsiveContainer = (device: DeviceType) => {
   const containerConfig = DESIGN_TOKENS.layout.container;
-  return containerConfig[device] ?? containerConfig.desktop;
+  return containerConfig[device as keyof typeof containerConfig] ?? containerConfig.desktop;
 };
