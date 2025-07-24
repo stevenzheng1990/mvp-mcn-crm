@@ -316,6 +316,22 @@ export const CONTENT_DATA: ContentData = {
           { value: '5000+', label: '成功投放案例', desc: '跨平台协同经验' },
           { value: '99.8%', label: '投放稳定性', desc: '合规安全保障' }
         ]
+      },
+      china: {
+        title: '中国平台',
+        platforms: ['抖音', '小红书', 'B站', '微博', '知乎', '快手']
+      },
+      overseas: {
+        title: '海外平台',
+        platforms: ['YouTube', 'Instagram', 'TikTok', 'Facebook']
+      },
+      summary: {
+        platforms: '16+',
+        platformsLabel: '认证平台',
+        successRate: '99.8%',
+        successLabel: '投放成功率',
+        monitoring: '24/7',
+        monitoringLabel: '实时监控'
       }
     },
     about: {
@@ -697,6 +713,22 @@ export const CONTENT_DATA: ContentData = {
           { value: '5000+', label: 'Successful Campaigns', desc: 'Cross-platform experience' },
           { value: '99.8%', label: 'Campaign Stability', desc: 'Compliance guarantee' }
         ]
+      },
+      china: {
+        title: 'China Platforms',
+        platforms: ['Douyin', 'RED', 'Bilibili', 'Weibo', 'Zhihu', 'Kuaishou']
+      },
+      overseas: {
+        title: 'Global Platforms',
+        platforms: ['YouTube', 'Instagram', 'TikTok', 'Facebook']
+      },
+      summary: {
+        platforms: '16+',
+        platformsLabel: 'Certified Platforms',
+        successRate: '99.8%',
+        successLabel: 'Success Rate',
+        monitoring: '24/7',
+        monitoringLabel: 'Real-time Monitoring'
       }
     },
     about: {

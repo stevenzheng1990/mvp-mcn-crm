@@ -32,7 +32,7 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
           borderRadius: isHovered ? '20px' : '9999px',
           border: 'none',
           cursor: 'pointer',
-          fontSize: DESIGN_TOKENS.typography.fontSize.small,
+          fontSize: DESIGN_TOKENS.typography.level6.fontSize,
           fontWeight: DESIGN_TOKENS.typography.level4.fontWeight,
           color: DESIGN_TOKENS.colors.text.primary,
           transform: isHovered ? 'scale(1.08)' : 'scale(1)',

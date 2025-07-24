@@ -224,13 +224,28 @@ export interface PlatformSection {
   }>;
 }
 
+export interface PlatformStats {
+  title: string;
+  items: Array<{
+    value: string;
+    label: string;
+    desc: string;
+  }>;
+}
+
 export interface PlatformsContent {
   title: string;
   subtitle: string;
   sections: PlatformSection[];
+  stats: PlatformStats;
   china: PlatformRegion;
   overseas: PlatformRegion;
   summary: PlatformSummary;
+}
+
+// BackToTop按钮组件属性
+export interface BackToTopButtonProps {
+  isVisible: boolean;
 }
 
 // 导航菜单内容
