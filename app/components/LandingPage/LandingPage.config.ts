@@ -82,7 +82,7 @@ export const DESIGN_TOKENS = {
     
     // Level 3: Section副标题和卡片标题 - 第三大
     level3: {
-      fontSize: 'clamp(1.8rem, 3vw, 2.3rem)', 
+      fontSize: 'clamp(1.4rem, 2.4vw, 1.8rem)', 
       fontWeight: 600,
       lineHeight: 1.2,
       letterSpacing: '0',
@@ -118,7 +118,7 @@ export const DESIGN_TOKENS = {
     
     // Level 4: Section正文 - 中等
     level4: {
-      fontSize: 'clamp(0.95rem, 1.25vw, 1.2rem)', // 18px max (原 20px)
+      fontSize: 'clamp(0.8rem, 0.95vw, 1.05rem)', // 18px max (原 20px)
       fontWeight: 300,
       lineHeight: 1.5,                              // 提高行高保证可读性
       letterSpacing: '0',
@@ -154,7 +154,7 @@ export const DESIGN_TOKENS = {
     
     // Level 5: 表格正文、导航菜单 - 较小
     level5: {
-      fontSize: 'clamp(0.7rem, 0.9vw, 0.95rem)',        // 16px max (原 17.6px)
+      fontSize: 'clamp(0.6rem, 0.75vw, 0.85rem)',        // 16px max (原 17.6px)
       fontWeight: 300,
       lineHeight: 1.5,
       letterSpacing: '0',
