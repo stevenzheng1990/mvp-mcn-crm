@@ -6,8 +6,7 @@ export const DESIGN_TOKENS = {
   typography: {
     fontFamily: '"Outfit", "OPPO Sans", -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Arial", sans-serif',
     
-    // 统一的字体规范系统 - 6种组合
-    // 参考 Apple.com 和现代设计规范重新设计
+    // 响应式字体系统 - 6种层级，每种都有移动端优化
     
     // Level 1: Hero和大型数字 - 最大最粗
     level1: {
@@ -15,7 +14,34 @@ export const DESIGN_TOKENS = {
       fontWeight: 900,                            // 略微降低，更现代
       lineHeight: 1.2,                           // 更紧凑的行高
       letterSpacing: '-0.01em',                   // 负字间距，更紧凑
-      usage: 'Hero标题、结束字块、大型数字展示'
+      usage: 'Hero标题、结束字块、大型数字展示',
+      // 响应式配置（供新组件使用）
+      responsive: {
+        fontSize: {
+          mobile: 'clamp(2.5rem, 8vw, 3.5rem)',
+          tablet: 'clamp(3rem, 6vw, 4rem)', 
+          desktop: 'clamp(3.5rem, 5vw, 4.5rem)',
+          large: 'clamp(4rem, 4vw, 5rem)',
+        },
+        fontWeight: {
+          mobile: 800,
+          tablet: 850,
+          desktop: 900,
+          large: 900,
+        },
+        lineHeight: {
+          mobile: 1.1,
+          tablet: 1.15,
+          desktop: 1.2,
+          large: 1.2,
+        },
+        letterSpacing: {
+          mobile: '-0.02em',
+          tablet: '-0.015em',
+          desktop: '-0.01em',
+          large: '-0.01em',
+        },
+      }
     },
     
     // Level 2: Section主标题 - 第二大第二粗
@@ -24,7 +50,34 @@ export const DESIGN_TOKENS = {
       fontWeight: 800,
       lineHeight: 1.2,
       letterSpacing: '-0.01em',
-      usage: 'Section主标题'
+      usage: 'Section主标题',
+      // 响应式配置（供新组件使用）
+      responsive: {
+        fontSize: {
+          mobile: 'clamp(1.8rem, 6vw, 2.4rem)',
+          tablet: 'clamp(2.1rem, 4vw, 2.8rem)',
+          desktop: 'clamp(2.4rem, 3.25vw, 3.2rem)',
+          large: 'clamp(2.8rem, 3vw, 3.6rem)',
+        },
+        fontWeight: {
+          mobile: 700,
+          tablet: 750,
+          desktop: 800,
+          large: 800,
+        },
+        lineHeight: {
+          mobile: 1.15,
+          tablet: 1.2,
+          desktop: 1.25,
+          large: 1.25,
+        },
+        letterSpacing: {
+          mobile: '-0.015em',
+          tablet: '-0.01em',
+          desktop: '-0.005em',
+          large: '-0.005em',
+        },
+      }
     },
     
     // Level 3: Section副标题和卡片标题 - 第三大
@@ -33,7 +86,34 @@ export const DESIGN_TOKENS = {
       fontWeight: 600,
       lineHeight: 1.2,
       letterSpacing: '0',
-      usage: 'Section副标题、卡片标题、表格主标题'
+      usage: 'Section副标题、卡片标题、表格主标题',
+      // 响应式配置（供新组件使用）
+      responsive: {
+        fontSize: {
+          mobile: 'clamp(1.4rem, 5vw, 1.8rem)',
+          tablet: 'clamp(1.6rem, 3.5vw, 2.1rem)',
+          desktop: 'clamp(1.8rem, 3vw, 2.3rem)',
+          large: 'clamp(2rem, 2.5vw, 2.5rem)',
+        },
+        fontWeight: {
+          mobile: 600,
+          tablet: 600,
+          desktop: 600,
+          large: 600,
+        },
+        lineHeight: {
+          mobile: 1.2,
+          tablet: 1.25,
+          desktop: 1.3,
+          large: 1.3,
+        },
+        letterSpacing: {
+          mobile: '0',
+          tablet: '0',
+          desktop: '0',
+          large: '0',
+        },
+      }
     },
     
     // Level 4: Section正文 - 中等
@@ -42,7 +122,34 @@ export const DESIGN_TOKENS = {
       fontWeight: 300,
       lineHeight: 1.5,                              // 提高行高保证可读性
       letterSpacing: '0',
-      usage: '正文内容、段落文字'
+      usage: '正文内容、段落文字',
+      // 响应式配置（供新组件使用）
+      responsive: {
+        fontSize: {
+          mobile: 'clamp(0.9rem, 4vw, 1.1rem)',
+          tablet: 'clamp(1rem, 2.5vw, 1.2rem)',
+          desktop: 'clamp(1.1rem, 1.25vw, 1.3rem)',
+          large: 'clamp(1.2rem, 1vw, 1.4rem)',
+        },
+        fontWeight: {
+          mobile: 400,
+          tablet: 350,
+          desktop: 300,
+          large: 300,
+        },
+        lineHeight: {
+          mobile: 1.6,
+          tablet: 1.55,
+          desktop: 1.5,
+          large: 1.5,
+        },
+        letterSpacing: {
+          mobile: '0.01em',
+          tablet: '0.005em',
+          desktop: '0',
+          large: '0',
+        },
+      }
     },
     
     // Level 5: 表格正文、导航菜单 - 较小
@@ -51,7 +158,34 @@ export const DESIGN_TOKENS = {
       fontWeight: 300,
       lineHeight: 1.5,
       letterSpacing: '0',
-      usage: '表格内容、导航菜单、按钮文字'
+      usage: '表格内容、导航菜单、按钮文字',
+      // 响应式配置（供新组件使用）
+      responsive: {
+        fontSize: {
+          mobile: 'clamp(0.8rem, 3.5vw, 0.9rem)',
+          tablet: 'clamp(0.85rem, 2vw, 0.95rem)',
+          desktop: 'clamp(0.9rem, 0.9vw, 1rem)',
+          large: 'clamp(0.95rem, 0.8vw, 1.05rem)',
+        },
+        fontWeight: {
+          mobile: 400,
+          tablet: 350,
+          desktop: 300,
+          large: 300,
+        },
+        lineHeight: {
+          mobile: 1.6,
+          tablet: 1.55,
+          desktop: 1.5,
+          large: 1.5,
+        },
+        letterSpacing: {
+          mobile: '0.01em',
+          tablet: '0.005em',
+          desktop: '0',
+          large: '0',
+        },
+      }
     },
     
     // Level 6: 解释类文档、备注 - 最细最小
@@ -60,7 +194,34 @@ export const DESIGN_TOKENS = {
       fontWeight: 300,                                // 提高到 400，保证可读性
       lineHeight: 1.5,
       letterSpacing: '0.01em',                        // 轻微增加字间距
-      usage: '注释、备注、辅助说明文字'
+      usage: '注释、备注、辅助说明文字',
+      // 响应式配置（供新组件使用）
+      responsive: {
+        fontSize: {
+          mobile: 'clamp(0.75rem, 3vw, 0.85rem)',
+          tablet: 'clamp(0.8rem, 2vw, 0.9rem)',
+          desktop: 'clamp(0.85rem, 0.75vw, 0.95rem)',
+          large: 'clamp(0.9rem, 0.7vw, 1rem)',
+        },
+        fontWeight: {
+          mobile: 400,
+          tablet: 350,
+          desktop: 300,
+          large: 300,
+        },
+        lineHeight: {
+          mobile: 1.6,
+          tablet: 1.55,
+          desktop: 1.5,
+          large: 1.5,
+        },
+        letterSpacing: {
+          mobile: '0.015em',
+          tablet: '0.01em',
+          desktop: '0.01em',
+          large: '0.01em',
+        },
+      }
     },
     
     // 保留原有letterSpacing
@@ -181,9 +342,42 @@ export const DESIGN_TOKENS = {
       },
     },
     breakpoints: {
-      mobile: '768px',
-      tablet: '1024px',
-      desktop: '1200px',
+      mobile: 768,
+      tablet: 1024,
+      desktop: 1200,
+      large: 1400,
+    },
+    container: {
+      mobile: {
+        padding: '0 1rem',
+        maxWidth: '100%',
+      },
+      tablet: {
+        padding: '0 2rem',
+        maxWidth: '100%',
+      },
+      desktop: {
+        padding: '0 3rem',
+        maxWidth: '1200px',
+      },
+      large: {
+        padding: '0 4rem',
+        maxWidth: '1400px',
+      },
+    },
+    grid: {
+      mobile: {
+        columns: 1,
+        gap: '1rem',
+      },
+      tablet: {
+        columns: 2,
+        gap: '1.5rem',
+      },
+      desktop: {
+        columns: 3,
+        gap: '2rem',
+      },
     },
   },
 } as const;

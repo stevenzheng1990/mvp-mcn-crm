@@ -21,6 +21,8 @@ import {
   getGlassBarSpecialItemHoverStyles
 } from './LandingPage.styles';
 import { useScrollProgress } from './hooks/useScrollProgress';
+// import { useResponsive } from './hooks/useResponsive';
+// import { getResponsiveSpacing, createMobileOptimizedGlassStyles, getTouchFriendlyStyles, getMobileNavigationStyles } from './LandingPage.styles';
 // 子组件导入
 import AnimatedText from './components/AnimatedText';
 import FastAnimatedText from './components/FastAnimatedText';
@@ -37,6 +39,10 @@ import ModernChart from './components/ModernChart';
 import ScrollingTags from './components/ScrollingTags';
 import PlatformLogosScroller from './components/PlatformLogosScroller';
 import GlassSurface from './components/GlassSurface';
+// import ResponsiveContainer from './components/ResponsiveContainer';
+// import ResponsiveGrid from './components/ResponsiveGrid';
+// import ResponsiveText from './components/ResponsiveText';
+
 const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
   // 根据浏览器语言设置初始语言
   const getInitialLanguage = (): Language => {
@@ -55,6 +61,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
   
   // 自定义 Hook
   const { scrollProgress, maskOpacity } = useScrollProgress();
+  // const { device, isMobile, isTablet, isDesktop, width } = useResponsive();
+  // const spacing = getResponsiveSpacing(device);
   
   // ScrollingTags 可见性控制 - 基于 scrollProgress，避免额外的滚动监听
   const isScrollingTagsVisible = scrollProgress > 0.2; // 当滚动进度超过20%时显示
@@ -1477,6 +1485,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
           padding: 0;
           background-color: white;
           scroll-behavior: smooth;
+          /* 移动端滚动优化 */
+          -webkit-overflow-scrolling: touch;
+          touch-action: manipulation;
         }
 
         body {
@@ -1486,6 +1497,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
           background-color: white;
           width: 100%;
           height: 100%;
+          /* 移动端优化 */
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+          text-rendering: optimizeLegibility;
+          /* 防止移动端缩放 */
+          user-zoom: fixed;
+          -webkit-user-zoom: fixed;
         }
 
         #__next {
@@ -1494,6 +1512,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
 
         * {
           box-sizing: border-box;
+          /* 移动端优化 */
+          -webkit-tap-highlight-color: transparent;
+          -webkit-touch-callout: none;
         }
 
         svg {
@@ -1505,10 +1526,31 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
           background: transparent;
         }
 
-        * {
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
-          text-rendering: optimizeLegibility;
+        /* 移动端优化的动画性能 */
+        @media (max-width: 768px) {
+          * {
+            animation-duration: 0.8s !important;
+            transition-duration: 0.3s !important;
+          }
+          
+          .animated-char, .fast-animated-char {
+            will-change: transform, opacity;
+            transform-style: flat;
+          }
+
+          /* 减少移动端的模糊效果 */
+          .animated-card {
+            filter: none !important;
+          }
+        }
+
+        /* 高性能模式 */
+        @media (prefers-reduced-motion: reduce) {
+          *, *::before, *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+          }
         }
 
         @keyframes scrollIndicatorAnimation {
@@ -1522,6 +1564,14 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
           100% {
             transform: translateY(60px);
             opacity: 0;
+          }
+        }
+
+        /* 移动端导航优化 */
+        @media (max-width: 768px) {
+          .glass-bar {
+            backdrop-filter: blur(8px) !important;
+            -webkit-backdrop-filter: blur(8px) !important;
           }
         }
       `}</style>

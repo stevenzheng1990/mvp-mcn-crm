@@ -8,7 +8,8 @@
       "WebFetch(domain:reactbits.dev)",
       "Bash(npm ls:*)",
       "Bash(mkdir:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(node:*)"
     ],
     "deny": []
   }

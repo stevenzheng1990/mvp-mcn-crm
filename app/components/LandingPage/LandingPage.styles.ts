@@ -148,3 +148,106 @@ export const getLanguageToggleHoverStyles = () => ({
 export const easeInOutQuart = (t: number): number => {
   return t < 0.5 ? 8 * t * t * t * t : 1 - Math.pow(-2 * t + 2, 4) / 2;
 };
+
+// 响应式间距系统
+export const getResponsiveSpacing = (device: 'mobile' | 'tablet' | 'desktop' | 'large') => {
+  const spacingMap = {
+    mobile: {
+      section: '3vh 4vw',
+      hero: '2rem',
+      content: '3rem',
+      item: '2rem',
+      largeSections: '12vh',
+      mediumSections: '8vh',
+      smallSections: '6vh',
+      subsections: '3rem',
+      elements: '2rem',
+    },
+    tablet: {
+      section: '4vh 4vw',
+      hero: '2.5rem',
+      content: '4rem',
+      item: '2.5rem',
+      largeSections: '14vh',
+      mediumSections: '10vh',
+      smallSections: '7vh',
+      subsections: '4rem',
+      elements: '2.5rem',
+    },
+    desktop: {
+      section: '5vh 5vw',
+      hero: '3rem',
+      content: '5rem',
+      item: '3rem',
+      largeSections: '17vh',
+      mediumSections: '13vh',
+      smallSections: '9vh',
+      subsections: '5rem',
+      elements: '3rem',
+    },
+    large: {
+      section: '6vh 4vw',
+      hero: '4rem',
+      content: '6rem',
+      item: '4rem',
+      largeSections: '20vh',
+      mediumSections: '15vh',
+      smallSections: '11vh',
+      subsections: '6rem',
+      elements: '4rem',
+    },
+  };
+
+  return spacingMap[device] || spacingMap.desktop;
+};
+
+// 移动端优化的玻璃效果
+export const createMobileOptimizedGlassStyles = (
+  isHovered: boolean = false,
+  isMobile: boolean = false
+) => {
+  if (isMobile) {
+    // 移动端使用更简单的玻璃效果，减少GPU负担
+    return {
+      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+      backdropFilter: 'blur(8px) saturate(180%)',
+      WebkitBackdropFilter: 'blur(8px) saturate(180%)',
+      border: '1px solid rgba(255, 255, 255, 0.2)',
+      boxShadow: isHovered 
+        ? '0 8px 32px rgba(0, 0, 0, 0.1)' 
+        : '0 4px 16px rgba(0, 0, 0, 0.05)',
+    };
+  }
+  
+  return createUnifiedGlassStyles(isHovered, 'card');
+};
+
+// 移动端动画优化
+export const getMobileOptimizedAnimationDuration = (isMobile: boolean) => ({
+  fast: isMobile ? '150ms' : '200ms',
+  normal: isMobile ? '250ms' : '300ms',
+  slow: isMobile ? '400ms' : '500ms',
+  slower: isMobile ? '600ms' : '800ms',
+});
+
+// 触摸友好的交互样式
+export const getTouchFriendlyStyles = (isMobile: boolean) => ({
+  minHeight: isMobile ? '44px' : 'auto',
+  minWidth: isMobile ? '44px' : 'auto',
+  cursor: isMobile ? 'default' : 'pointer',
+  userSelect: 'none' as const,
+  WebkitTapHighlightColor: 'transparent',
+  touchAction: isMobile ? 'manipulation' : 'auto',
+});
+
+// 移动端导航栏样式优化
+export const getMobileNavigationStyles = (isMobile: boolean, isExpanded: boolean = false) => ({
+  position: 'fixed' as const,
+  top: isMobile ? (isExpanded ? '20px' : '20px') : '30px',
+  left: '50%',
+  transform: 'translateX(-50%)',
+  width: isMobile ? (isExpanded ? '95vw' : '90vw') : 'auto',
+  maxWidth: isMobile ? '95vw' : 'none',
+  zIndex: 1000,
+  transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+});

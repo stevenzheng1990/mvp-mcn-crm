@@ -1,7 +1,8 @@
 // Z:\MCN\mvp-mcn-crm\app\components\LandingPage\components\PageSection.tsx
 import React from 'react';
 import { PageSectionProps } from '../LandingPage.types';
-import { DESIGN_TOKENS } from '../LandingPage.config';
+import { useResponsive } from '../hooks/useResponsive';
+import { getResponsiveSpacing } from '../LandingPage.styles';
 
 const PageSection: React.FC<PageSectionProps> = ({ 
   sectionRef, 
@@ -10,6 +11,9 @@ const PageSection: React.FC<PageSectionProps> = ({
   className = '', 
   style = {} 
 }) => {
+  const { device } = useResponsive();
+  const spacing = getResponsiveSpacing(device);
+
   return (
     <section
       ref={sectionRef}
@@ -18,8 +22,8 @@ const PageSection: React.FC<PageSectionProps> = ({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        minHeight: DESIGN_TOKENS.spacing.section.minHeight,
-        padding: DESIGN_TOKENS.spacing.section.padding,
+        minHeight: '100vh',
+        padding: spacing.section,
         ...style,
       }}
     >
