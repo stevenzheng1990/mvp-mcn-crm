@@ -25,13 +25,14 @@ const FluidSimulation = ({ className = "", style = {} }) => {
     }
 
     // ========== 可调整参数 ==========
-    const RESOLUTION = 0.15;
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const RESOLUTION = isMobile ? 0.1 : 0.15; // 移动端降低分辨率
     const VISCOSITY = 0.00001;
     const FORCE_SCALE = 5;
     const TIME_STEP = 0.015;
-    const ITERATIONS = 50;
+    const ITERATIONS = isMobile ? 30 : 50; // 移动端减少迭代次数
     const FORCE_DECAY = 0.35;
-    const FORCE_RADIUS = 212; 
+    const FORCE_RADIUS = isMobile ? 150 : 212; // 移动端减小力场半径
     const BASE_COLOR = [1.0, 1.0, 1.0];
     const FLOW_COLOR = [1.0, 1.0, 1.0];
     const SCROLL_FORCE_SCALE = 0.2;
@@ -227,12 +228,27 @@ const FluidSimulation = ({ className = "", style = {} }) => {
       // 新增：用于平滑自动转圈的变量
       private lastAutoUpdateTime: number = 0;
       private autoUpdateInterval: number = 16; // 约60fps，但可调整为更大值以节省性能，例如33为30fps
+      
+      // 触摸跟踪
+      private touchStartY: number = 0;
+      private touchStartTime: number = 0;
+      private isScrolling: boolean = false;
+      
+      // 性能优化
+      private isMobile: boolean = false;
+      private lastFrameTime: number = 0;
+      private frameInterval: number = 16.67; // 默认60fps
 
       constructor(canvas: HTMLCanvasElement) {
         this.canvas = canvas;
         this.mouse = new THREE.Vector2(0, 0);
         this.lastMouse = new THREE.Vector2(0, 0);
         this.mouseForce = new THREE.Vector2(0, 0);
+        
+        // 检测移动端并设置帧率
+        this.isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        this.frameInterval = this.isMobile ? 33.33 : 16.67; // 移动端30fps，桌面端60fps
+        
         this.setupRenderer();
         this.setupSimulation();
         this.precompileShaders();
@@ -359,10 +375,30 @@ const FluidSimulation = ({ className = "", style = {} }) => {
           this.updateMousePosition(e.clientX, e.clientY);
         };
 
-        this.onTouchMove = (e: TouchEvent) => {
-          e.preventDefault();
+        this.onTouchStart = (e: TouchEvent) => {
           const touch = e.touches[0];
-          this.updateMousePosition(touch.clientX, touch.clientY);
+          this.touchStartY = touch.clientY;
+          this.touchStartTime = Date.now();
+          this.isScrolling = false;
+        };
+
+        this.onTouchMove = (e: TouchEvent) => {
+          const touch = e.touches[0];
+          const deltaY = Math.abs(touch.clientY - this.touchStartY);
+          const deltaTime = Date.now() - this.touchStartTime;
+          
+          // 如果垂直移动超过10像素或时间超过300ms，认为是滚动
+          if (deltaY > 10 || deltaTime > 300) {
+            this.isScrolling = true;
+          }
+          
+          // 更新鼠标位置，但在滚动时降低力度
+          const forceMultiplier = this.isScrolling ? 0.3 : 1.0;
+          this.updateMousePositionWithMultiplier(touch.clientX, touch.clientY, forceMultiplier);
+        };
+        
+        this.onTouchEnd = () => {
+          this.isScrolling = false;
         };
 
         this.onScroll = () => {
@@ -377,6 +413,10 @@ const FluidSimulation = ({ className = "", style = {} }) => {
         };
 
         this.updateMousePosition = (x: number, y: number) => {
+          this.updateMousePositionWithMultiplier(x, y, 1.0);
+        };
+        
+        this.updateMousePositionWithMultiplier = (x: number, y: number, forceMultiplier: number) => {
           this.mouse.x = x / window.innerWidth;
           this.mouse.y = 1.0 - y / window.innerHeight;
 
@@ -384,8 +424,8 @@ const FluidSimulation = ({ className = "", style = {} }) => {
           const deltaY = this.mouse.y - this.lastMouse.y;
 
           if (Math.abs(deltaX) > 0.0001 || Math.abs(deltaY) > 0.0001) {
-            this.mouseForce.x = deltaX * FORCE_SCALE;
-            this.mouseForce.y = deltaY * FORCE_SCALE;
+            this.mouseForce.x = deltaX * FORCE_SCALE * forceMultiplier;
+            this.mouseForce.y = deltaY * FORCE_SCALE * forceMultiplier;
 
             this.applyExternalForce();
           }
@@ -416,15 +456,20 @@ const FluidSimulation = ({ className = "", style = {} }) => {
         };
 
         this.canvas.addEventListener('mousemove', this.onMouseMove);
-        this.canvas.addEventListener('touchmove', this.onTouchMove);
+        this.canvas.addEventListener('touchstart', this.onTouchStart, { passive: true });
+        this.canvas.addEventListener('touchmove', this.onTouchMove, { passive: true });
+        this.canvas.addEventListener('touchend', this.onTouchEnd, { passive: true });
         window.addEventListener('resize', this.onResize);
-        window.addEventListener('scroll', this.onScroll);
+        window.addEventListener('scroll', this.onScroll, { passive: true });
       }
 
       private onMouseMove!: (e: MouseEvent) => void;
+      private onTouchStart!: (e: TouchEvent) => void;
       private onTouchMove!: (e: TouchEvent) => void;
+      private onTouchEnd!: () => void;
       private onScroll!: () => void;
       private updateMousePosition!: (x: number, y: number) => void;
+      private updateMousePositionWithMultiplier!: (x: number, y: number, forceMultiplier: number) => void;
       private onResize!: () => void;
 
       addScrollDisturbance() {
@@ -618,7 +663,14 @@ const FluidSimulation = ({ className = "", style = {} }) => {
           return;
         }
 
-        this.render();
+        const now = performance.now();
+        const deltaTime = now - this.lastFrameTime;
+
+        // 帧率限制
+        if (deltaTime >= this.frameInterval) {
+          this.render();
+          this.lastFrameTime = now - (deltaTime % this.frameInterval);
+        }
 
         requestAnimationFrame(this.animate);
       }
@@ -640,7 +692,9 @@ const FluidSimulation = ({ className = "", style = {} }) => {
         this.isAnimating = false;
 
         this.canvas.removeEventListener('mousemove', this.onMouseMove);
+        this.canvas.removeEventListener('touchstart', this.onTouchStart);
         this.canvas.removeEventListener('touchmove', this.onTouchMove);
+        this.canvas.removeEventListener('touchend', this.onTouchEnd);
         window.removeEventListener('resize', this.onResize);
         window.removeEventListener('scroll', this.onScroll);
 
