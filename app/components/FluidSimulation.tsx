@@ -4,16 +4,37 @@ import * as THREE from 'three';
 
 const FluidSimulation = ({ className = "", style = {} }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
   const simulationRef = useRef<any>(null);
+  
+  // 获取准确的视口尺寸，避免黑边问题
+  const getViewportSize = () => {
+    // 优先使用visualViewport API（现代浏览器）
+    if (typeof window !== 'undefined' && window.visualViewport) {
+      return {
+        width: window.visualViewport.width,
+        height: window.visualViewport.height
+      };
+    }
+    // 回退到document.documentElement（更准确包含滚动条）
+    if (typeof document !== 'undefined') {
+      return {
+        width: document.documentElement.clientWidth || window.innerWidth,
+        height: document.documentElement.clientHeight || window.innerHeight
+      };
+    }
+    // 最后回退到window.inner*
+    return {
+      width: window.innerWidth,
+      height: window.innerHeight
+    };
+  };
+  
   const [canvasStyle, setCanvasStyle] = useState({
     position: 'fixed' as const,
-    top: -2,
-    bottom: -2,
-    left: -2,
-    right: -2,
-    width: 'calc(100% + 4px)',
-    height: 'calc(100% + 4px)',
+    top: 0,
+    left: 0,
+    width: '100vw',
+    height: '100vh',
     pointerEvents: 'auto' as const,
     zIndex: -1
   });
@@ -24,17 +45,37 @@ const FluidSimulation = ({ className = "", style = {} }) => {
       return;
     }
 
-    // ========== 可调整参数 ==========
+    // ========== 流体模拟可调整参数 ==========
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    const RESOLUTION = isMobile ? 0.1 : 0.15; // 移动端降低分辨率
-    const VISCOSITY = 0.00001;
+    
+    // 模拟分辨率比例 (0.05-0.3)：相对于屏幕尺寸的纹理分辨率，越小性能越好但细节越少
+    const RESOLUTION = isMobile ? 0.12 : 0.18;
+    
+    // 流体粘性系数 (0.00001-0.01)：控制流体粘稠度，值越大流体越难流动，越粘稠
+    const VISCOSITY = 0.0002;
+    
+    // 外部力强度倍数 (1-20)：鼠标/触摸输入力的放大系数，影响交互响应强度
     const FORCE_SCALE = 5;
-    const TIME_STEP = 0.015;
-    const ITERATIONS = isMobile ? 30 : 50; // 移动端减少迭代次数
-    const FORCE_DECAY = 0.35;
-    const FORCE_RADIUS = isMobile ? 150 : 212; // 移动端减小力场半径
+    
+    // 物理时间步长 (0.01-0.05)：每帧的模拟推进量，影响视觉流动速度和数值稳定性
+    const TIME_STEP = 0.03;
+    
+    // 数值求解迭代次数 (20-80)：粘性扩散和压力投影的迭代数，越多越精确但性能开销越大
+    const ITERATIONS = isMobile ? 40 : 60;
+    
+    // 力衰减系数 (0.1-0.9)：每帧力的保留比例，值越小力消失越快，越大则持续时间越长
+    const FORCE_DECAY = 0.3;
+    
+    // 力衰减强度系数 (50-500)：控制力的空间衰减速度，值越大力衰减越快，有效影响半径越小
+    const FORCE_RADIUS = isMobile ? 180 : 280;
+    
+    // 基础流体颜色 (RGB 0-1)：静止状态下的流体颜色，当前设为白色
     const BASE_COLOR = [1.0, 1.0, 1.0];
+    
+    // 流动状态颜色 (RGB 0-1)：运动时的流体颜色，与速度场混合显示
     const FLOW_COLOR = [1.0, 1.0, 1.0];
+    
+    // 滚动扰动强度 (0.1-1.0)：页面滚动时产生的流体扰动力度缩放系数
     const SCROLL_FORCE_SCALE = 0.2;
 
     // Shader sources
@@ -164,10 +205,13 @@ const FluidSimulation = ({ className = "", style = {} }) => {
       
       void main() {
         vec2 vel = texture2D(velocity, vUv).xy;
-        float len = length(vel) * 1.5; // Increased len multiplier to 1.5 for more pronounced color mixing
+        // 速度长度放大系数1.5：增强流动可视化效果，使颜色变化更明显
+        float len = length(vel) * 1.2;
+        
+        // 速度向量归一化：从(-1,1)映射到(0,1)范围，用于颜色计算
         vel = vel * 0.5 + 0.5;
         
-        // 添加基于滚动的渐变效果
+        // 添加基于滚动的渐变效果：0.001控制滚动敏感度，π控制渐变周期
         float scrollGradient = sin(scrollOffset * 0.001 + vUv.y * 3.14159) * 0.1 + 0.9;
         
         vec3 baseColor = vec3(${BASE_COLOR[0].toFixed(1)}, ${BASE_COLOR[1].toFixed(1)}, ${BASE_COLOR[2].toFixed(1)});
@@ -225,9 +269,10 @@ const FluidSimulation = ({ className = "", style = {} }) => {
       private savedLastMouse: THREE.Vector2 = new THREE.Vector2();
       private savedForce: THREE.Vector2 = new THREE.Vector2();
 
-      // 新增：用于平滑自动转圈的变量
+      // 自动动画更新控制变量
       private lastAutoUpdateTime: number = 0;
-      private autoUpdateInterval: number = 16; // 约60fps，但可调整为更大值以节省性能，例如33为30fps
+      // 自动动画更新间隔 (ms)：16ms约为60fps，可调整为更大值节省性能（如33ms=30fps）
+      private autoUpdateInterval: number = 33;
       
       // 触摸跟踪
       private touchStartY: number = 0;
@@ -247,7 +292,8 @@ const FluidSimulation = ({ className = "", style = {} }) => {
         
         // 检测移动端并设置帧率
         this.isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        this.frameInterval = this.isMobile ? 33.33 : 16.67; // 移动端30fps，桌面端60fps
+        // 帧率控制 (ms)：移动端30fps(33.33ms)节省性能，桌面端60fps(16.67ms)保证流畅度
+        this.frameInterval = this.isMobile ? 33.33 : 16.67;
         
         this.setupRenderer();
         this.setupSimulation();
@@ -255,14 +301,42 @@ const FluidSimulation = ({ className = "", style = {} }) => {
         this.isAnimating = true;
         this.animate();
       }
+      
+      // 获取准确的视口尺寸
+      getViewportSize() {
+        // 优先使用visualViewport API（现代浏览器）
+        if (typeof window !== 'undefined' && window.visualViewport) {
+          return {
+            width: window.visualViewport.width,
+            height: window.visualViewport.height
+          };
+        }
+        // 回退到document.documentElement（更准确包含滚动条）
+        if (typeof document !== 'undefined') {
+          return {
+            width: document.documentElement.clientWidth || window.innerWidth,
+            height: document.documentElement.clientHeight || window.innerHeight
+          };
+        }
+        // 最后回退到window.inner*
+        return {
+          width: window.innerWidth,
+          height: window.innerHeight
+        };
+      }
 
       setupRenderer() {
         this.renderer = new THREE.WebGLRenderer({
           canvas: this.canvas,
           antialias: false,
-          alpha: false
+          alpha: true  // 启用alpha通道以支持透明背景
         });
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        
+        // 设置完全透明的背景，避免黑边
+        this.renderer.setClearColor(0x000000, 0); // 透明背景
+        
+        const viewport = this.getViewportSize();
+        this.renderer.setSize(viewport.width, viewport.height);
 
         this.scene = new THREE.Scene();
         this.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
@@ -270,15 +344,14 @@ const FluidSimulation = ({ className = "", style = {} }) => {
 
       setupSimulation() {
         this.resolution = RESOLUTION;
-        this.width = Math.round(window.innerWidth * this.resolution);
-        this.height = Math.round(window.innerHeight * this.resolution);
+        const viewport = this.getViewportSize();
+        this.width = Math.round(viewport.width * this.resolution);
+        this.height = Math.round(viewport.height * this.resolution);
 
         this.cellScale = new THREE.Vector2(1 / this.width, 1 / this.height);
 
-        this.planeGeometry = new THREE.PlaneGeometry(
-          2 - this.cellScale.x * 2,
-          2 - this.cellScale.y * 2
-        );
+        // 修复黑边问题：使用完整的平面尺寸而不是缩小的尺寸
+        this.planeGeometry = new THREE.PlaneGeometry(2, 2);
 
         this.fbos = {
           vel_0: this.createFBO(),
@@ -388,7 +461,7 @@ const FluidSimulation = ({ className = "", style = {} }) => {
           const deltaTime = Date.now() - this.touchStartTime;
           
           // 如果垂直移动超过10像素或时间超过300ms，认为是滚动
-          if (deltaY > 10 || deltaTime > 300) {
+          if (deltaY > 50 || deltaTime > 600) {
             this.isScrolling = true;
           }
           
@@ -417,8 +490,9 @@ const FluidSimulation = ({ className = "", style = {} }) => {
         };
         
         this.updateMousePositionWithMultiplier = (x: number, y: number, forceMultiplier: number) => {
-          this.mouse.x = x / window.innerWidth;
-          this.mouse.y = 1.0 - y / window.innerHeight;
+          const viewport = this.getViewportSize();
+          this.mouse.x = x / viewport.width;
+          this.mouse.y = 1.0 - y / viewport.height;
 
           const deltaX = this.mouse.x - this.lastMouse.x;
           const deltaY = this.mouse.y - this.lastMouse.y;
@@ -434,12 +508,13 @@ const FluidSimulation = ({ className = "", style = {} }) => {
         };
 
         this.onResize = () => {
-          this.width = Math.round(window.innerWidth * this.resolution);
-          this.height = Math.round(window.innerHeight * this.resolution);
+          const viewport = this.getViewportSize();
+          this.width = Math.round(viewport.width * this.resolution);
+          this.height = Math.round(viewport.height * this.resolution);
 
           this.cellScale.set(1 / this.width, 1 / this.height);
 
-          this.renderer.setSize(window.innerWidth, window.innerHeight);
+          this.renderer.setSize(viewport.width, viewport.height);
 
           for (const key in this.fbos) {
             this.fbos[key as keyof typeof this.fbos].dispose();
@@ -473,13 +548,17 @@ const FluidSimulation = ({ className = "", style = {} }) => {
       private onResize!: () => void;
 
       addScrollDisturbance() {
+        // 随机水平位置：中心±10%范围内产生扰动
         const x = 0.5 + (Math.random() - 0.5) * 0.2;
+        // 固定在屏幕中央高度
         const y = 0.5;
 
         const savedMouse = this.mouse.clone();
         const savedForce = this.mouseForce.clone();
 
+        // 随机角度偏移：±20度范围内的扰动方向
         const angleOffset = (Math.random() - 0.5) * Math.PI / 9;
+        // 滚动力度转换：滚动速度的10%转为扰动强度
         const forceMagnitude = Math.abs(this.scrollVelocity) * 0.1;
         const forceX = Math.sin(angleOffset) * forceMagnitude;
         const forceY = -Math.cos(angleOffset) * Math.sign(this.scrollVelocity) * forceMagnitude;
@@ -606,7 +685,8 @@ const FluidSimulation = ({ className = "", style = {} }) => {
       simulateAutoMouse(now: number) {
         const elapsed = now - this.autoStartTime;
 
-        const totalDuration = 5000; // 增加持续时间到6秒，使转圈更慢更顺滑
+        // 自动动画总时长：5秒完成完整的圆形运动
+        const totalDuration = 5000;
 
         if (elapsed > totalDuration) {
           this.isAutoForce = false;
@@ -616,9 +696,11 @@ const FluidSimulation = ({ className = "", style = {} }) => {
           return;
         }
 
-        const rotations = 3; // 减少转圈次数到2.5圈，使更顺滑
+        // 转圈次数：5秒内完成3圈旋转
+        const rotations = 3;
         const angle = 2 * Math.PI * (rotations * (elapsed / totalDuration));
-        const radius = 0.15; // 减小半径到0.25，使范围更小、更靠近中心
+        // 圆形运动半径：相对于屏幕中心的15%半径范围
+        const radius = 0.15;
 
         const autoX = 0.5 + radius * Math.cos(angle);
         const autoY = 0.5 + radius * Math.sin(angle);
@@ -627,9 +709,9 @@ const FluidSimulation = ({ className = "", style = {} }) => {
         const deltaX = newMouse.x - this.lastMouse.x;
         const deltaY = newMouse.y - this.lastMouse.y;
 
-        // 平滑delta：使用更小的FORCE_SCALE乘数，或添加缓动
-        this.mouseForce.x = deltaX * FORCE_SCALE * 1.2; // Increased multiplier from 0.8 to 1.2 for stronger "pressure" in auto circle
-        this.mouseForce.y = deltaY * FORCE_SCALE * 1.2; // Increased multiplier from 0.8 to 1.2 for stronger "pressure" in auto circle
+        // 自动动画力度：比正常交互强20%，营造更明显的流体效果
+        this.mouseForce.x = deltaX * FORCE_SCALE * 1.2;
+        this.mouseForce.y = deltaY * FORCE_SCALE * 1.2;
 
         this.mouse.copy(newMouse);
         this.lastMouse.copy(newMouse);
@@ -725,18 +807,20 @@ const FluidSimulation = ({ className = "", style = {} }) => {
   }, []);
 
   return (
-    <div ref={containerRef} style={{ 
-      position: 'fixed',
-      ...style 
-    }}>
-      <canvas
-        ref={canvasRef}
-        className={className}
-        style={{
-          ...canvasStyle,
-        }}
-      />
-    </div>
+    <canvas
+      ref={canvasRef}
+      className={className}
+      style={{
+        ...canvasStyle,
+        ...style,
+        // 确保完全覆盖，防止任何边距或边框影响
+        margin: 0,
+        padding: 0,
+        border: 'none',
+        display: 'block',
+        // 移除transform scale以避免渲染问题
+      }}
+    />
   );
 };
 
