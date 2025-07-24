@@ -49,25 +49,25 @@ const FluidSimulation = ({ className = "", style = {} }) => {
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     
     // 模拟分辨率比例 (0.05-0.3)：相对于屏幕尺寸的纹理分辨率，越小性能越好但细节越少
-    const RESOLUTION = isMobile ? 0.12 : 0.18;
+    const RESOLUTION = isMobile ? 0.12 : 0.2;
     
     // 流体粘性系数 (0.00001-0.01)：控制流体粘稠度，值越大流体越难流动，越粘稠
-    const VISCOSITY = 0.0002;
+    const VISCOSITY = 0.00012;
     
     // 外部力强度倍数 (1-20)：鼠标/触摸输入力的放大系数，影响交互响应强度
     const FORCE_SCALE = 5;
     
     // 物理时间步长 (0.01-0.05)：每帧的模拟推进量，影响视觉流动速度和数值稳定性
-    const TIME_STEP = 0.03;
+    const TIME_STEP = 0.025;
     
     // 数值求解迭代次数 (20-80)：粘性扩散和压力投影的迭代数，越多越精确但性能开销越大
-    const ITERATIONS = isMobile ? 40 : 60;
+    const ITERATIONS = isMobile ? 40 : 50;
     
     // 力衰减系数 (0.1-0.9)：每帧力的保留比例，值越小力消失越快，越大则持续时间越长
-    const FORCE_DECAY = 0.3;
+    const FORCE_DECAY = 0.4;
     
     // 力衰减强度系数 (50-500)：控制力的空间衰减速度，值越大力衰减越快，有效影响半径越小
-    const FORCE_RADIUS = isMobile ? 180 : 280;
+    const FORCE_RADIUS = isMobile ? 200 : 300;
     
     // 基础流体颜色 (RGB 0-1)：静止状态下的流体颜色，当前设为白色
     const BASE_COLOR = [1.0, 1.0, 1.0];
@@ -76,7 +76,7 @@ const FluidSimulation = ({ className = "", style = {} }) => {
     const FLOW_COLOR = [1.0, 1.0, 1.0];
     
     // 滚动扰动强度 (0.1-1.0)：页面滚动时产生的流体扰动力度缩放系数
-    const SCROLL_FORCE_SCALE = 0.15;
+    const SCROLL_FORCE_SCALE = 0.14;
 
     // Shader sources
     const vertexShader = `
