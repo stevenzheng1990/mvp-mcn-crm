@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useId } from "react";
+import React, { useEffect, useRef, useState, useId, useMemo } from "react";
 
 export interface GlassSurfaceProps {
   children?: React.ReactNode;
@@ -165,53 +165,44 @@ const GlassSurface: React.FC<GlassSurfaceProps> = ({
   useEffect(() => {
     if (!containerRef.current) return;
 
+    // 防抖优化，避免频繁重绘
+    let timeoutId: NodeJS.Timeout;
     const resizeObserver = new ResizeObserver(() => {
-      setTimeout(updateDisplacementMap, 0);
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(updateDisplacementMap, 16); // 约60fps
     });
 
     resizeObserver.observe(containerRef.current);
 
     return () => {
+      clearTimeout(timeoutId);
       resizeObserver.disconnect();
     };
   }, []);
 
   useEffect(() => {
-    if (!containerRef.current) return;
-
-    const resizeObserver = new ResizeObserver(() => {
-      setTimeout(updateDisplacementMap, 0);
-    });
-
-    resizeObserver.observe(containerRef.current);
-
-    return () => {
-      resizeObserver.disconnect();
-    };
-  }, []);
-
-  useEffect(() => {
-    setTimeout(updateDisplacementMap, 0);
+    // 只在尺寸变化时更新，使用防抖
+    const timeoutId = setTimeout(updateDisplacementMap, 16);
+    return () => clearTimeout(timeoutId);
   }, [width, height]);
 
-  const supportsSVGFilters = () => {
-    const isWebkit =
-      /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
+  // 缓存浏览器兼容性检测结果，避免重复计算
+  const [supportsSVGFilters, supportsBackdropFilter] = useMemo(() => {
+    if (typeof window === "undefined") return [false, false];
+    
+    const isWebkit = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
     const isFirefox = /Firefox/.test(navigator.userAgent);
-
-    if (isWebkit || isFirefox) {
-      return false;
-    }
-
-    const div = document.createElement("div");
-    div.style.backdropFilter = `url(#${filterId})`;
-    return div.style.backdropFilter !== "";
-  };
-
-  const supportsBackdropFilter = () => {
-    if (typeof window === "undefined") return false;
-    return CSS.supports("backdrop-filter", "blur(10px)");
-  };
+    
+    const svgSupported = !(isWebkit || isFirefox) && (() => {
+      const div = document.createElement("div");
+      div.style.backdropFilter = `url(#${filterId})`;
+      return div.style.backdropFilter !== "";
+    })();
+    
+    const backdropSupported = CSS.supports("backdrop-filter", "blur(10px)");
+    
+    return [svgSupported, backdropSupported];
+  }, [filterId]);
 
   const getContainerStyles = (): React.CSSProperties => {
     const baseStyles: React.CSSProperties = {
@@ -223,10 +214,7 @@ const GlassSurface: React.FC<GlassSurfaceProps> = ({
       "--glass-saturation": saturation,
     } as React.CSSProperties;
 
-    const svgSupported = supportsSVGFilters();
-    const backdropFilterSupported = supportsBackdropFilter();
-
-    if (svgSupported) {
+    if (supportsSVGFilters) {
       return {
         ...baseStyles,
         background: isDarkMode
@@ -247,7 +235,7 @@ const GlassSurface: React.FC<GlassSurfaceProps> = ({
       };
     } else {
       if (isDarkMode) {
-        if (!backdropFilterSupported) {
+        if (!supportsBackdropFilter) {
           return {
             ...baseStyles,
             background: "rgba(0, 0, 0, 0.4)",
@@ -273,7 +261,7 @@ const GlassSurface: React.FC<GlassSurfaceProps> = ({
           };
         }
       } else {
-        if (!backdropFilterSupported) {
+        if (!supportsBackdropFilter) {
           return {
             ...baseStyles,
             background: "rgba(255, 255, 255, 0.4)",
