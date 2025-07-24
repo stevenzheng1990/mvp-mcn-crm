@@ -35,6 +35,9 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         
+        {/* Outfit 英文字体 */}
+        <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+        
         {/* 主题颜色 */}
         <meta name="theme-color" content="#a8b5c8" />
         <meta name="msapplication-TileColor" content="#a8b5c8" />
@@ -53,7 +56,7 @@ export default function RootLayout({
         {/* 性能优化 */}
         <meta httpEquiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()" />
       </head>
-      <body className="antialiased selection:bg-morandi-cloud/20 selection:text-morandi-stone">
+      <body className="font-sans antialiased selection:bg-morandi-cloud/20 selection:text-morandi-stone">
         {/* 全局背景 */}
         <div className="fixed inset-0 -z-10 bg-morandi-gradient">
           {/* 装饰性渐变 */}

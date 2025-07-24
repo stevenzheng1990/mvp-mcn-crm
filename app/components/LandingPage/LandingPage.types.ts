@@ -209,16 +209,43 @@ export interface PlatformSummary {
   monitoringLabel: string;
 }
 
+export interface PlatformSection {
+  title: string;
+  description: string;
+  points?: string[];
+  advantages?: Array<{
+    title: string;
+    desc: string;
+  }>;
+  categories?: Array<{
+    name: string;
+    platforms: string;
+    feature: string;
+  }>;
+}
+
 export interface PlatformsContent {
   title: string;
   subtitle: string;
+  sections: PlatformSection[];
   china: PlatformRegion;
   overseas: PlatformRegion;
   summary: PlatformSummary;
 }
 
+// 导航菜单内容
+export interface NavigationContent {
+  about: string;
+  creators: string;
+  brands: string;
+  process: string;
+  system: string;
+  contact: string;
+}
+
 // 完整语言内容结构
 export interface ContentLanguage {
+  navigation: NavigationContent;
   hero: HeroContent;
   about: AboutContent;
   advantages: AdvantagesContent;
@@ -284,7 +311,3 @@ export interface PageSectionProps {
   style?: React.CSSProperties;
 }
 
-export interface BackToTopButtonProps {
-  scrollProgress: number;
-  content: ContentLanguage;
-}

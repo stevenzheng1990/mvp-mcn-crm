@@ -193,7 +193,7 @@ const MagneticSocialLogos: React.FC<MagneticSocialLogosProps> = ({
         
         /* 悬停时的额外效果 */
         .magnetic-logo-item:hover {
-          filter: brightness(1.3) drop-shadow(0 0 25px rgba(124, 58, 237, 0.4));
+          filter: brightness(1.3) drop-shadow(0 0 25px rgba(37, 99, 235, 0.4));
         }
       `}</style>
     </div>

@@ -51,21 +51,97 @@ export const createGlassStyles = (isHovered: boolean = false) => {
   return createUnifiedGlassStyles(isHovered, 'card');
 };
 
-// 导航栏玻璃效果 - 特殊版本，保持现有逻辑
-export const createExtendedGlassStyles = () => ({
-  backgroundColor: `color-mix(in srgb, var(--glass-base) 10%, transparent)`,
-  backdropFilter: `blur(${DESIGN_TOKENS.glassEffect.blur.medium}) saturate(var(--glass-saturation))`,
-  WebkitBackdropFilter: `blur(${DESIGN_TOKENS.glassEffect.blur.medium}) saturate(var(--glass-saturation))`,
-  boxShadow: `
-    inset 0 0 0 1px color-mix(in srgb, var(--glass-light) calc(var(--glass-reflex-light) * 10%), transparent),
-    inset 1.8px 3px 0px -2px color-mix(in srgb, var(--glass-light) calc(var(--glass-reflex-light) * 90%), transparent),
-    inset -2px -2px 0px -2px color-mix(in srgb, var(--glass-light) calc(var(--glass-reflex-light) * 80%), transparent),
-    inset -3px -8px 1px -6px color-mix(in srgb, var(--glass-light) calc(var(--glass-reflex-light) * 60%), transparent),
-    inset -0.3px -1px 4px 0px color-mix(in srgb, var(--glass-dark) calc(var(--glass-reflex-dark) * 12%), transparent),
-    inset -1.5px 2.5px 0px -2px color-mix(in srgb, var(--glass-dark) calc(var(--glass-reflex-dark) * 20%), transparent),
-    0px 1px 5px 0px color-mix(in srgb, var(--glass-dark) calc(var(--glass-reflex-dark) * 10%), transparent),
-    0px 6px 16px 0px color-mix(in srgb, var(--glass-dark) calc(var(--glass-reflex-dark) * 8%), transparent)
-  `,
+
+// 玻璃长条容器样式
+export const getGlassBarContainerStyles = (visibleSections: Set<number>, isExpanded: boolean, isMobile: boolean) => {
+  const hasSeenAbout = visibleSections.has(1); // about section is index 1
+  const isFirstTime = !hasSeenAbout;
+  
+  return {
+    position: 'fixed' as const,
+    top: isFirstTime ? '-100px' : '30px',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    zIndex: 1000,
+    opacity: isFirstTime ? 0 : 1,
+    transition: 'all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+    pointerEvents: isFirstTime ? 'none' : 'auto',
+  };
+};
+
+// 玻璃长条内容样式
+export const getGlassBarContentStyles = (isExpanded: boolean, isMobile: boolean) => ({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  flexDirection: (isMobile && isExpanded) ? 'column' as const : 'row' as const,
+  width: '100%',
+  padding: isMobile ? '1rem' : '0 2rem',
+  gap: isMobile ? (isExpanded ? '1rem' : '1.8rem') : '1.8rem',
+  transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+});
+
+// 玻璃长条导航项样式
+export const getGlassBarNavItemStyles = (language?: string) => ({
+  color: 'rgba(60, 60, 60, 0.8)',
+  textDecoration: 'none',
+  cursor: 'pointer',
+  transition: 'color 0.2s ease',
+  whiteSpace: 'nowrap' as const,
+});
+
+// 玻璃长条导航项hover样式
+export const getGlassBarNavItemHoverStyles = () => ({
+  color: 'rgba(220, 220, 220, 0.9)',
+});
+
+// 玻璃长条分隔线样式
+export const getGlassBarDividerStyles = (isMobile: boolean, isExpanded: boolean) => ({
+  width: (isMobile && isExpanded) ? '80%' : '1px',
+  height: (isMobile && isExpanded) ? '1px' : '20px',
+  background: 'rgba(100, 100, 100, 0.3)',
+  transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+});
+
+// 玻璃长条特殊项样式（联系我们、数据后台）
+export const getGlassBarSpecialItemStyles = (language?: string) => ({
+  color: 'rgba(80, 80, 80, 0.9)',
+  textDecoration: 'none',
+  cursor: 'pointer',
+  transition: 'color 0.2s ease',
+  whiteSpace: 'nowrap' as const,
+});
+
+// 玻璃长条特殊项hover样式
+export const getGlassBarSpecialItemHoverStyles = () => ({
+  color: 'rgba(240, 240, 240, 0.95)',
+});
+
+// 玻璃长条隐藏元素样式
+export const getGlassBarHiddenItemStyles = (isExpanded: boolean) => ({
+  opacity: isExpanded ? 1 : 0,
+  transform: isExpanded ? 'translateY(0)' : 'translateY(-10px)',
+  transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+  pointerEvents: isExpanded ? ('auto' as const) : ('none' as const),
+});
+
+// 语言切换按钮样式
+export const getLanguageToggleStyles = (isActive: boolean) => ({
+  color: isActive ? 'rgba(40, 40, 40, 1)' : 'rgba(80, 80, 80, 0.8)',
+  fontSize: DESIGN_TOKENS.typography.level6.fontSize,
+  fontWeight: DESIGN_TOKENS.typography.level6.fontWeight,
+  lineHeight: DESIGN_TOKENS.typography.level6.lineHeight,
+  textDecoration: 'none',
+  cursor: 'pointer',
+  transition: 'color 0.2s ease',
+  whiteSpace: 'nowrap' as const,
+  padding: '4px 8px',
+  borderRadius: '4px',
+});
+
+// 语言切换按钮hover样式
+export const getLanguageToggleHoverStyles = () => ({
+  color: 'rgba(200, 200, 200, 0.9)',
 });
 
 // 缓动函数

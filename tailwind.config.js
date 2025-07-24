@@ -45,7 +45,7 @@ module.exports = {
         'morandi-gradient': 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
       },
       fontFamily: {
-        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        sans: ['Outfit', 'OPPO Sans', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
       },
       borderRadius: {
         'xl': '1rem',

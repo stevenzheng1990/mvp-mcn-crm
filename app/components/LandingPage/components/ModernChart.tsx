@@ -1,5 +1,6 @@
 // app/components/LandingPage/components/ModernChart.tsx
 import React, { useEffect, useRef, useState } from 'react';
+import { DESIGN_TOKENS } from '../LandingPage.config';
 
 interface ChartData {
   label: string;
@@ -27,8 +28,8 @@ interface ModernChartProps {
 }
 
 const CHART_COLORS = {
-  primary: '#3b82f6',     // 主色调
-  secondary: '#8b5cf6',   // 副色调
+  primary: 'rgb(76, 113, 224)',     // 主色调
+  secondary: 'rgb(76, 113, 224)',   // 副色调
   accent: '#06b6d4',      // 强调色
   success: '#10b981',     // 成功色
   warning: '#f59e0b',     // 警告色
@@ -53,12 +54,9 @@ const ModernChart: React.FC<ModernChartProps> = ({
 
   useEffect(() => {
     if (inView && !isAnimated) {
-      const timer = setTimeout(() => {
-        setIsAnimated(true);
-      }, delay * 1000);
-      return () => clearTimeout(timer);
+      setIsAnimated(true);
     }
-  }, [inView, delay, isAnimated]);
+  }, [inView, isAnimated]);
 
   const getColorByIndex = (index: number): string => {
     const colors = Object.values(CHART_COLORS);
@@ -167,7 +165,6 @@ const ModernChart: React.FC<ModernChartProps> = ({
                     fill="url(#dualGradient1)"
                     opacity={isAnimated ? 0.3 : 0}
                     style={{
-                      transition: 'opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1) 0.5s'
                     }}
                   />
                   
@@ -183,7 +180,6 @@ const ModernChart: React.FC<ModernChartProps> = ({
                     strokeLinejoin="round"
                     filter="url(#glow1)"
                     style={{
-                      transition: 'stroke-dasharray 2s cubic-bezier(0.4, 0, 0.2, 1), stroke-dashoffset 2s cubic-bezier(0.4, 0, 0.2, 1)'
                     }}
                   />
                   
@@ -199,19 +195,17 @@ const ModernChart: React.FC<ModernChartProps> = ({
                         strokeWidth="3"
                         opacity={isAnimated ? 1 : 0}
                         style={{
-                          transition: `opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1) ${index * 0.1 + 1.5}s`
                         }}
                       />
                       <text
                         x={point.x}
                         y={point.y - 15}
                         textAnchor="middle"
-                        fontSize="0.8rem"
-                        fontWeight="600"
+                        fontSize={DESIGN_TOKENS.typography.level5.fontSize}
+                        fontWeight={DESIGN_TOKENS.typography.level5.fontWeight}
                         fill={CHART_COLORS.primary}
                         opacity={isAnimated ? 1 : 0}
                         style={{
-                          transition: `opacity 0.6s ease ${index * 0.1 + 1.8}s`
                         }}
                       >
                         {point.value}W
@@ -243,7 +237,6 @@ const ModernChart: React.FC<ModernChartProps> = ({
                     fill="url(#dualGradient2)"
                     opacity={isAnimated ? 0.2 : 0}
                     style={{
-                      transition: 'opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1) 0.8s'
                     }}
                   />
                   
@@ -259,7 +252,6 @@ const ModernChart: React.FC<ModernChartProps> = ({
                     strokeLinejoin="round"
                     filter="url(#glow2)"
                     style={{
-                      transition: 'stroke-dasharray 2s cubic-bezier(0.4, 0, 0.2, 1) 0.3s, stroke-dashoffset 2s cubic-bezier(0.4, 0, 0.2, 1) 0.3s'
                     }}
                   />
                   
@@ -275,19 +267,17 @@ const ModernChart: React.FC<ModernChartProps> = ({
                         strokeWidth="3"
                         opacity={isAnimated ? 1 : 0}
                         style={{
-                          transition: `opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1) ${index * 0.1 + 1.8}s`
                         }}
                       />
                       <text
                         x={point.x}
                         y={point.y + 25}
                         textAnchor="middle"
-                        fontSize="0.8rem"
-                        fontWeight="600"
+                        fontSize={DESIGN_TOKENS.typography.level5.fontSize}
+                        fontWeight={DESIGN_TOKENS.typography.level5.fontWeight}
                         fill={CHART_COLORS.secondary}
                         opacity={isAnimated ? 1 : 0}
                         style={{
-                          transition: `opacity 0.6s ease ${index * 0.1 + 2.1}s`
                         }}
                       >
                         {point.value}%
@@ -303,8 +293,8 @@ const ModernChart: React.FC<ModernChartProps> = ({
               x={padding - 40}
               y={padding}
               textAnchor="middle"
-              fontSize="0.75rem"
-              fontWeight="600"
+              fontSize={DESIGN_TOKENS.typography.level5.fontSize}
+              fontWeight={DESIGN_TOKENS.typography.level5.fontWeight}
               fill={CHART_COLORS.primary}
               transform={`rotate(-90 ${padding - 40} ${padding})`}
             >
@@ -316,8 +306,8 @@ const ModernChart: React.FC<ModernChartProps> = ({
               x={width - padding + 40}
               y={padding}
               textAnchor="middle"
-              fontSize="0.75rem"
-              fontWeight="600"
+              fontSize={DESIGN_TOKENS.typography.level5.fontSize}
+              fontWeight={DESIGN_TOKENS.typography.level5.fontWeight}
               fill={CHART_COLORS.secondary}
               transform={`rotate(90 ${width - padding + 40} ${padding})`}
             >
@@ -331,9 +321,9 @@ const ModernChart: React.FC<ModernChartProps> = ({
             justifyContent: 'space-between',
             width: `${width - 2 * padding}px`,
             margin: '1rem auto 0',
-            fontSize: '0.75rem',
+            fontSize: DESIGN_TOKENS.typography.level5.fontSize,
             color: 'rgba(255, 255, 255, 0.7)',
-            fontWeight: '500'
+            fontWeight: DESIGN_TOKENS.typography.level5.fontWeight
           }}>
             {xLabels.map((label, index) => {
               // 只显示关键节点的标签
@@ -345,7 +335,6 @@ const ModernChart: React.FC<ModernChartProps> = ({
                     textAlign: 'center',
                     opacity: shouldShow && isAnimated ? 1 : 0,
                     transform: isAnimated ? 'translateY(0)' : 'translateY(10px)',
-                    transition: `all 0.6s ease ${index * 0.1 + 2.5}s`,
                     visibility: shouldShow ? 'visible' : 'hidden'
                   }}
                 >
@@ -372,7 +361,6 @@ const ModernChart: React.FC<ModernChartProps> = ({
               gap: '0.5rem',
               opacity: isAnimated ? 1 : 0,
               transform: isAnimated ? 'translateY(0) rotateX(0deg)' : 'translateY(30px) rotateX(15deg)',
-              transition: `all 1.2s cubic-bezier(0.23, 1, 0.32, 1) ${index * 0.3 + 3}s`,
               transformStyle: 'preserve-3d'
             }}>
               <div style={{
@@ -383,9 +371,9 @@ const ModernChart: React.FC<ModernChartProps> = ({
                 opacity: 0.6
               }} />
               <span style={{
-                fontSize: '0.85rem',
+                fontSize: DESIGN_TOKENS.typography.level5.fontSize,
                 color: 'rgba(80, 80, 80, 0.6)',
-                fontWeight: '400',
+                fontWeight: DESIGN_TOKENS.typography.level5.fontWeight,
                 letterSpacing: '0.02em',
                 textAlign: 'center'
               }}>
@@ -471,9 +459,9 @@ const ModernChart: React.FC<ModernChartProps> = ({
                     x={padding - 15}
                     y={y + 4}
                     textAnchor="end"
-                    fontSize="0.7rem"
+                    fontSize={DESIGN_TOKENS.typography.level5.fontSize}
                     fill="rgba(255, 255, 255, 0.6)"
-                    fontWeight="500"
+                    fontWeight={DESIGN_TOKENS.typography.level5.fontWeight}
                   >
                     {(value / 1000).toFixed(0)}K
                   </text>
@@ -504,7 +492,6 @@ const ModernChart: React.FC<ModernChartProps> = ({
                     fill={`url(#gradient-${seriesIndex})`}
                     opacity={isAnimated ? 0.15 : 0}
                     style={{
-                      transition: `opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1) ${0.5 + seriesIndex * 0.2}s`
                     }}
                   />
                   
@@ -520,7 +507,6 @@ const ModernChart: React.FC<ModernChartProps> = ({
                     strokeLinejoin="round"
                     filter="url(#multiGlow)"
                     style={{
-                      transition: `stroke-dasharray 2s cubic-bezier(0.4, 0, 0.2, 1) ${seriesIndex * 0.3}s, stroke-dashoffset 2s cubic-bezier(0.4, 0, 0.2, 1) ${seriesIndex * 0.3}s`
                     }}
                   />
                   
@@ -536,7 +522,6 @@ const ModernChart: React.FC<ModernChartProps> = ({
                       strokeWidth="2"
                       opacity={isAnimated ? 1 : 0}
                       style={{
-                        transition: `opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1) ${seriesIndex * 0.3 + pointIndex * 0.1 + 1.5}s`
                       }}
                     />
                   ))}
@@ -551,9 +536,9 @@ const ModernChart: React.FC<ModernChartProps> = ({
             justifyContent: 'space-between',
             width: `${width - 2 * padding}px`,
             margin: '1rem auto 0',
-            fontSize: '0.75rem',
+            fontSize: DESIGN_TOKENS.typography.level5.fontSize,
             color: 'rgba(255, 255, 255, 0.7)',
-            fontWeight: '500'
+            fontWeight: DESIGN_TOKENS.typography.level5.fontWeight
           }}>
             {xLabels.map((label, index) => (
               <span 
@@ -562,7 +547,6 @@ const ModernChart: React.FC<ModernChartProps> = ({
                   textAlign: 'center',
                   opacity: isAnimated ? 1 : 0,
                   transform: isAnimated ? 'translateY(0)' : 'translateY(10px)',
-                  transition: `all 0.6s ease ${index * 0.1 + 2.5}s`
                 }}
               >
                 {label}
@@ -585,7 +569,6 @@ const ModernChart: React.FC<ModernChartProps> = ({
               gap: '0.5rem',
               opacity: isAnimated ? 1 : 0,
               transform: isAnimated ? 'translateY(0)' : 'translateY(20px)',
-              transition: `all 0.8s cubic-bezier(0.4, 0, 0.2, 1) ${index * 0.2 + 2.8}s`
             }}>
               <div style={{
                 width: '20px',
@@ -595,9 +578,9 @@ const ModernChart: React.FC<ModernChartProps> = ({
                 boxShadow: `0 0 6px ${(series.color || getColorByIndex(index))}40`
               }} />
               <span style={{
-                fontSize: '0.85rem',
+                fontSize: DESIGN_TOKENS.typography.level5.fontSize,
                 color: 'rgba(80, 80, 80, 0.8)',
-                fontWeight: '500',
+                fontWeight: DESIGN_TOKENS.typography.level5.fontWeight,
                 letterSpacing: '0.01em'
               }}>
                 {series.name}
@@ -627,7 +610,6 @@ const ModernChart: React.FC<ModernChartProps> = ({
       style={{
         opacity: inView ? 1 : 0,
         transform: inView ? 'translateY(0)' : 'translateY(40px)',
-        transition: `all 1.2s cubic-bezier(0.4, 0, 0.2, 1) ${delay}s`,
         maxWidth: '100%',
         width: '100%',
         boxSizing: 'border-box',
@@ -639,8 +621,9 @@ const ModernChart: React.FC<ModernChartProps> = ({
           textAlign: 'center'
         }}>
           <h4 style={{ 
-            fontSize: 'clamp(1.4rem, 3.5vw, 2.45rem)',
-            fontWeight: '700',
+            fontSize: DESIGN_TOKENS.typography.level3.fontSize,
+            fontWeight: DESIGN_TOKENS.typography.level3.fontWeight,
+            lineHeight: DESIGN_TOKENS.typography.level3.lineHeight,
             color: 'rgba(80, 80, 80, 0.9)',
             margin: '0 0 1rem 0',
             letterSpacing: '-0.02em'
@@ -649,7 +632,7 @@ const ModernChart: React.FC<ModernChartProps> = ({
           </h4>
           {subtitle && (
             <p style={{ 
-              fontSize: 'clamp(0.84rem, 1.75vw, 1.26rem)',
+              fontSize: DESIGN_TOKENS.typography.fontSize.body,
               color: 'rgba(80, 80, 80, 0.6)',
               margin: 0,
               fontWeight: '400',

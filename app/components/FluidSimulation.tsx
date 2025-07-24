@@ -8,12 +8,12 @@ const FluidSimulation = ({ className = "", style = {} }) => {
   const simulationRef = useRef<any>(null);
   const [canvasStyle, setCanvasStyle] = useState({
     position: 'fixed' as const,
-    top: -5,
-    bottom: -5,
-    left: -5,
-    right: -5,
-    width: '100%',
-    height: '100%',
+    top: -2,
+    bottom: -2,
+    left: -2,
+    right: -2,
+    width: 'calc(100% + 4px)',
+    height: 'calc(100% + 4px)',
     pointerEvents: 'auto' as const,
     zIndex: -1
   });
@@ -27,11 +27,11 @@ const FluidSimulation = ({ className = "", style = {} }) => {
     // ========== 可调整参数 ==========
     const RESOLUTION = 0.15;
     const VISCOSITY = 0.00001;
-    const FORCE_SCALE = 6;
-    const TIME_STEP = 0.02;
-    const ITERATIONS = 40;
-    const FORCE_DECAY = 0.15;
-    const FORCE_RADIUS = 230;
+    const FORCE_SCALE = 5;
+    const TIME_STEP = 0.015;
+    const ITERATIONS = 50;
+    const FORCE_DECAY = 0.35;
+    const FORCE_RADIUS = 212; 
     const BASE_COLOR = [1.0, 1.0, 1.0];
     const FLOW_COLOR = [1.0, 1.0, 1.0];
     const SCROLL_FORCE_SCALE = 0.2;
@@ -163,7 +163,7 @@ const FluidSimulation = ({ className = "", style = {} }) => {
       
       void main() {
         vec2 vel = texture2D(velocity, vUv).xy;
-        float len = length(vel);
+        float len = length(vel) * 1.5; // Increased len multiplier to 1.5 for more pronounced color mixing
         vel = vel * 0.5 + 0.5;
         
         // 添加基于滚动的渐变效果
@@ -583,8 +583,8 @@ const FluidSimulation = ({ className = "", style = {} }) => {
         const deltaY = newMouse.y - this.lastMouse.y;
 
         // 平滑delta：使用更小的FORCE_SCALE乘数，或添加缓动
-        this.mouseForce.x = deltaX * FORCE_SCALE * 0.8; // 略微减小力规模以使更顺滑
-        this.mouseForce.y = deltaY * FORCE_SCALE * 0.8;
+        this.mouseForce.x = deltaX * FORCE_SCALE * 1.2; // Increased multiplier from 0.8 to 1.2 for stronger "pressure" in auto circle
+        this.mouseForce.y = deltaY * FORCE_SCALE * 1.2; // Increased multiplier from 0.8 to 1.2 for stronger "pressure" in auto circle
 
         this.mouse.copy(newMouse);
         this.lastMouse.copy(newMouse);
@@ -671,7 +671,10 @@ const FluidSimulation = ({ className = "", style = {} }) => {
   }, []);
 
   return (
-    <div ref={containerRef} style={{ position: 'fixed', ...style }}>
+    <div ref={containerRef} style={{ 
+      position: 'fixed',
+      ...style 
+    }}>
       <canvas
         ref={canvasRef}
         className={className}

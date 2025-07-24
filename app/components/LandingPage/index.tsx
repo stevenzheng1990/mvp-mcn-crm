@@ -12,18 +12,21 @@ import {
   getContent 
 } from './LandingPage.config';
 
-import { getCssVariables, createGlassStyles } from './LandingPage.styles';
+import { 
+  getCssVariables, 
+  createGlassStyles,
+  getGlassBarNavItemStyles,
+  getGlassBarNavItemHoverStyles,
+  getGlassBarSpecialItemStyles,
+  getGlassBarSpecialItemHoverStyles
+} from './LandingPage.styles';
 import { useScrollProgress } from './hooks/useScrollProgress';
 // 子组件导入
 import AnimatedText from './components/AnimatedText';
 import FastAnimatedText from './components/FastAnimatedText';
-import LanguageSwitcher from './components/LanguageSwitcher';
-import NavigationButtons from './components/NavigationButtons';
 import ScrollIndicator from './components/ScrollIndicator';
 import LogoMaskLayer from './components/LogoMaskLayer';
-import LogoMaskLayerSimple from './components/LogoMaskLayerSimple';
 import PageSection from './components/PageSection';
-import BackToTopButton from './components/BackToTopButton';
 import AnimatedCard from './components/AnimatedCard';
 import AnimatedCounter from './components/AnimatedCounter';
 import SurroundingLogos from './components/SurroundingLogos';
@@ -32,10 +35,23 @@ import ClientSatisfactionMetrics from './components/ClientSatisfactionMetrics';
 import MarketingEffectivenessMetrics from './components/MarketingEffectivenessMetrics';
 import ModernChart from './components/ModernChart';
 import ScrollingTags from './components/ScrollingTags';
+import PlatformLogosScroller from './components/PlatformLogosScroller';
+import GlassSurface from './components/GlassSurface';
 const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
+  // 根据浏览器语言设置初始语言
+  const getInitialLanguage = (): Language => {
+    if (typeof window !== 'undefined') {
+      const browserLang = navigator.language || navigator.languages?.[0];
+      return browserLang?.toLowerCase().includes('zh') ? 'zh' : 'en';
+    }
+    return 'zh';
+  };
+
   // 状态管理
-  const [language, setLanguage] = useState<Language>('zh');
+  const [language, setLanguage] = useState<Language>(getInitialLanguage());
   const [visibleSections, setVisibleSections] = useState<Set<number>>(new Set([0]));
+  const [hasSeenAbout, setHasSeenAbout] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   
   // 自定义 Hook
   const { scrollProgress, maskOpacity } = useScrollProgress();
@@ -52,6 +68,18 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
   // CSS 变量
   const cssVariables = getCssVariables();
 
+  // 检测移动端
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+
   // 可见性观察器
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
@@ -62,6 +90,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
             const newSet = new Set(prev);
             if (entry.isIntersecting) {
               newSet.add(index);
+              // 如果是about section（index 1）变可见，记录状态
+              if (index === 1) {
+                setHasSeenAbout(true);
+              }
             } else {
               newSet.delete(index);
             }
@@ -88,48 +120,347 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
         position: 'relative',
         margin: 0,
         padding: 0,
-        width: '100vw',
+        width: '100%',
         minHeight: '100vh',
-        overflow: 'hidden',
+        overflowX: 'hidden',
+        overflowY: 'auto',
+        backgroundColor: 'white', // 添加白色背景防止黑边
         fontFamily: DESIGN_TOKENS.typography.fontFamily,
         letterSpacing: DESIGN_TOKENS.typography.letterSpacing,
-        fontWeight: DESIGN_TOKENS.typography.fontWeight.light,
         ...cssVariables,
       }}
     >
       {/* 背景层 - FluidSimulation */}
-      <div className="background-layer" style={{ position: 'fixed', inset: 0, zIndex: 0 }}>
+      <div className="background-layer" style={{ 
+        position: 'fixed', 
+        top: -2,
+        left: -2,
+        right: -2,
+        bottom: -2,
+        width: 'calc(100vw + 4px)',
+        height: 'calc(100vh + 4px)',
+        zIndex: 0,
+        overflow: 'hidden'
+      }}>
         <FluidSimulation className="w-full h-full" />
       </div>
+
 
       {/* Logo遮罩层 */}
       <LogoMaskLayer
         scrollProgress={scrollProgress}
         maskOpacity={maskOpacity}
+        onLogoClick={() => {
+          // 立即开始滚动，无延迟
+          const targetScroll = window.innerHeight * 2.9;
+          const startScroll = window.pageYOffset;
+          const distance = targetScroll - startScroll;
+          const duration = 1500; // 缩短到1.5秒
+          const startTime = performance.now(); // 使用performance.now()更精确
+          
+          const animation = (currentTime: number) => {
+            const timeElapsed = currentTime - startTime;
+            const progress = Math.min(timeElapsed / duration, 1);
+            
+            // 使用更快的缓动函数
+            const easeOutQuad = (t: number) => {
+              return t * (2 - t);
+            };
+            
+            window.scrollTo(0, startScroll + distance * easeOutQuad(progress));
+            
+            if (progress < 1) {
+              requestAnimationFrame(animation);
+            }
+          };
+          
+          // 立即执行第一帧
+          animation(performance.now());
+        }}
       />
 
       {/* 固定元素层 */}
       <div className="fixed-elements">
-        {/* 语言切换器 */}
-        <LanguageSwitcher
-          language={language}
-          onLanguageChange={setLanguage}
-          scrollProgress={scrollProgress}
-        />
-
-        {/* 分离的导航按钮 */}
-        <NavigationButtons
-          language={language}
-          content={content}
-          scrollProgress={scrollProgress}
-          onNavigateToSystem={onNavigateToSystem}
-        />
-
-        {/* 返回顶部按钮 */}
-        <BackToTopButton 
-          scrollProgress={scrollProgress}
-          content={content}
-        />
+        {/* 玻璃长条 */}
+        <div style={{
+          position: 'fixed',
+          // 当滚动回到遮罩动画区域时（scrollProgress < 0.8），菜单栏上滑消失
+          top: hasSeenAbout && scrollProgress > 0.8 ? '30px' : '-100px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 1000,
+          opacity: hasSeenAbout && scrollProgress > 0.8 ? 1 : 0,
+          transition: 'all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+          pointerEvents: hasSeenAbout && scrollProgress > 0.8 ? 'auto' : 'none',
+          ...(isMobile && {
+            width: '100%',
+            maxWidth: '95vw',
+          })
+        }}>
+          <GlassSurface className="glass-bar">
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: isMobile ? '0.8rem' : (language === 'en' ? '0.8rem' : '1.2rem'),
+              padding: isMobile ? '0 1rem' : '0 2rem',
+              flexWrap: isMobile && window.innerWidth < 480 ? 'wrap' : 'nowrap',
+              justifyContent: 'center',
+            }}>
+              <span
+                style={{
+                  ...getGlassBarNavItemStyles(language),
+                  fontSize: DESIGN_TOKENS.typography.level5.fontSize,
+                  fontWeight: DESIGN_TOKENS.typography.level5.fontWeight,
+                  lineHeight: DESIGN_TOKENS.typography.level5.lineHeight,
+                }}
+                onClick={() => {
+                  const element = sectionRefs.current[1];
+                  if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }
+                }}
+                onMouseEnter={(e) => {
+                  Object.assign(e.currentTarget.style, {
+                    ...getGlassBarNavItemStyles(language),
+                    ...getGlassBarNavItemHoverStyles()
+                  });
+                }}
+                onMouseLeave={(e) => {
+                  Object.assign(e.currentTarget.style, getGlassBarNavItemStyles(language));
+                }}
+              >
+{content.navigation.about}
+              </span>
+              
+              {!isMobile && <div style={{
+                width: '1px',
+                height: '20px',
+                background: 'rgba(100, 100, 100, 0.3)',
+              }} />}
+              
+              <span
+                style={{
+                  ...getGlassBarNavItemStyles(language),
+                  fontSize: DESIGN_TOKENS.typography.level5.fontSize,
+                  fontWeight: DESIGN_TOKENS.typography.level5.fontWeight,
+                  lineHeight: DESIGN_TOKENS.typography.level5.lineHeight,
+                }}
+                onClick={() => {
+                  const element = sectionRefs.current[3];
+                  if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }
+                }}
+                onMouseEnter={(e) => {
+                  Object.assign(e.currentTarget.style, {
+                    ...getGlassBarNavItemStyles(language),
+                    ...getGlassBarNavItemHoverStyles()
+                  });
+                }}
+                onMouseLeave={(e) => {
+                  Object.assign(e.currentTarget.style, getGlassBarNavItemStyles(language));
+                }}
+              >
+{content.navigation.creators}
+              </span>
+              
+              {!isMobile && <div style={{
+                width: '1px',
+                height: '20px',
+                background: 'rgba(100, 100, 100, 0.3)',
+              }} />}
+              
+              <span
+                style={{
+                  ...getGlassBarNavItemStyles(language),
+                  fontSize: DESIGN_TOKENS.typography.level5.fontSize,
+                  fontWeight: DESIGN_TOKENS.typography.level5.fontWeight,
+                  lineHeight: DESIGN_TOKENS.typography.level5.lineHeight,
+                }}
+                onClick={() => {
+                  const element = sectionRefs.current[4];
+                  if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }
+                }}
+                onMouseEnter={(e) => {
+                  Object.assign(e.currentTarget.style, {
+                    ...getGlassBarNavItemStyles(language),
+                    ...getGlassBarNavItemHoverStyles()
+                  });
+                }}
+                onMouseLeave={(e) => {
+                  Object.assign(e.currentTarget.style, getGlassBarNavItemStyles(language));
+                }}
+              >
+{content.navigation.brands}
+              </span>
+              
+              {!isMobile && <div style={{
+                width: '1px',
+                height: '20px',
+                background: 'rgba(100, 100, 100, 0.3)',
+              }} />}
+              
+              <span
+                style={{
+                  ...getGlassBarNavItemStyles(language),
+                  fontSize: DESIGN_TOKENS.typography.level5.fontSize,
+                  fontWeight: DESIGN_TOKENS.typography.level5.fontWeight,
+                  lineHeight: DESIGN_TOKENS.typography.level5.lineHeight,
+                }}
+                onClick={() => {
+                  const element = sectionRefs.current[5];
+                  if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }
+                }}
+                onMouseEnter={(e) => {
+                  Object.assign(e.currentTarget.style, {
+                    ...getGlassBarNavItemStyles(language),
+                    ...getGlassBarNavItemHoverStyles()
+                  });
+                }}
+                onMouseLeave={(e) => {
+                  Object.assign(e.currentTarget.style, getGlassBarNavItemStyles(language));
+                }}
+              >
+{content.navigation.process}
+              </span>
+              
+              {!isMobile && <div style={{
+                width: '1px',
+                height: '20px',
+                background: 'rgba(100, 100, 100, 0.3)',
+              }} />}
+              
+              <span
+                style={{
+                  ...getGlassBarSpecialItemStyles(language),
+                  fontSize: DESIGN_TOKENS.typography.level5.fontSize,
+                  fontWeight: DESIGN_TOKENS.typography.level5.fontWeight,
+                  lineHeight: DESIGN_TOKENS.typography.level5.lineHeight,
+                }}
+                onClick={onNavigateToSystem}
+                onMouseEnter={(e) => {
+                  Object.assign(e.currentTarget.style, {
+                    ...getGlassBarSpecialItemStyles(language),
+                    ...getGlassBarSpecialItemHoverStyles()
+                  });
+                }}
+                onMouseLeave={(e) => {
+                  Object.assign(e.currentTarget.style, getGlassBarSpecialItemStyles(language));
+                }}
+              >
+{content.navigation.system}
+              </span>
+              
+              {!isMobile && <div style={{
+                width: '1px',
+                height: '20px',
+                background: 'rgba(100, 100, 100, 0.3)',
+              }} />}
+              
+              <span
+                style={{
+                  ...getGlassBarSpecialItemStyles(language),
+                  fontSize: DESIGN_TOKENS.typography.level5.fontSize,
+                  fontWeight: DESIGN_TOKENS.typography.level5.fontWeight,
+                  lineHeight: DESIGN_TOKENS.typography.level5.lineHeight,
+                }}
+                onClick={() => {}}
+                onMouseEnter={(e) => {
+                  Object.assign(e.currentTarget.style, {
+                    ...getGlassBarSpecialItemStyles(language),
+                    ...getGlassBarSpecialItemHoverStyles()
+                  });
+                }}
+                onMouseLeave={(e) => {
+                  Object.assign(e.currentTarget.style, getGlassBarSpecialItemStyles(language));
+                }}
+              >
+{content.navigation.contact}
+              </span>
+              
+              {!isMobile && <div style={{
+                width: '1px',
+                height: '20px',
+                background: 'rgba(100, 100, 100, 0.3)',
+              }} />}
+              
+              {/* 语言切换 */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '2px',
+              }}>
+                <span
+                  style={{
+                    color: language === 'zh' ? 'rgba(40, 40, 40, 1)' : 'rgba(80, 80, 80, 0.8)',
+                    fontSize: DESIGN_TOKENS.typography.level6.fontSize,
+                    fontWeight: DESIGN_TOKENS.typography.level6.fontWeight,
+                    lineHeight: DESIGN_TOKENS.typography.level6.lineHeight,
+                    textDecoration: 'none',
+                    cursor: 'pointer',
+                    transition: 'color 0.2s ease',
+                    whiteSpace: 'nowrap',
+                    padding: '4px 8px',
+                    borderRadius: '4px',
+                  }}
+                  onClick={() => setLanguage('zh')}
+                  onMouseEnter={(e) => {
+                    if (language !== 'zh') {
+                      Object.assign(e.currentTarget.style, {
+                        color: 'rgba(200, 200, 200, 0.9)',
+                      });
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (language !== 'zh') {
+                      Object.assign(e.currentTarget.style, {
+                        color: 'rgba(80, 80, 80, 0.8)',
+                      });
+                    }
+                  }}
+                >
+                  中
+                </span>
+                <span style={{ color: 'rgba(100, 100, 100, 0.5)', fontSize: DESIGN_TOKENS.typography.level6.fontSize }}>/</span>
+                <span
+                  style={{
+                    color: language === 'en' ? 'rgba(40, 40, 40, 1)' : 'rgba(80, 80, 80, 0.8)',
+                    fontSize: DESIGN_TOKENS.typography.level6.fontSize,
+                    fontWeight: DESIGN_TOKENS.typography.level6.fontWeight,
+                    lineHeight: DESIGN_TOKENS.typography.level6.lineHeight,
+                    textDecoration: 'none',
+                    cursor: 'pointer',
+                    transition: 'color 0.2s ease',
+                    whiteSpace: 'nowrap',
+                    padding: '4px 8px',
+                    borderRadius: '4px',
+                  }}
+                  onClick={() => setLanguage('en')}
+                  onMouseEnter={(e) => {
+                    if (language !== 'en') {
+                      Object.assign(e.currentTarget.style, {
+                        color: 'rgba(200, 200, 200, 0.9)',
+                      });
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (language !== 'en') {
+                      Object.assign(e.currentTarget.style, {
+                        color: 'rgba(80, 80, 80, 0.8)',
+                      });
+                    }
+                  }}
+                >
+                  En
+                </span>
+              </div>
+            </div>
+          </GlassSurface>
+        </div>
 
         {/* 滚动指示器 */}
         <ScrollIndicator scrollProgress={scrollProgress} />
@@ -157,11 +488,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
         >
           <div className="hero-content text-center">
             <h1 style={{
-              fontSize: DESIGN_TOKENS.typography.fontSize.hero,
+              fontSize: DESIGN_TOKENS.typography.level1.fontSize,
+              fontWeight: DESIGN_TOKENS.typography.level1.fontWeight,
+              lineHeight: DESIGN_TOKENS.typography.level1.lineHeight,
+              letterSpacing: DESIGN_TOKENS.typography.level1.letterSpacing,
               color: DESIGN_TOKENS.colors.text.primary,
               marginBottom: DESIGN_TOKENS.spacing.gap.hero,
-              lineHeight: DESIGN_TOKENS.typography.lineHeight.tight,
-              fontWeight: DESIGN_TOKENS.typography.fontWeight.bold, // 增加一级粗细
             }}>
               <AnimatedText
                 text={content.hero.title}
@@ -170,11 +502,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
             </h1>
             
             <h2 style={{
-              fontSize: DESIGN_TOKENS.typography.fontSize.subtitle,
+              fontSize: DESIGN_TOKENS.typography.level3.fontSize,
+              fontWeight: DESIGN_TOKENS.typography.level3.fontWeight,
+              lineHeight: DESIGN_TOKENS.typography.level3.lineHeight,
+              letterSpacing: DESIGN_TOKENS.typography.level3.letterSpacing,
               color: DESIGN_TOKENS.colors.text.primary,
               marginBottom: DESIGN_TOKENS.spacing.gap.hero,
-              lineHeight: DESIGN_TOKENS.typography.lineHeight.tight,
-              fontWeight: DESIGN_TOKENS.typography.fontWeight.semibold, // 增加一级粗细
             }}>
               <FastAnimatedText
                 text={content.hero.subtitle}
@@ -184,9 +517,11 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
             </h2>
             
             <p style={{
-              fontSize: DESIGN_TOKENS.typography.fontSize.body,
+              fontSize: DESIGN_TOKENS.typography.level4.fontSize,
+              fontWeight: DESIGN_TOKENS.typography.level4.fontWeight,
+              lineHeight: DESIGN_TOKENS.typography.level4.lineHeight,
+              letterSpacing: DESIGN_TOKENS.typography.level4.letterSpacing,
               color: DESIGN_TOKENS.colors.text.secondary,
-              lineHeight: DESIGN_TOKENS.typography.lineHeight.normal,
               opacity: visibleSections.has(0) && scrollProgress > 0.5 ? 1 : 0,
               transform: visibleSections.has(0) && scrollProgress > 0.5 ? 'translateY(0)' : 'translateY(20px)',
               transition: 'all 0.8s ease 0.6s',
@@ -204,8 +539,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
             position: 'relative', 
             overflow: 'hidden',
             minHeight: '200vh', // 大幅增加高度以容纳图表
-            paddingTop: '10vh',
-            paddingBottom: '10vh',
+            paddingTop: DESIGN_TOKENS.spacing.gap.largeSections,
+            paddingBottom: DESIGN_TOKENS.spacing.gap.largeSections,
           }}
         >
           <div style={{ 
@@ -228,9 +563,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
             }}>
               {/* 标题 */}
               <h2 style={{
-                fontSize: DESIGN_TOKENS.typography.fontSize.heading,
-                fontWeight: DESIGN_TOKENS.typography.fontWeight.bold, // 增加一级粗细
-                marginBottom: '3rem',
+                fontSize: DESIGN_TOKENS.typography.level2.fontSize,
+                fontWeight: DESIGN_TOKENS.typography.level2.fontWeight,
+                lineHeight: DESIGN_TOKENS.typography.level2.lineHeight,
+                marginBottom: DESIGN_TOKENS.spacing.gap.subsections,
                 textAlign: 'center',
                 color: DESIGN_TOKENS.colors.text.primary,
               }}>
@@ -246,9 +582,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
               }}>
                 {content.about.description.map((text, index) => (
                   <div key={index} style={{
-                    marginBottom: index === content.about.description.length - 1 ? 0 : '2.8rem',
-                    fontSize: DESIGN_TOKENS.typography.fontSize.body,
-                    lineHeight: 1.8,
+                    marginBottom: index === content.about.description.length - 1 ? 0 : DESIGN_TOKENS.spacing.gap.elements,
+                    fontSize: DESIGN_TOKENS.typography.level4.fontSize,
+                    fontWeight: DESIGN_TOKENS.typography.level4.fontWeight,
+                    lineHeight: DESIGN_TOKENS.typography.level4.lineHeight,
                     color: DESIGN_TOKENS.colors.text.secondary,
                     textAlign: 'center',
                     display: 'block',
@@ -273,7 +610,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
-              marginBottom: '6vh',
+              marginBottom: DESIGN_TOKENS.spacing.gap.smallSections,
               padding: '0 2rem', // 添加左右padding防止边缘溢出
             }}>
               <SurroundingLogos 
@@ -294,7 +631,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
                 gridTemplateColumns: 'repeat(3, 1fr)',
                 gap: 'clamp(2rem, 4vw, 4rem)',
                 textAlign: 'center',
-                marginBottom: '6vh',
+                marginBottom: DESIGN_TOKENS.spacing.gap.smallSections,
               }}>
                 {content.about.stats.map((stat, index) => (
                   <div key={index} style={{
@@ -303,8 +640,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
                     transition: `all 0.8s ease ${0.8 + index * 0.15}s`,
                   }}>
                     <div style={{
-                      fontSize: 'clamp(2.2rem, 5vw, 3.5rem)',
-                      fontWeight: DESIGN_TOKENS.typography.fontWeight.bold,
+                      fontSize: DESIGN_TOKENS.typography.level2.fontSize,
+                      fontWeight: DESIGN_TOKENS.typography.level2.fontWeight,
+                      lineHeight: DESIGN_TOKENS.typography.level2.lineHeight,
                       marginBottom: '0.8rem',
                       color: DESIGN_TOKENS.colors.text.primary,
                     }}>
@@ -315,18 +653,19 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
                       />
                     </div>
                     <div style={{
-                      fontSize: DESIGN_TOKENS.typography.fontSize.body,
+                      fontSize: DESIGN_TOKENS.typography.level5.fontSize,
+                      fontWeight: DESIGN_TOKENS.typography.level5.fontWeight,
+                      lineHeight: DESIGN_TOKENS.typography.level5.lineHeight,
                       color: DESIGN_TOKENS.colors.text.secondary,
-                      fontWeight: DESIGN_TOKENS.typography.fontWeight.regular,
                       marginBottom: '0.5rem',
-                      lineHeight: 1.3,
                     }}>
                       {stat.label}
                     </div>
                     <div style={{
-                      fontSize: DESIGN_TOKENS.typography.fontSize.small,
+                      fontSize: DESIGN_TOKENS.typography.level6.fontSize,
+                      fontWeight: DESIGN_TOKENS.typography.level6.fontWeight,
+                      lineHeight: DESIGN_TOKENS.typography.level6.lineHeight,
                       color: DESIGN_TOKENS.colors.text.tertiary,
-                      lineHeight: 1.2,
                     }}>
                       {stat.subtitle}
                     </div>
@@ -347,8 +686,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
           right: '50%',
           marginLeft: '-50vw',
           marginRight: '-50vw',
-          paddingTop: '8vh',
-          paddingBottom: '8vh',
+          paddingTop: DESIGN_TOKENS.spacing.gap.smallSections,
+          paddingBottom: DESIGN_TOKENS.spacing.gap.smallSections,
           overflow: 'hidden'
         }}>
           {/* 上方滚动动画 */}
@@ -356,7 +695,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
             maxWidth: '1200px',
             margin: '0 auto',
             padding: '0 2rem',
-            marginBottom: '3rem'
+            marginBottom: DESIGN_TOKENS.spacing.gap.subsections
           }}>
             <ScrollingTags
               tags={content.contentTags.tags}
@@ -369,13 +708,14 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
           {/* 标题和副标题 */}
           <div style={{
             textAlign: 'center',
-            marginBottom: '3rem',
+            marginBottom: DESIGN_TOKENS.spacing.gap.subsections,
             paddingLeft: '5vw',
             paddingRight: '5vw'
           }}>
             <h3 style={{
-              fontSize: 'clamp(1.4rem, 3.5vw, 2.45rem)',
-              fontWeight: DESIGN_TOKENS.typography.fontWeight.bold, // 增加一级粗细
+              fontSize: DESIGN_TOKENS.typography.level2.fontSize,
+              fontWeight: DESIGN_TOKENS.typography.level2.fontWeight,
+              lineHeight: DESIGN_TOKENS.typography.level2.lineHeight,
               color: '#374151',
               marginBottom: '0.5rem'
             }}>
@@ -386,10 +726,11 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
               />
             </h3>
             <p style={{
-              fontSize: 'clamp(0.84rem, 1.75vw, 1.26rem)',
+              fontSize: DESIGN_TOKENS.typography.level4.fontSize,
+              fontWeight: DESIGN_TOKENS.typography.level4.fontWeight,
+              lineHeight: DESIGN_TOKENS.typography.level4.lineHeight,
               color: '#6b7280',
               margin: 0,
-              fontWeight: '300',
               opacity: isScrollingTagsVisible ? 1 : 0,
               transform: isScrollingTagsVisible ? 'translateY(0)' : 'translateY(20px)',
               transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.2s',
@@ -427,8 +768,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
             {/* 标题区域 */}
             <AnimatedCard inView={visibleSections.has(3)}>
               <h2 style={{
-                fontSize: DESIGN_TOKENS.typography.fontSize.heading,
-                fontWeight: DESIGN_TOKENS.typography.fontWeight.bold,
+                fontSize: DESIGN_TOKENS.typography.level2.fontSize,
+                fontWeight: DESIGN_TOKENS.typography.level2.fontWeight,
+                lineHeight: DESIGN_TOKENS.typography.level2.lineHeight,
                 marginBottom: '1rem',
                 textAlign: 'center',
               }}>
@@ -438,10 +780,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
                 />
               </h2>
               <p style={{
-                fontSize: DESIGN_TOKENS.typography.fontSize.body,
+                fontSize: DESIGN_TOKENS.typography.level4.fontSize,
+                fontWeight: DESIGN_TOKENS.typography.level4.fontWeight,
+                lineHeight: DESIGN_TOKENS.typography.level4.lineHeight,
                 color: DESIGN_TOKENS.colors.text.secondary,
                 textAlign: 'center',
-                marginBottom: DESIGN_TOKENS.spacing.gap.content,
+                marginBottom: DESIGN_TOKENS.spacing.gap.smallSections,
                 opacity: visibleSections.has(3) ? 1 : 0,
                 transform: visibleSections.has(3) ? 'translateY(0)' : 'translateY(20px)',
                 transition: 'all 0.8s ease 0.3s',
@@ -459,7 +803,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
               display: 'grid',
               gridTemplateColumns: 'repeat(3, 1fr)',
               gap: '2rem',
-              marginBottom: '6rem',
+              marginBottom: DESIGN_TOKENS.spacing.gap.smallSections,
             }}>
               {content.forCreators.benefits.map((benefit, index) => (
                 <AnimatedCard key={index} delay={0.2 + index * 0.15} inView={visibleSections.has(3)}>
@@ -482,17 +826,19 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
                   }}
                   >
                     <h3 style={{
-                      fontSize: '1.5rem',
-                      fontWeight: DESIGN_TOKENS.typography.fontWeight.bold,
+                      fontSize: DESIGN_TOKENS.typography.level3.fontSize,
+                      fontWeight: DESIGN_TOKENS.typography.level3.fontWeight,
+                      lineHeight: DESIGN_TOKENS.typography.level3.lineHeight,
                       marginBottom: '1rem',
                       color: DESIGN_TOKENS.colors.text.primary,
                     }}>
                       {benefit.title}
                     </h3>
                     <p style={{
-                      fontSize: DESIGN_TOKENS.typography.fontSize.body,
+                      fontSize: DESIGN_TOKENS.typography.level4.fontSize,
+                      fontWeight: DESIGN_TOKENS.typography.level4.fontWeight,
+                      lineHeight: DESIGN_TOKENS.typography.level4.lineHeight,
                       color: DESIGN_TOKENS.colors.text.secondary,
-                      lineHeight: 1.6,
                       margin: 0,
                     }}>
                       {benefit.description}
@@ -508,6 +854,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
               subtitle={content.forCreators.creatorGrowth?.subtitle}
               inView={visibleSections.has(3)}
               delay={0.8}
+              language={language}
             />
           </div>
         </PageSection>
@@ -525,8 +872,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
           <div style={{ maxWidth: '1400px', margin: '0 auto', width: '100%' }}>
             <AnimatedCard inView={visibleSections.has(4)}>
               <h2 style={{
-                fontSize: DESIGN_TOKENS.typography.fontSize.heading,
-                fontWeight: DESIGN_TOKENS.typography.fontWeight.bold, // 增加一级粗细
+                fontSize: DESIGN_TOKENS.typography.level2.fontSize,
+                fontWeight: DESIGN_TOKENS.typography.level2.fontWeight,
+                lineHeight: DESIGN_TOKENS.typography.level2.lineHeight,
                 marginBottom: '1rem',
                 textAlign: 'center',
               }}>
@@ -536,10 +884,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
                 />
               </h2>
               <p style={{
-                fontSize: DESIGN_TOKENS.typography.fontSize.body,
+                fontSize: DESIGN_TOKENS.typography.level4.fontSize,
+                fontWeight: DESIGN_TOKENS.typography.level4.fontWeight,
+                lineHeight: DESIGN_TOKENS.typography.level4.lineHeight,
                 color: DESIGN_TOKENS.colors.text.secondary,
                 textAlign: 'center',
-                marginBottom: DESIGN_TOKENS.spacing.gap.content,
+                marginBottom: DESIGN_TOKENS.spacing.gap.smallSections,
                 opacity: visibleSections.has(4) ? 1 : 0,
                 transform: visibleSections.has(4) ? 'translateY(0)' : 'translateY(20px)',
                 transition: 'all 0.8s ease 0.3s',
@@ -555,7 +905,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
             <div style={{
               display: 'grid',
               gap: '2rem',
-              marginBottom: '3rem',
+              marginBottom: DESIGN_TOKENS.spacing.gap.subsections,
             }}>
               {content.forBrands.services.map((service, index) => (
                 <AnimatedCard key={index} delay={0.2 + index * 0.15} inView={visibleSections.has(4)}>
@@ -580,16 +930,18 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
                   >
                     <div>
                       <h3 style={{
-                        fontSize: '1.5rem',
-                        fontWeight: DESIGN_TOKENS.typography.fontWeight.semibold, // 增加一级粗细
+                        fontSize: DESIGN_TOKENS.typography.level4.fontSize,
+                        fontWeight: DESIGN_TOKENS.typography.level4.fontWeight,
+                        lineHeight: DESIGN_TOKENS.typography.level4.lineHeight,
                         marginBottom: '1rem',
                       }}>
                         {service.title}
                       </h3>
                       <p style={{
-                        fontSize: DESIGN_TOKENS.typography.fontSize.body,
+                        fontSize: DESIGN_TOKENS.typography.level4.fontSize,
+                        fontWeight: DESIGN_TOKENS.typography.level4.fontWeight,
+                        lineHeight: DESIGN_TOKENS.typography.level4.lineHeight,
                         color: DESIGN_TOKENS.colors.text.secondary,
-                        lineHeight: 1.7,
                         opacity: visibleSections.has(4) ? 1 : 0,
                         transform: visibleSections.has(4) ? 'translateY(0)' : 'translateY(20px)',
                         transition: `all 0.8s ease ${0.4 + index * 0.15}s`,
@@ -599,8 +951,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
                     </div>
                     {service.results && (
                       <div style={{
-                        fontSize: '1.1rem',
-                        fontWeight: DESIGN_TOKENS.typography.fontWeight.bold,
+                        fontSize: DESIGN_TOKENS.typography.level4.fontSize,
+                        fontWeight: DESIGN_TOKENS.typography.level4.fontWeight,
+                        lineHeight: DESIGN_TOKENS.typography.level4.lineHeight,
                         color: DESIGN_TOKENS.colors.text.primary,
                         whiteSpace: 'nowrap',
                       }}>
@@ -619,42 +972,42 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
             {/* 客户满意度深度分析 */}
             <div style={{
               width: '100%',
-              marginBottom: '8vh',
+              marginBottom: DESIGN_TOKENS.spacing.gap.mediumSections,
             }}>
               <ClientSatisfactionMetrics
                 title={content.charts.satisfaction.title}
                 subtitle={content.charts.satisfaction.subtitle}
                 inView={visibleSections.has(4)}
                 delay={0.8}
+                language={language}
               />
             </div>
 
             {/* 营销效果综合分析 */}
             <div style={{
               width: '100%',
-              marginBottom: '8vh',
+              marginBottom: DESIGN_TOKENS.spacing.gap.mediumSections,
             }}>
               <MarketingEffectivenessMetrics
                 title={content.charts.comparison.title}
                 subtitle={content.charts.comparison.subtitle}
                 inView={visibleSections.has(4)}
                 delay={1.0}
+                language={language}
               />
             </div>
 
-            {/* 投放平台生态 */}
-            <AnimatedCard delay={1.2} inView={visibleSections.has(4)}>
-              <div style={{
-                padding: '3rem 2rem',
-                borderRadius: '1rem',
-                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02))',
-                backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.06)',
-              }}>
+            {/* 投放平台生态 - 重新设计 */}
+            <div style={{
+              width: '100%',
+              marginTop: DESIGN_TOKENS.spacing.gap.mediumSections,
+            }}>
+              {/* 主标题 */}
+              <AnimatedCard delay={1.2} inView={visibleSections.has(4)}>
                 <h3 style={{
-                  fontSize: 'clamp(1.4rem, 3.5vw, 2.45rem)',
-                  fontWeight: DESIGN_TOKENS.typography.fontWeight.bold, // 增加一级粗细
+                  fontSize: DESIGN_TOKENS.typography.level2.fontSize,
+                  fontWeight: DESIGN_TOKENS.typography.level2.fontWeight,
+                  lineHeight: DESIGN_TOKENS.typography.level2.lineHeight,
                   marginBottom: '1rem',
                   textAlign: 'center',
                   color: DESIGN_TOKENS.colors.text.primary,
@@ -666,176 +1019,243 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
                   />
                 </h3>
                 <p style={{
-                  fontSize: DESIGN_TOKENS.typography.fontSize.body,
+                  fontSize: DESIGN_TOKENS.typography.level4.fontSize,
+                  fontWeight: DESIGN_TOKENS.typography.level4.fontWeight,
+                  lineHeight: DESIGN_TOKENS.typography.level4.lineHeight,
                   color: DESIGN_TOKENS.colors.text.secondary,
                   textAlign: 'center',
-                  marginBottom: '3rem',
-                  lineHeight: 1.6,
+                  marginBottom: DESIGN_TOKENS.spacing.gap.smallSections,
+                  maxWidth: '800px',
+                  margin: '0 auto 6rem',
                   opacity: visibleSections.has(4) ? 1 : 0,
                   transform: visibleSections.has(4) ? 'translateY(0)' : 'translateY(20px)',
                   transition: 'all 0.8s ease 1.4s',
                 }}>
                   {content.platforms.subtitle}
                 </p>
-                
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                  gap: '2rem',
-                  marginBottom: '2rem',
-                }}>
-                  {/* 中国市场平台 */}
+              </AnimatedCard>
+
+              {/* 平台Logo滚动展示 */}
+              <div style={{
+                marginBottom: DESIGN_TOKENS.spacing.gap.smallSections,
+                width: '100%',
+                position: 'relative',
+              }}>
+                <PlatformLogosScroller inView={visibleSections.has(4)} delay={1.5} />
+              </div>
+
+              {/* 内容sections */}
+              {content.platforms.sections.map((section, sectionIndex) => (
+                <AnimatedCard key={sectionIndex} delay={1.8 + sectionIndex * 0.3} inView={visibleSections.has(4)}>
                   <div style={{
-                    padding: '2rem',
-                    borderRadius: '12px',
-                    background: 'rgba(255, 255, 255, 0.08)',
-                    border: '1px solid rgba(255, 255, 255, 0.12)',
+                    marginBottom: DESIGN_TOKENS.spacing.gap.subsections,
+                    padding: '3rem',
+                    borderRadius: '1rem',
+                    ...createGlassStyles(false),
                   }}>
                     <h4 style={{
-                      fontSize: '1.2rem',
-                      fontWeight: DESIGN_TOKENS.typography.fontWeight.semibold, // 增加一级粗细
-                      color: DESIGN_TOKENS.colors.text.primary,
+                      fontSize: DESIGN_TOKENS.typography.level3.fontSize,
+                      fontWeight: DESIGN_TOKENS.typography.level3.fontWeight,
+                      lineHeight: DESIGN_TOKENS.typography.level3.lineHeight,
                       marginBottom: '1.5rem',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem',
+                      color: DESIGN_TOKENS.colors.text.primary,
                     }}>
-                      <span style={{
-                        display: 'inline-block',
-                        width: '8px',
-                        height: '8px',
-                        borderRadius: '50%',
-                        background: '#1e40af',
-                      }}></span>
-                      <FastAnimatedText
-                        text={content.platforms.china.title}
-                        inView={visibleSections.has(4)}
-                        delay={1.6}
-                      />
+                      {section.title}
                     </h4>
-                    <div style={{
-                      display: 'flex',
-                      flexWrap: 'wrap',
-                      gap: '0.75rem',
+                    <p style={{
+                      fontSize: DESIGN_TOKENS.typography.level4.fontSize,
+                      fontWeight: DESIGN_TOKENS.typography.level4.fontWeight,
+                      lineHeight: DESIGN_TOKENS.typography.level4.lineHeight,
+                      color: DESIGN_TOKENS.colors.text.secondary,
+                      marginBottom: DESIGN_TOKENS.spacing.gap.elements,
                     }}>
-                      {content.platforms.china.platforms.map((platform, index) => (
-                        <span
-                          key={index}
-                          style={{
-                            padding: '0.5rem 1rem',
-                            borderRadius: '8px',
-                            fontSize: '0.875rem',
-                            fontWeight: '500',
-                            color: 'rgba(80, 80, 80, 0.8)',
-                            background: 'rgba(255, 255, 255, 0.12)',
-                            border: '1px solid rgba(255, 255, 255, 0.15)',
-                            backdropFilter: 'blur(10px)',
+                      {section.description}
+                    </p>
+
+                    {/* 不同类型的内容展示 */}
+                    {section.points && (
+                      <ul style={{
+                        listStyle: 'none',
+                        padding: 0,
+                        margin: 0,
+                      }}>
+                        {section.points.map((point, index) => (
+                          <li key={index} style={{
+                            marginBottom: '1rem',
+                            paddingLeft: '2rem',
+                            position: 'relative',
+                            fontSize: DESIGN_TOKENS.typography.level5.fontSize,
+                            fontWeight: DESIGN_TOKENS.typography.level5.fontWeight,
+                            lineHeight: DESIGN_TOKENS.typography.level5.lineHeight,
+                            color: DESIGN_TOKENS.colors.text.secondary,
+                          }}>
+                            <span style={{
+                              position: 'absolute',
+                              left: 0,
+                              top: '0.5rem',
+                              width: '8px',
+                              height: '8px',
+                              borderRadius: '50%',
+                              background: DESIGN_TOKENS.colors.brand.primary,
+                            }} />
+                            {point}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+
+                    {section.advantages && (
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                        gap: '1.5rem',
+                      }}>
+                        {section.advantages.map((adv, index) => (
+                          <div key={index} style={{
+                            padding: '1.5rem',
+                            borderRadius: '0.75rem',
+                            background: 'rgba(255, 255, 255, 0.05)',
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
                             transition: 'all 0.3s ease',
-                            cursor: 'pointer',
                           }}
                           onMouseEnter={(e) => {
-                            const el = e.currentTarget;
-                            el.style.background = 'rgba(255, 255, 255, 0.2)';
-                            el.style.transform = 'translateY(-1px) scale(1.02)';
+                            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
+                            e.currentTarget.style.transform = 'translateY(-2px)';
                           }}
                           onMouseLeave={(e) => {
-                            const el = e.currentTarget;
-                            el.style.background = 'rgba(255, 255, 255, 0.12)';
-                            el.style.transform = 'translateY(0) scale(1)';
+                            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                            e.currentTarget.style.transform = 'translateY(0)';
                           }}
-                        >
-                          {platform}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
+                          >
+                            <h5 style={{
+                              fontSize: DESIGN_TOKENS.typography.level5.fontSize,
+                              fontWeight: DESIGN_TOKENS.typography.level3.fontWeight,
+                              lineHeight: DESIGN_TOKENS.typography.level5.lineHeight,
+                              marginBottom: '0.5rem',
+                              color: DESIGN_TOKENS.colors.text.primary,
+                            }}>
+                              {adv.title}
+                            </h5>
+                            <p style={{
+                              fontSize: DESIGN_TOKENS.typography.level6.fontSize,
+                              fontWeight: DESIGN_TOKENS.typography.level6.fontWeight,
+                              lineHeight: DESIGN_TOKENS.typography.level6.lineHeight,
+                              color: DESIGN_TOKENS.colors.text.secondary,
+                              margin: 0,
+                            }}>
+                              {adv.desc}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
 
-                  {/* 海外市场平台 */}
-                  <div style={{
-                    padding: '2rem',
-                    borderRadius: '12px',
-                    background: 'rgba(255, 255, 255, 0.08)',
-                    border: '1px solid rgba(255, 255, 255, 0.12)',
-                  }}>
-                    <h4 style={{
-                      fontSize: '1.2rem',
-                      fontWeight: DESIGN_TOKENS.typography.fontWeight.semibold, // 增加一级粗细
-                      color: DESIGN_TOKENS.colors.text.primary,
-                      marginBottom: '1.5rem',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem',
-                    }}>
-                      <span style={{
-                        display: 'inline-block',
-                        width: '8px',
-                        height: '8px',
-                        borderRadius: '50%',
-                        background: '#7c3aed',
-                      }}></span>
-                      <FastAnimatedText
-                        text={content.platforms.overseas.title}
-                        inView={visibleSections.has(4)}
-                        delay={1.6}
-                      />
-                    </h4>
-                    <div style={{
-                      display: 'flex',
-                      flexWrap: 'wrap',
-                      gap: '0.75rem',
-                    }}>
-                      {content.platforms.overseas.platforms.map((platform, index) => (
-                        <span
-                          key={index}
-                          style={{
-                            padding: '0.5rem 1rem',
-                            borderRadius: '8px',
-                            fontSize: '0.875rem',
-                            fontWeight: '500',
-                            color: 'rgba(80, 80, 80, 0.8)',
-                            background: 'rgba(255, 255, 255, 0.12)',
-                            border: '1px solid rgba(255, 255, 255, 0.15)',
-                            backdropFilter: 'blur(10px)',
-                            transition: 'all 0.3s ease',
-                            cursor: 'pointer',
-                          }}
-                          onMouseEnter={(e) => {
-                            const el = e.currentTarget;
-                            el.style.background = 'rgba(255, 255, 255, 0.2)';
-                            el.style.transform = 'translateY(-1px) scale(1.02)';
-                          }}
-                          onMouseLeave={(e) => {
-                            const el = e.currentTarget;
-                            el.style.background = 'rgba(255, 255, 255, 0.12)';
-                            el.style.transform = 'translateY(0) scale(1)';
-                          }}
-                        >
-                          {platform}
-                        </span>
-                      ))}
-                    </div>
+                    {section.categories && (
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                        gap: '2rem',
+                      }}>
+                        {section.categories.map((cat, index) => (
+                          <div key={index} style={{
+                            padding: '2rem',
+                            borderRadius: '1rem',
+                            background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.05))',
+                            border: '1px solid rgba(255, 255, 255, 0.12)',
+                          }}>
+                            <h5 style={{
+                              fontSize: DESIGN_TOKENS.typography.level3.fontSize,
+                              fontWeight: DESIGN_TOKENS.typography.level3.fontWeight,
+                              lineHeight: DESIGN_TOKENS.typography.level3.lineHeight,
+                              marginBottom: '0.5rem',
+                              color: DESIGN_TOKENS.colors.text.primary,
+                            }}>
+                              {cat.name}
+                            </h5>
+                            <p style={{
+                              fontSize: DESIGN_TOKENS.typography.level5.fontSize,
+                              fontWeight: DESIGN_TOKENS.typography.level3.fontWeight,
+                              lineHeight: DESIGN_TOKENS.typography.level5.lineHeight,
+                              color: DESIGN_TOKENS.colors.brand.primary,
+                              marginBottom: '0.75rem',
+                            }}>
+                              {cat.platforms}
+                            </p>
+                            <p style={{
+                              fontSize: DESIGN_TOKENS.typography.level6.fontSize,
+                              fontWeight: DESIGN_TOKENS.typography.level6.fontWeight,
+                              lineHeight: DESIGN_TOKENS.typography.level6.lineHeight,
+                              color: DESIGN_TOKENS.colors.text.secondary,
+                              margin: 0,
+                            }}>
+                              {cat.feature}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                </div>
+                </AnimatedCard>
+              ))}
 
+              {/* 数据统计 */}
+              <AnimatedCard delay={2.5} inView={visibleSections.has(4)}>
                 <div style={{
-                  textAlign: 'center',
-                  padding: '2rem',
-                  borderRadius: '12px',
-                  background: 'linear-gradient(135deg, rgba(30, 64, 175, 0.1), rgba(124, 58, 237, 0.1))',
+                  padding: '4rem 2rem',
+                  borderRadius: '1rem',
+                  background: 'linear-gradient(135deg, rgba(30, 64, 175, 0.05), rgba(124, 58, 237, 0.05))',
                   border: '1px solid rgba(255, 255, 255, 0.15)',
                 }}>
-                  <p style={{
-                    fontSize: '1rem',
-                    fontWeight: '500',
+                  <h4 style={{
+                    fontSize: DESIGN_TOKENS.typography.level3.fontSize,
+                    fontWeight: DESIGN_TOKENS.typography.level3.fontWeight,
+                    lineHeight: DESIGN_TOKENS.typography.level3.lineHeight,
+                    textAlign: 'center',
+                    marginBottom: DESIGN_TOKENS.spacing.gap.subsections,
                     color: DESIGN_TOKENS.colors.text.primary,
-                    margin: 0,
-                    lineHeight: 1.6,
                   }}>
-                    <strong>{content.platforms.summary.platforms}</strong> {content.platforms.summary.platformsLabel} | <strong>{content.platforms.summary.successRate}</strong> {content.platforms.summary.successLabel} | <strong>{content.platforms.summary.monitoring}</strong> {content.platforms.summary.monitoringLabel}
-                  </p>
+                    {content.platforms.stats.title}
+                  </h4>
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                    gap: '2rem',
+                    textAlign: 'center',
+                  }}>
+                    {content.platforms.stats.items.map((stat, index) => (
+                      <div key={index}>
+                        <div style={{
+                          fontSize: DESIGN_TOKENS.typography.level2.fontSize,
+                          fontWeight: DESIGN_TOKENS.typography.level2.fontWeight,
+                          lineHeight: DESIGN_TOKENS.typography.level2.lineHeight,
+                          color: DESIGN_TOKENS.colors.brand.primary,
+                          marginBottom: '0.5rem',
+                        }}>
+                          {stat.value}
+                        </div>
+                        <div style={{
+                          fontSize: DESIGN_TOKENS.typography.level5.fontSize,
+                          fontWeight: DESIGN_TOKENS.typography.level3.fontWeight,
+                          lineHeight: DESIGN_TOKENS.typography.level5.lineHeight,
+                          color: DESIGN_TOKENS.colors.text.primary,
+                          marginBottom: '0.25rem',
+                        }}>
+                          {stat.label}
+                        </div>
+                        <div style={{
+                          fontSize: DESIGN_TOKENS.typography.level6.fontSize,
+                          fontWeight: DESIGN_TOKENS.typography.level6.fontWeight,
+                          lineHeight: DESIGN_TOKENS.typography.level6.lineHeight,
+                          color: DESIGN_TOKENS.colors.text.tertiary,
+                        }}>
+                          {stat.desc}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            </AnimatedCard>
+              </AnimatedCard>
+            </div>
           </div>
         </PageSection>
 
@@ -847,9 +1267,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
           <div style={{ maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
             <AnimatedCard inView={visibleSections.has(5)}>
               <h2 style={{
-                fontSize: DESIGN_TOKENS.typography.fontSize.heading,
-                fontWeight: DESIGN_TOKENS.typography.fontWeight.bold, // 增加一级粗细
-                marginBottom: DESIGN_TOKENS.spacing.gap.content,
+                fontSize: DESIGN_TOKENS.typography.level2.fontSize,
+                fontWeight: DESIGN_TOKENS.typography.level2.fontWeight,
+                lineHeight: DESIGN_TOKENS.typography.level2.lineHeight,
+                marginBottom: DESIGN_TOKENS.spacing.gap.smallSections,
                 textAlign: 'center',
               }}>
                 <AnimatedText
@@ -876,24 +1297,27 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
                     borderBottom: index < content.process.steps.length - 1 ? '1px solid rgba(80, 80, 80, 0.05)' : 'none',
                   }}>
                     <div style={{
-                      fontSize: '3rem',
-                      fontWeight: DESIGN_TOKENS.typography.fontWeight.bold,
+                      fontSize: DESIGN_TOKENS.typography.level1.fontSize,
+                      fontWeight: DESIGN_TOKENS.typography.level1.fontWeight,
+                      lineHeight: DESIGN_TOKENS.typography.level1.lineHeight,
                       color: DESIGN_TOKENS.colors.text.tertiary,
                     }}>
                       {step.number}
                     </div>
                     <div>
                       <h3 style={{
-                        fontSize: '1.3rem',
-                        fontWeight: DESIGN_TOKENS.typography.fontWeight.semibold, // 增加一级粗细
+                        fontSize: DESIGN_TOKENS.typography.level3.fontSize,
+                        fontWeight: DESIGN_TOKENS.typography.level3.fontWeight,
+                        lineHeight: DESIGN_TOKENS.typography.level3.lineHeight,
                         marginBottom: '0.5rem',
                       }}>
                         {step.title}
                       </h3>
                       <p style={{
-                        fontSize: DESIGN_TOKENS.typography.fontSize.body,
+                        fontSize: DESIGN_TOKENS.typography.level4.fontSize,
+                        fontWeight: DESIGN_TOKENS.typography.level4.fontWeight,
+                        lineHeight: DESIGN_TOKENS.typography.level4.lineHeight,
                         color: DESIGN_TOKENS.colors.text.secondary,
-                        lineHeight: 1.6,
                         opacity: visibleSections.has(5) ? 1 : 0,
                         transform: visibleSections.has(5) ? 'translateY(0)' : 'translateY(20px)',
                         transition: `all 0.8s ease ${0.3 + index * 0.1}s`,
@@ -917,9 +1341,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
           <div style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
             <AnimatedCard inView={visibleSections.has(6)}>
               <h2 style={{
-                fontSize: DESIGN_TOKENS.typography.fontSize.heading,
-                fontWeight: DESIGN_TOKENS.typography.fontWeight.bold, // 增加一级粗细
-                marginBottom: '2rem',
+                fontSize: DESIGN_TOKENS.typography.level2.fontSize,
+                fontWeight: DESIGN_TOKENS.typography.level2.fontWeight,
+                lineHeight: DESIGN_TOKENS.typography.level2.lineHeight,
+                marginBottom: DESIGN_TOKENS.spacing.gap.elements,
               }}>
                 <AnimatedText
                   text={content.conclusion.title}
@@ -927,9 +1352,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
                 />
               </h2>
               <p style={{
-                fontSize: DESIGN_TOKENS.typography.fontSize.body,
+                fontSize: DESIGN_TOKENS.typography.level4.fontSize,
+                fontWeight: DESIGN_TOKENS.typography.level4.fontWeight,
+                lineHeight: DESIGN_TOKENS.typography.level4.lineHeight,
                 color: DESIGN_TOKENS.colors.text.secondary,
-                lineHeight: 1.8,
                 opacity: visibleSections.has(6) ? 1 : 0,
                 transform: visibleSections.has(6) ? 'translateY(0)' : 'translateY(20px)',
                 transition: 'all 0.8s ease 0.3s',
@@ -946,11 +1372,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
           isVisible={visibleSections.has(7)}
           style={{ minHeight: '50vh' }}
         >
-          <div style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center', width: '100%' }}>
+          <div style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center', width: '100%' }}>
             <AnimatedCard inView={visibleSections.has(7)}>
               <h2 style={{
-                fontSize: DESIGN_TOKENS.typography.fontSize.subtitle,
-                fontWeight: DESIGN_TOKENS.typography.fontWeight.semibold, // 增加一级粗细
+                fontSize: DESIGN_TOKENS.typography.level1.fontSize,
+                fontWeight: DESIGN_TOKENS.typography.level1.fontWeight,
+                lineHeight: DESIGN_TOKENS.typography.level1.lineHeight,
                 marginBottom: DESIGN_TOKENS.spacing.gap.hero,
               }}>
                 <FastAnimatedText
@@ -971,7 +1398,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
                 <button
                   style={{
                     padding: '1rem 3rem',
-                    fontSize: '1.1rem',
+                    fontSize: DESIGN_TOKENS.typography.level5.fontSize,
+                    fontWeight: DESIGN_TOKENS.typography.level5.fontWeight,
+                    lineHeight: DESIGN_TOKENS.typography.level5.lineHeight,
                     color: DESIGN_TOKENS.colors.text.primary,
                     border: 'none',
                     borderRadius: '3rem',
@@ -998,7 +1427,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
                 <button
                   style={{
                     padding: '1rem 3rem',
-                    fontSize: '1.1rem',
+                    fontSize: DESIGN_TOKENS.typography.level5.fontSize,
+                    fontWeight: DESIGN_TOKENS.typography.level5.fontWeight,
+                    lineHeight: DESIGN_TOKENS.typography.level5.lineHeight,
                     color: DESIGN_TOKENS.colors.text.primary,
                     border: 'none',
                     borderRadius: '3rem',
@@ -1029,7 +1460,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
         {/* Footer */}
         <footer className="footer py-20 text-center">
           <p style={{
-            fontSize: DESIGN_TOKENS.typography.fontSize.small,
+            fontSize: DESIGN_TOKENS.typography.level6.fontSize,
+            fontWeight: DESIGN_TOKENS.typography.level6.fontWeight,
+            lineHeight: DESIGN_TOKENS.typography.level6.lineHeight,
             color: DESIGN_TOKENS.colors.footer.text,
           }}>
             {content.footer.copyright}
@@ -1039,10 +1472,24 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
 
       {/* 全局样式 */}
       <style jsx global>{`
+        html {
+          margin: 0;
+          padding: 0;
+          background-color: white;
+          scroll-behavior: smooth;
+        }
+
         body {
           margin: 0;
           padding: 0;
           overflow-x: hidden;
+          background-color: white;
+          width: 100%;
+          height: 100%;
+        }
+
+        #__next {
+          background-color: white;
         }
 
         * {
@@ -1051,10 +1498,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSystem }) => {
 
         svg {
           shape-rendering: crispEdges;
-        }
-
-        html {
-          scroll-behavior: smooth;
         }
 
         ::-webkit-scrollbar {

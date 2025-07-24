@@ -33,7 +33,7 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
           border: 'none',
           cursor: 'pointer',
           fontSize: DESIGN_TOKENS.typography.fontSize.small,
-          fontWeight: DESIGN_TOKENS.typography.fontWeight.regular,
+          fontWeight: DESIGN_TOKENS.typography.level4.fontWeight,
           color: DESIGN_TOKENS.colors.text.primary,
           transform: isHovered ? 'scale(1.08)' : 'scale(1)',
           transition: `all ${DESIGN_TOKENS.animation.duration.liquidTransition} ${DESIGN_TOKENS.animation.easing.liquid}`,

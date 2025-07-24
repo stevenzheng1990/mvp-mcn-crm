@@ -1,5 +1,6 @@
 // app/components/LandingPage/components/ScrollingTags.tsx
 import React, { useRef, useEffect, useState } from 'react';
+import { DESIGN_TOKENS } from '../LandingPage.config';
 
 interface ScrollingTagsProps {
   tags: string[];
@@ -126,7 +127,10 @@ const ScrollingTags: React.FC<ScrollingTagsProps> = ({
                   paddingRight: '2rem',
                   whiteSpace: 'nowrap',
                   willChange: 'transform',
-                  animation: inView ? `scroll-${rowDirection} ${rowSpeed}s linear infinite` : 'none',
+                  animationName: inView ? `scroll-${rowDirection}` : 'none',
+                  animationDuration: `${rowSpeed}s`,
+                  animationTimingFunction: 'linear',
+                  animationIterationCount: 'infinite',
                   animationDelay: inView ? `${delay * 0.5 + rowIndex * 0.1}s` : '0s',
                   animationFillMode: 'both',
                   animationPlayState: inView ? 'running' : 'paused',
@@ -139,8 +143,9 @@ const ScrollingTags: React.FC<ScrollingTagsProps> = ({
                     className="scroll-tag"
                     style={{
                       padding: '0.5rem 1rem', // 缩小padding
-                      fontSize: '0.9rem',
-                      fontWeight: '400',
+                      fontSize: DESIGN_TOKENS.typography.level5.fontSize,
+                      fontWeight: DESIGN_TOKENS.typography.level5.fontWeight,
+                      lineHeight: DESIGN_TOKENS.typography.level5.lineHeight,
                       color: 'rgba(80, 80, 80, 0.8)',
                       cursor: 'pointer',
                       position: 'relative',

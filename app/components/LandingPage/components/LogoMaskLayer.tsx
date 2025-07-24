@@ -5,9 +5,10 @@ import { DESIGN_TOKENS, SCROLL_CONFIG } from '../LandingPage.config';
 interface LogoMaskLayerProps {
   scrollProgress: number;
   maskOpacity: number;
+  onLogoClick?: () => void;
 }
 
-const LogoMaskLayer: React.FC<LogoMaskLayerProps> = ({ scrollProgress, maskOpacity }) => {
+const LogoMaskLayer: React.FC<LogoMaskLayerProps> = ({ scrollProgress, maskOpacity, onLogoClick }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 1, height: 1 });
   
@@ -26,9 +27,11 @@ const LogoMaskLayer: React.FC<LogoMaskLayerProps> = ({ scrollProgress, maskOpaci
   const svgCenterX = SVG_VIEWBOX.minX + SVG_VIEWBOX.width / 2;
   const svgCenterY = SVG_VIEWBOX.minY + SVG_VIEWBOX.height / 2;
 
-  // 缓动函数提取到组件外
+  // 缓动函数提取到组件外 - 调整为更快的缓动曲线
   const easeInOutQuad = (t: number): number => {
-    return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+    // 加快20%的进度
+    const adjustedT = Math.min(1, t * 1.2);
+    return adjustedT < 0.5 ? 2 * adjustedT * adjustedT : -1 + (4 - 2 * adjustedT) * adjustedT;
   };
 
   // 使用 useMemo 优化缩放计算
@@ -39,7 +42,7 @@ const LogoMaskLayer: React.FC<LogoMaskLayerProps> = ({ scrollProgress, maskOpaci
     const baseScale = Math.min(
       dimensions.width / SVG_VIEWBOX.width,
       dimensions.height / SVG_VIEWBOX.height
-    ) * 0.3;
+    ) * 0.25; // 减小初始大小，让动画行程更长
     
     const easedProgress = easeInOutQuad(scrollProgress);
     
@@ -47,7 +50,7 @@ const LogoMaskLayer: React.FC<LogoMaskLayerProps> = ({ scrollProgress, maskOpaci
     const maxScale = Math.max(
       dimensions.width / SVG_VIEWBOX.width,
       dimensions.height / SVG_VIEWBOX.height
-    ) * 10; // 从 13 降低到 10
+    ) * 12; // 增加最大缩放倍数，加快视觉速度
     
     return baseScale + (maxScale - baseScale) * easedProgress;
   }, [dimensions.width, dimensions.height, scrollProgress]);
@@ -57,7 +60,8 @@ const LogoMaskLayer: React.FC<LogoMaskLayerProps> = ({ scrollProgress, maskOpaci
     const focusTargetX = 215;
     const focusTargetY = 353;
     
-    const offsetProgress = Math.pow(scrollProgress, 2);
+    // 加快焦点偏移速度
+    const offsetProgress = Math.pow(Math.min(1, scrollProgress * 1.2), 1.8);
     
     const currentFocusX = svgCenterX + (focusTargetX - svgCenterX) * offsetProgress;
     const currentFocusY = svgCenterY + (focusTargetY - svgCenterY) * offsetProgress;
@@ -85,7 +89,7 @@ const LogoMaskLayer: React.FC<LogoMaskLayerProps> = ({ scrollProgress, maskOpaci
   const centerY = dimensions.height / 2;
 
   // 🔧 关键修复：扩大 viewBox 边界，确保遮罩完全覆盖
-  const padding = 100; // 添加额外的边距
+  const padding = 200; // 增加额外的边距以完全消除黑边
   const expandedViewBox = `${-padding} ${-padding} ${dimensions.width + padding * 2} ${dimensions.height + padding * 2}`;
 
   return (
@@ -97,7 +101,7 @@ const LogoMaskLayer: React.FC<LogoMaskLayerProps> = ({ scrollProgress, maskOpaci
         inset: 0,
         zIndex: 40,
         opacity: maskOpacity,
-        pointerEvents: 'none',
+        pointerEvents: 'none', // 整体不可点击，让背景交互正常工作
         willChange: 'opacity, transform',
         width: '100vw',
         height: '100vh',
@@ -108,12 +112,12 @@ const LogoMaskLayer: React.FC<LogoMaskLayerProps> = ({ scrollProgress, maskOpaci
       <svg 
         style={{ 
           position: 'absolute',
-          // 🔧 使 SVG 略大于视口
-          width: 'calc(100% + 200px)', 
-          height: 'calc(100% + 200px)',
-          // 🔧 居中定位
-          left: '-100px',
-          top: '-100px',
+          // 🔧 使 SVG 略大于视口，匹配新的padding
+          width: 'calc(100% + 400px)', 
+          height: 'calc(100% + 400px)',
+          // 🔧 居中定位，匹配新的padding
+          left: '-200px',
+          top: '-200px',
         }}
         viewBox={expandedViewBox}
         preserveAspectRatio="xMidYMid slice"
@@ -167,17 +171,36 @@ const LogoMaskLayer: React.FC<LogoMaskLayerProps> = ({ scrollProgress, maskOpaci
       <div
         style={{
           position: 'absolute',
-          inset: '-50px', // 🔧 扩大边缘效果范围
+          inset: '-100px', // 🔧 进一步扩大边缘效果范围
           background: `
             radial-gradient(
               circle at ${(focusOffset.x / SVG_VIEWBOX.width * 100).toFixed(2)}% ${(focusOffset.y / SVG_VIEWBOX.height * 100).toFixed(2)}%, 
-              transparent 20%, 
-              rgba(255,255,255,${(0.3 * (1 - scrollProgress)).toFixed(3)}) 60%
+              transparent 30%, 
+              rgba(255,255,255,${Math.max(0.1, 0.3 * (1 - scrollProgress)).toFixed(3)}) 70%
             )
           `,
           pointerEvents: 'none',
         }}
       />
+      
+      {/* 只在Logo区域添加点击热区 */}
+      {scrollProgress < 0.5 && onLogoClick && (
+        <div
+          style={{
+            position: 'absolute',
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: `${200 * scale}px`,
+            height: `${100 * scale}px`,
+            cursor: 'pointer',
+            pointerEvents: 'auto',
+            // 调试时可以添加背景色查看热区
+            // background: 'rgba(255, 0, 0, 0.1)',
+          }}
+          onClick={onLogoClick}
+        />
+      )}
     </div>
   );
 };

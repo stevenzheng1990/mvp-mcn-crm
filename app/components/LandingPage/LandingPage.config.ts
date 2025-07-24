@@ -4,26 +4,66 @@ import { ContentData } from './LandingPage.types';
 // 设计令牌系统
 export const DESIGN_TOKENS = {
   typography: {
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Helvetica Neue", "Arial", sans-serif',
-    fontWeight: {
-      light: 300,
-      regular: 400,
-      semibold: 600,  // 新增半粗体
-      bold: 700,      // 调整粗体
-      black: 900,     // 重命名原来的bold为black
+    fontFamily: '"Outfit", "OPPO Sans", -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Arial", sans-serif',
+    
+    // 统一的字体规范系统 - 6种组合
+    // 参考 Apple.com 和现代设计规范重新设计
+    
+    // Level 1: Hero和大型数字 - 最大最粗
+    level1: {
+      fontSize: 'clamp(3rem, 5vw, 4rem)',      // 保持 Hero 的视觉冲击力
+      fontWeight: 900,                            // 略微降低，更现代
+      lineHeight: 1.2,                           // 更紧凑的行高
+      letterSpacing: '-0.01em',                   // 负字间距，更紧凑
+      usage: 'Hero标题、结束字块、大型数字展示'
     },
-    fontSize: {
-      hero: 'clamp(2.8rem, 8.4vw, 7rem)',
-      subtitle: 'clamp(1.75rem, 5.6vw, 4.2rem)',
-      heading: 'clamp(1.4rem, 3.5vw, 2.45rem)',
-      body: 'clamp(0.84rem, 1.75vw, 1.26rem)',
-      small: 'clamp(0.7rem, 1.4vw, 0.84rem)',
+    
+    // Level 2: Section主标题 - 第二大第二粗
+    level2: {
+      fontSize: 'clamp(2.1rem, 3.25vw, 2.8rem)', 
+      fontWeight: 800,
+      lineHeight: 1.2,
+      letterSpacing: '-0.01em',
+      usage: 'Section主标题'
     },
-    lineHeight: {
-      tight: 0.9,
-      normal: 1.2,
-      relaxed: 1.3,
+    
+    // Level 3: Section副标题和卡片标题 - 第三大
+    level3: {
+      fontSize: 'clamp(1.8rem, 3vw, 2.3rem)', 
+      fontWeight: 600,
+      lineHeight: 1.2,
+      letterSpacing: '0',
+      usage: 'Section副标题、卡片标题、表格主标题'
     },
+    
+    // Level 4: Section正文 - 中等
+    level4: {
+      fontSize: 'clamp(0.95rem, 1.25vw, 1.2rem)', // 18px max (原 20px)
+      fontWeight: 300,
+      lineHeight: 1.5,                              // 提高行高保证可读性
+      letterSpacing: '0',
+      usage: '正文内容、段落文字'
+    },
+    
+    // Level 5: 表格正文、导航菜单 - 较小
+    level5: {
+      fontSize: 'clamp(0.7rem, 0.9vw, 0.95rem)',        // 16px max (原 17.6px)
+      fontWeight: 300,
+      lineHeight: 1.5,
+      letterSpacing: '0',
+      usage: '表格内容、导航菜单、按钮文字'
+    },
+    
+    // Level 6: 解释类文档、备注 - 最细最小
+    level6: {
+      fontSize: 'clamp(0.5rem, 0.75vw, 0.8rem)', // 14px max (原 15.2px)
+      fontWeight: 300,                                // 提高到 400，保证可读性
+      lineHeight: 1.5,
+      letterSpacing: '0.01em',                        // 轻微增加字间距
+      usage: '注释、备注、辅助说明文字'
+    },
+    
+    // 保留原有letterSpacing
     letterSpacing: '0.02em',
   },
   
@@ -32,6 +72,15 @@ export const DESIGN_TOKENS = {
       primary: 'rgba(80, 80, 80, 0.95)',
       secondary: 'rgba(80, 80, 80, 0.7)',
       tertiary: 'rgba(80, 80, 80, 0.5)',
+    },
+    brand: {
+      primary: '#1e40af',
+      secondary: '#7c3aed',
+    },
+    // 统一的组件配色方案
+    component: {
+      primary: 'rgb(76, 113, 224)',   // 蓝色
+      secondary: '#6b7280',           // 黑灰色
     },
     glass: {
       base: '#bbbbbc',
@@ -51,11 +100,23 @@ export const DESIGN_TOKENS = {
     section: {
       minHeight: '100vh',
       padding: '5vh 5vw',
+      // 新增：统一的区块宽度
+      maxWidth: {
+        wide: '1400px',     // 宽幅内容（图表、数据展示）
+        normal: '1200px',   // 标准内容
+        narrow: '800px',    // 窄幅内容（结语、CTA）
+      },
     },
     gap: {
       hero: 'clamp(2rem, 4vh, 4rem)',
       content: 'clamp(3rem, 6vh, 6rem)',
       item: 'clamp(2rem, 4vh, 4rem)',
+      // 新增：统一的区块间隔
+      largeSections: '17vh', // 大区块之间的间隔（如Hero到About）
+      mediumSections: '13vh', // 中等区块之间的间隔
+      smallSections: '9vh', // 小区块之间的间隔（如表格之间）
+      subsections: '6rem', // 子区块之间的间隔
+      elements: '4rem', // 元素之间的间隔
     },
     component: {
       buttonGap: '16px',
@@ -114,10 +175,6 @@ export const DESIGN_TOKENS = {
         bottom: '32px',
         position: 'center',
       },
-      backToTop: {
-        bottom: '32px',
-        right: '32px',
-      },
       scrollIndicator: {
         bottom: '48px',
         position: 'center',
@@ -134,14 +191,22 @@ export const DESIGN_TOKENS = {
 // 内容数据
 export const CONTENT_DATA: ContentData = {
   zh: {
+    navigation: {
+      about: '关于我们',
+      creators: '创作者服务', 
+      brands: '品牌服务',
+      process: '合作流程',
+      system: '数据后台',
+      contact: '联系我们'
+    },
     hero: {
       title: '十方众声',
-      subtitle: '从十方而来，聚众声之势',
+      subtitle: '从十方而来 聚众声之势',
       tagline: '新一代内容营销生态构建者'
     },
     contentTags: {
       title: '内容垂类全覆盖',
-      subtitle: '30+全领域专业赛道覆盖，保证您的声音精准触达理想目标受众。',
+      subtitle: '30+全领域专业赛道覆盖\n保证您的声音精准触达理想目标受众',
       tags: ['美妆护肤', '时尚穿搭', '生活方式', '美食探店', '科技数码', '旅行度假', '健身运动', '母婴亲子', '家居装修', '汽车评测', '教育培训', '宠物生活', '金融理财', '游戏娱乐', '艺术文化', '音乐舞蹈', '影视娱乐', '体育运动', '职场商务', '心理健康', '环保生活', '手工DIY', '摄影创作', '书籍阅读', '数字藏品', '元宇宙', '人工智能', '区块链', '新能源', '可持续发展']
     },
     charts: {
@@ -187,27 +252,74 @@ export const CONTENT_DATA: ContentData = {
       }
     },
     platforms: {
-      title: '全球投放平台生态',
-      subtitle: '深度整合全球主流投放平台，一站式投流服务覆盖全渠道',
-      china: {
-        title: '中国市场',
-        platforms: ['蒲公英', '巨量星图', '微博易', '小红书蒲公英', '视频号推广', '快手磁力引擎', 'B站花火', '知乎商业化']
-      },
-      overseas: {
-        title: '海外市场',
-        platforms: ['Facebook Ads', 'Google Ads', 'TikTok Ads', 'Instagram Ads', 'YouTube Ads', 'Twitter Ads', 'LinkedIn Ads', 'Snapchat Ads']
-      },
-      summary: {
-        platforms: '16+',
-        platformsLabel: '主流投放平台深度合作',
-        successRate: '98%',
-        successLabel: '投放成功率',
-        monitoring: '24/7',
-        monitoringLabel: '实时监控优化'
+      title: '全渠道投放资质\n专业交叉覆盖',
+      subtitle: '拥有16+主流平台官方认证资质\n专业团队确保多渠道协同效应最大化',
+      sections: [
+        {
+          title: '官方认证 实力保障',
+          description: '作为各大平台官方认证服务商 我们拥有完整的投放资质和优先资源权限。不仅能单独操作各平台 更能实现多渠道智能协同 让您的品牌信息在不同平台间形成有效呼应。',
+          points: [
+            '全平台官方认证：抖音、小红书、B站等16+平台官方授权',
+            '优先资源权限：享有平台方技术支持和流量扶持政策',
+            '合规保障体系：严格遵循各平台规范，确保投放安全稳定'
+          ]
+        },
+        {
+          title: '专业团队 精准执行',
+          description: '每个平台都有专门的运营团队 深度理解平台特性和用户行为 确保内容与渠道的完美匹配',
+          advantages: [
+            {
+              title: '平台专家团队',
+              desc: '每个渠道配备3年以上经验的专业投放师'
+            },
+            {
+              title: '跨平台协同能力',
+              desc: '统一策略下的差异化执行，实现1+1>2的效果'
+            },
+            {
+              title: '算法洞察优势',
+              desc: '实时掌握各平台算法变化，快速调整投放策略'
+            },
+            {
+              title: '数据整合分析',
+              desc: '多平台数据统一分析，优化整体投放效果'
+            }
+          ]
+        },
+        {
+          title: '交叉覆盖策略',
+          description: '基于用户行为路径设计多触点营销方案 实现品效合一',
+          categories: [
+            {
+              name: '认知构建阶段',
+              platforms: '知乎问答 + B站深度内容 + 小红书种草',
+              feature: '多角度建立品牌认知，形成初步信任'
+            },
+            {
+              name: '兴趣激发阶段',
+              platforms: '抖音短视频 + 快手直播 + 微博话题',
+              feature: '高频曝光激发兴趣，引导深度了解'
+            },
+            {
+              name: '决策转化阶段',
+              platforms: '视频号私域 + 淘宝直播 + 京东种草',
+              feature: '临门一脚促进转化，完成购买闭环'
+            }
+          ]
+        }
+      ],
+      stats: {
+        title: '资质认证与投放实力',
+        items: [
+          { value: '16+', label: '官方认证平台', desc: '全渠道投放资质' },
+          { value: '200+', label: '专业投放团队', desc: '平台专家配置' },
+          { value: '5000+', label: '成功投放案例', desc: '跨平台协同经验' },
+          { value: '99.8%', label: '投放稳定性', desc: '合规安全保障' }
+        ]
       }
     },
     about: {
-      title: '聚势十方，声动全球',
+      title: '聚势十方 声动全球',
       description: [
         '在这个注意力稀缺的时代，真正的价值不在于声音的大小，而在于共鸣的深度。十方众声作为业界唯一在北美和中国同时建立完整生态的MCN机构，用专业的内容营销能力和丰富的创作者资源，为品牌构建与消费者的深度连接。我们跨越太平洋两岸，连接东西方文化，让每个品牌都能找到属于自己的那群人，在全球化的内容营销浪潮中占得先机。'
       ],
@@ -225,24 +337,24 @@ export const CONTENT_DATA: ContentData = {
       items: [
         {
           title: '一手资源对接',
-          description: '直接对接创作者，避免多层中介，提升沟通效率和内容质量',
+          description: '直接对接创作者 避免多层中介 提升沟通效率和内容质量',
           metric: '35%成本降低'
         },
         {
           title: '数据驱动决策',
-          description: '实时追踪内容表现，28个核心指标分析，智能预警系统',
+          description: '实时追踪内容表现 28个核心指标分析 智能预警系统',
           metric: '3.2倍效果提升'
         },
         {
           title: '跨文化运营',
-          description: '深度理解东西方市场，提供精准洞察和本地化解决方案',
+          description: '深度理解东西方市场 提供精准洞察和本地化解决方案',
           metric: '85%客户留存'
         }
       ]
     },
     forCreators: {
       title: '创作者赋能',
-      subtitle: '共创价值，共享成长',
+      subtitle: '共创价值 共享成长',
       benefits: [
         {
           title: '收益最大化',
@@ -380,21 +492,21 @@ export const CONTENT_DATA: ContentData = {
     },
     forBrands: {
       title: '品牌服务',
-      subtitle: '精准触达，高效转化',
+      subtitle: '精准触达 高效转化',
       services: [
         {
           title: '内容营销策略',
-          description: '基于数据分析的定制化策略，目标受众精准定位',
+          description: '基于数据分析的定制化策略 目标受众精准定位',
           results: '品牌声量提升280%'
         },
         {
           title: '达人营销执行',
-          description: '全流程服务，从创意到落地，确保内容质量和执行效果',
+          description: '全流程服务 从创意到落地 确保内容质量和执行效果',
           results: '互动率6.8%（行业2.1%）'
         },
         {
           title: '程序化投放',
-          description: '多平台广告优化，实时监控调整，ROI最大化',
+          description: '多平台广告优化 实时监控调整 ROI最大化',
           results: 'ROAS平均3.5:1'
         }
       ]
@@ -431,17 +543,17 @@ export const CONTENT_DATA: ContentData = {
     },
     conclusion: {
       title: '携手共创',
-      message: '在这个内容为王的时代，让我们一起用专业的能力和真诚的态度，让每一个声音都被听见。'
+      message: '在这个内容为王的时代 让我们一起用专业的能力和真诚的态度 让每一个声音都被听见。'
     },
     cta: {
-      title: '齐聚十方众声，唱响无限可能',
+      title: '齐聚十方众声\n唱响无限可能',
       buttons: {
         brands: '品牌合作',
         creators: '创作者加入'
       }
     },
     title: '十方众声',
-    subtitle: '从十方而来，聚众声之势',
+    subtitle: '从十方而来 聚众声之势',
     tagline: '一站式互联网营销机构',
     description: '业界唯一在北美和中国同时建立完整生态的MCN机构',
     stats: ['50+ KOL', '500+ 创作者', '30+ 城市'],
@@ -455,21 +567,22 @@ export const CONTENT_DATA: ContentData = {
       { value: '45%', label: '获客成本降低' },
       { value: '825B', label: '市场价值' }
     ],
-    contact: '联系我们',
-    system: '数据后台',
-    readyToStart: '齐聚十方众声，唱响无限可能',
     footer: {
       copyright: '© 2024 Mega Volume Production Inc.',
     },
-    tooltips: {
-      backToTop: '返回内容顶部',
-      languageSwitch: '切换语言',
-    },
   },
   en: {
+    navigation: {
+      about: 'About Us',
+      creators: 'Creator Services', 
+      brands: 'Brand Services',
+      process: 'Workflow',
+      system: 'Dashboard',
+      contact: 'Contact Us'
+    },
     hero: {
       title: 'MEGA VOLUME',
-      subtitle: 'Amplifying Voices, Multiplying Impact',
+      subtitle: 'Amplifying Voices\nMultiplying Impact',
       tagline: 'Next-Gen Content Marketing Ecosystem'
     },
     contentTags: {
@@ -520,27 +633,74 @@ export const CONTENT_DATA: ContentData = {
       }
     },
     platforms: {
-      title: 'Global Advertising Platform Ecosystem',
-      subtitle: 'Deep integration with leading global platforms for comprehensive omnichannel advertising services',
-      china: {
-        title: 'China Market',
-        platforms: ['Dandelion', 'Ocean Engine', 'Weibo Yi', 'Xiaohongshu Dandelion', 'WeChat Channels', 'Kuaishou Magnetic Engine', 'Bilibili Spark', 'Zhihu Commercial']
-      },
-      overseas: {
-        title: 'Global Markets',
-        platforms: ['Facebook Ads', 'Google Ads', 'TikTok Ads', 'Instagram Ads', 'YouTube Ads', 'Twitter Ads', 'LinkedIn Ads', 'Snapchat Ads']
-      },
-      summary: {
-        platforms: '16+',
-        platformsLabel: 'Leading Platform Partnerships',
-        successRate: '98%',
-        successLabel: 'Campaign Success Rate',
-        monitoring: '24/7',
-        monitoringLabel: 'Real-time Monitoring & Optimization'
+      title: 'Omnichannel Certification\nProfessional Cross-Coverage',
+      subtitle: 'Official certifications across 16+ major platforms with expert teams maximizing multi-channel synergy',
+      sections: [
+        {
+          title: 'Official Certification\nProven Capability',
+          description: 'As an officially certified partner across all major platforms we possess complete distribution credentials and priority resource access. Beyond individual platform expertise we excel at intelligent multi-channel orchestration for cohesive brand messaging.',
+          points: [
+            'Full Platform Certification: Official authorization from TikTok, RED, Bilibili and 16+ platforms',
+            'Priority Resource Access: Technical support and traffic boost privileges from platform partners',
+            'Compliance Assurance: Strict adherence to platform guidelines ensuring stable, secure campaigns'
+          ]
+        },
+        {
+          title: 'Expert Teams\nPrecision Execution',
+          description: 'Dedicated specialist teams for each platform deeply understanding platform nuances and user behavior to ensure perfect content-channel alignment',
+          advantages: [
+            {
+              title: 'Platform Specialists',
+              desc: '3+ years experienced media buyers dedicated to each channel'
+            },
+            {
+              title: 'Cross-Platform Synergy',
+              desc: 'Unified strategy with differentiated execution for amplified results'
+            },
+            {
+              title: 'Algorithm Expertise',
+              desc: 'Real-time algorithm insights enabling rapid strategy adjustments'
+            },
+            {
+              title: 'Integrated Analytics',
+              desc: 'Multi-platform data consolidation for holistic optimization'
+            }
+          ]
+        },
+        {
+          title: 'Cross-Coverage Strategy',
+          description: 'Multi-touchpoint marketing designed around user journey\nfor unified brand and performance outcomes',
+          categories: [
+            {
+              name: 'Awareness Building',
+              platforms: 'Zhihu Q&A + Bilibili Deep Content + RED Seeding',
+              feature: 'Multi-angle brand awareness building initial trust'
+            },
+            {
+              name: 'Interest Generation',
+              platforms: 'Douyin Short Videos + Kuaishou Live + Weibo Topics',
+              feature: 'High-frequency exposure sparking interest and engagement'
+            },
+            {
+              name: 'Conversion Phase',
+              platforms: 'WeChat Private Domain + Taobao Live + JD Seeding',
+              feature: 'Final push for conversion completing purchase journey'
+            }
+          ]
+        }
+      ],
+      stats: {
+        title: 'Certifications & Distribution Strength',
+        items: [
+          { value: '16+', label: 'Certified Platforms', desc: 'Full channel credentials' },
+          { value: '200+', label: 'Media Specialists', desc: 'Platform expert allocation' },
+          { value: '5000+', label: 'Successful Campaigns', desc: 'Cross-platform experience' },
+          { value: '99.8%', label: 'Campaign Stability', desc: 'Compliance guarantee' }
+        ]
       }
     },
     about: {
-      title: 'Voices United, Impact Amplified',
+      title: 'Voices United\nImpact Amplified',
       description: [
         'In this attention-scarce era, true value lies not in volume, but in the depth of connection. As the only MCN agency with operational excellence in both North American and Asian markets, Mega Volume Production leverages professional content marketing capabilities and rich creator resources to build deep connections between brands and consumers. We bridge continents and cultures, helping every brand find their tribe and gain the upper hand in the global content marketing revolution.'
       ],
@@ -652,14 +812,14 @@ export const CONTENT_DATA: ContentData = {
       message: 'In a world where attention is currency and authenticity is paramount, let\'s amplify your voice and accelerate your success.'
     },
     cta: {
-      title: 'Unite Voices, Unleash Possibilities',
+      title: 'Unite Voices\nUnleash Possibilities',
       buttons: {
         brands: 'Brand Partnership',
         creators: 'Join as Creator'
       }
     },
     title: 'MEGA VOLUME',
-    subtitle: 'Amplifying Voices, Multiplying Impact',
+    subtitle: 'Amplifying Voices\nMultiplying Impact',
     tagline: 'Your Full-Service Digital Marketing Partner',
     description: 'The only MCN agency with complete ecosystems in both North America and China',
     stats: ['50+ Influencers', '500+ Creators', '30+ Cities'],
@@ -673,15 +833,8 @@ export const CONTENT_DATA: ContentData = {
       { value: '45%', label: 'Lower Acquisition Cost' },
       { value: '$825B', label: 'Market Reach' }
     ],
-    contact: 'Get in Touch',
-    system: 'Analytics Dashboard',
-    readyToStart: 'Unite Voices, Unleash Possibilities',
     footer: {
       copyright: '© 2024 Mega Volume Production Inc.',
-    },
-    tooltips: {
-      backToTop: 'Back to Content Top',
-      languageSwitch: 'Switch Language',
     },
   }
 };
@@ -691,10 +844,7 @@ export const SCROLL_CONFIG = {
   animationDelay: 3,
   fadeOutThreshold: 0.8,
   fadeOutDuration: 0.2,
-  visibility: {
-    navigationButtons: 0.8,
-    backToTopButton: 0.8,
-  },
+  visibility: {},
 } as const;
 
 // 观察器配置
