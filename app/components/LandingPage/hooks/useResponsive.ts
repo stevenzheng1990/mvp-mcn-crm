@@ -65,12 +65,7 @@ export const useResponsive = (): ResponsiveConfig => {
 };
 
 export const getResponsiveValue = <T>(
-  values: {
-    mobile?: T;
-    tablet?: T;
-    desktop?: T;
-    large?: T;
-  },
+  values: Record<string, T>,
   device: DeviceType,
   fallback: T
 ): T => {
@@ -79,10 +74,10 @@ export const getResponsiveValue = <T>(
 
 export const getResponsiveGrid = (device: DeviceType) => {
   const gridConfig = DESIGN_TOKENS.layout.grid;
-  return getResponsiveValue(gridConfig, device, gridConfig.desktop);
+  return gridConfig[device] ?? gridConfig.desktop;
 };
 
 export const getResponsiveContainer = (device: DeviceType) => {
   const containerConfig = DESIGN_TOKENS.layout.container;
-  return getResponsiveValue(containerConfig, device, containerConfig.desktop);
+  return containerConfig[device] ?? containerConfig.desktop;
 };
