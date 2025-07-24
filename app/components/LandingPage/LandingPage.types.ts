@@ -132,7 +132,6 @@ export interface FooterContent {
 }
 
 export interface TooltipContent {
-  backToTop: string;
   languageSwitch: string;
 }
 
@@ -243,10 +242,6 @@ export interface PlatformsContent {
   summary: PlatformSummary;
 }
 
-// BackToTop按钮组件属性
-export interface BackToTopButtonProps {
-  isVisible: boolean;
-}
 
 // 导航菜单内容
 export interface NavigationContent {

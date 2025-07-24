@@ -50,7 +50,7 @@ const ClientSatisfactionMetrics: React.FC<ClientSatisfactionMetricsProps> = ({
   };
 
   // 核心投放成果
-  const currentContent = i18nContent[language] || i18nContent.zh;
+  const currentContent = i18nContent[language as keyof typeof i18nContent] || i18nContent.zh;
   const satisfactionData = currentContent;
 
 

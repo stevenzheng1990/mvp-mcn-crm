@@ -224,7 +224,7 @@ const MarketingEffectivenessMetrics: React.FC<MarketingEffectivenessMetricsProps
   };
 
   // 获取当前语言内容
-  const marketingData = i18nContent[language] || i18nContent.zh;
+  const marketingData = i18nContent[language as keyof typeof i18nContent] || i18nContent.zh;
 
   const renderPerformanceComparison = () => (
     <div style={{

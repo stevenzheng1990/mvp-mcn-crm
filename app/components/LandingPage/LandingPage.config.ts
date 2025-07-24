@@ -586,6 +586,12 @@ export const CONTENT_DATA: ContentData = {
     footer: {
       copyright: '© 2024 Mega Volume Production Inc.',
     },
+    contact: '联系我们',
+    system: '数据后台',
+    readyToStart: '准备好开始了吗？',
+    tooltips: {
+      languageSwitch: '切换语言',
+    },
   },
   en: {
     navigation: {
@@ -868,6 +874,12 @@ export const CONTENT_DATA: ContentData = {
     footer: {
       copyright: '© 2024 Mega Volume Production Inc.',
     },
+    contact: 'Contact Us',
+    system: 'Dashboard',
+    readyToStart: 'Ready to Get Started?',
+    tooltips: {
+      languageSwitch: 'Switch Language',
+    },
   }
 };
 
@@ -876,7 +888,9 @@ export const SCROLL_CONFIG = {
   animationDelay: 3,
   fadeOutThreshold: 0.8,
   fadeOutDuration: 0.2,
-  visibility: {},
+  visibility: {
+    navigationButtons: 0.1,
+  },
 } as const;
 
 // 观察器配置

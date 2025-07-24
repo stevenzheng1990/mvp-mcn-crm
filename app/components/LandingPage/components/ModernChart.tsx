@@ -632,7 +632,7 @@ const ModernChart: React.FC<ModernChartProps> = ({
           </h4>
           {subtitle && (
             <p style={{ 
-              fontSize: DESIGN_TOKENS.typography.fontSize.body,
+              fontSize: DESIGN_TOKENS.typography.level4.fontSize,
               color: 'rgba(80, 80, 80, 0.6)',
               margin: 0,
               fontWeight: '400',

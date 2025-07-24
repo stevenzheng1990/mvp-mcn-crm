@@ -98,7 +98,7 @@ const GrowthMetrics: React.FC<GrowthMetricsProps> = ({
     }
   };
 
-  const currentContent = i18nContent[language] || i18nContent.zh;
+  const currentContent = i18nContent[language as keyof typeof i18nContent] || i18nContent.zh;
 
   // 基于真实数据的分布统计
   const metricsData = {
